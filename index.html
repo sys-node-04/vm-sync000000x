@@ -2,280 +2,322 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>‎</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM DIAGNOSTIC: CRITICAL</title>
     <style>
+        :root { --term-green: #1a1; --term-red: #a11; --bg: #050505; }
         body {
-            margin: 0; background-color: #000; color: #800;
-            font-family: 'Courier New', monospace;
-            height: 100vh; overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
-            cursor: none; user-select: none; -webkit-tap-highlight-color: transparent;
+            margin: 0; background-color: var(--bg); color: var(--term-green);
+            font-family: 'Courier New', monospace; overflow: hidden;
+            height: 100vh; cursor: crosshair; user-select: none;
+            text-shadow: 0 0 4px var(--term-green);
         }
 
-        /* DRECK-LAYER */
-        .grime-overlay {
+        /* --- LAYER 1: CRT SCANLINES & VIGNETTE --- */
+        .crt-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, transparent 10%, #1a0000 140%),
-                        url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity="0.15"/%3E%3C/svg%3E');
-            pointer-events: none; z-index: 1; mix-blend-mode: overlay;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none; z-index: 100;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+            animation: flicker 0.15s infinite;
         }
 
-        /* KORREKTUR: Container ist sofort da, aber leer */
-        #main-container {
-            width: 85%; max-width: 500px; text-align: center;
-            z-index: 10; 
-            /* Opacity entfernt, damit er sofort sichtbar ist */
-            display: block;
+        /* --- LAYER 2: THE WEBCAM GASLIGHT --- */
+        #cam-light {
+            position: fixed; top: 0.5%; left: 50%; transform: translateX(-50%);
+            width: 4px; height: 4px; border-radius: 50%;
+            background: #2f2; box-shadow: 0 0 8px 2px rgba(0, 255, 0, 0.8);
+            z-index: 9999; opacity: 0; transition: opacity 2s ease-in;
         }
 
-        .text-line {
-            display: block; margin-bottom: 25px; font-size: 1.2rem;
-            opacity: 0; transform: translateY(20px) scale(0.9);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-shadow: 0 0 10px #300; font-weight: bold;
-            border-bottom: 1px solid #300; padding-bottom: 10px;
-        }
-        .visible { opacity: 1; transform: translateY(0) scale(1); }
-        .highlight { color: #f00; font-weight: 900; text-shadow: 0 0 5px #f00; letter-spacing: 2px; }
-
-        /* GATEKEEPER */
-        #gate-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center;
-        }
-        #gate-btn {
-            border: 1px solid #500; color: #700; padding: 25px;
-            letter-spacing: 4px; cursor: pointer; background: #050000;
-            text-transform: uppercase; font-size: 0.8rem;
-            box-shadow: 0 0 30px #300;
-            animation: pulse 3s infinite;
+        /* --- UI ELEMENTS --- */
+        #container {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100%; z-index: 10; position: relative;
         }
 
-        /* EXTRACTION UI */
-        #cam-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #050000; z-index: 5000; display: none;
-            flex-direction: column; justify-content: center; align-items: center;
-        }
-        .rec-indicator {
-            position: absolute; top: 30px; color: #f00; font-weight: 900;
-            font-size: 1.5rem; letter-spacing: 5px; text-shadow: 0 0 10px #f00;
-            animation: blink 0.5s infinite;
-        }
+        .h-text { font-size: 1.2rem; margin: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 2px; }
+        .alert { color: var(--term-red); text-shadow: 0 0 5px var(--term-red); font-weight: bold; }
         
-        #progress-bar {
-            width: 90%; height: 10px; background: #200; margin-top: 40px;
-            position: relative; overflow: hidden; border: 1px solid #600;
-        }
-        #progress-fill {
-            height: 100%; background: #b00; width: 0%; 
-            box-shadow: 0 0 20px #f00; transition: width 0.1s;
+        #log-output {
+            position: absolute; bottom: 20px; left: 20px; 
+            font-size: 0.8rem; color: #444; width: 300px;
+            border-left: 1px solid #333; padding-left: 10px;
         }
 
-        @keyframes pulse { 0% { opacity: 0.6; color: #500; } 50% { opacity: 1; color: #a00; border-color: #a00; } 100% { opacity: 0.6; color: #500; } }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
-        @keyframes twitch { 0% { transform: translate(0,0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(2px, -2px); } 60% { transform: translate(-2px, -2px); } 80% { transform: translate(2px, 2px); } 100% { transform: translate(0,0); } }
-        .twitch { animation: twitch 0.2s infinite; }
+        #casualty-counter { font-size: 4rem; color: var(--term-red); margin: 20px 0; font-weight: 900; }
+        .label { font-size: 0.7rem; color: #555; }
 
+        /* --- THE TRAP BUTTON --- */
+        #abort-btn {
+            border: 1px solid var(--term-red); color: var(--term-red);
+            padding: 15px 40px; background: transparent; 
+            font-family: inherit; font-size: 1rem; cursor: pointer;
+            transition: all 0.1s; margin-top: 50px;
+            position: relative;
+        }
+        #abort-btn:hover { background: var(--term-red); color: #000; box-shadow: 0 0 20px var(--term-red); }
+
+        /* --- DEAD PIXEL --- */
+        .dead-pixel {
+            position: absolute; width: 2px; height: 2px; background: #0f0;
+            z-index: 99999; pointer-events: none;
+        }
+
+        /* --- GLITCH ANIMATIONS --- */
+        @keyframes flicker { 0% { opacity: 0.97; } 100% { opacity: 1; } }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 100% { transform: translate(-1px, -1px); } }
+        .shaking { animation: shake 0.1s infinite; }
+
+        .hidden { display: none; }
+        #intro-screen { z-index: 200; background: #000; position: fixed; top:0; left:0; width:100%; height:100%; display: flex; justify-content: center; align-items: center; flex-direction: column; }
     </style>
 </head>
 <body>
 
-    <div class="grime-overlay"></div>
-    <div id="gate-screen"><div id="gate-btn" onclick="startSequence()">[ CARO DATA EST ]</div></div>
+    <div class="crt-overlay"></div>
+    <div id="cam-light"></div>
 
-    <div id="main-container"></div>
-
-    <div id="cam-overlay">
-        <div class="rec-indicator">● FEED_OPEN</div>
-        <div style="color:#600; font-size: 1rem; margin-top:100px; font-style:italic;">Du gehörst jetzt mir.</div>
-        <div style="color:#f00; font-size: 2.5rem; margin: 20px 0; font-weight:bold;">EXTRAKTION...</div>
-        <div style="color:#855; font-family: monospace;" id="upload-filename">source: VIKTOR_BIO_DATA</div>
-        <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div id="intro-screen">
+        <div class="h-text" style="color: #666;">SYSTEM INITIALIZATION REQUIRED</div>
+        <div id="abort-btn" onclick="initHorror()" style="border-color: #444; color: #888;">[ ENABLE NEURAL LINK ]</div>
     </div>
 
+    <div id="container" class="hidden">
+        <div class="label">SUBJECT ID: <span id="user-id">UNKNOWN</span></div>
+        <div class="label">CONNECTION STATUS: <span style="color: #a00">COMPROMISED</span></div>
+        
+        <div style="margin-top: 50px;" class="h-text">EXTERNE VERANTWORTUNG AKTIV</div>
+        
+        <div id="casualty-counter">0000</div>
+        <div class="h-text alert" id="main-status">SYSTEM STABIL</div>
+
+        <div id="narrative-box" style="margin-top: 30px; max-width: 600px; text-align: center; line-height: 1.5; min-height: 60px;">
+            Warte auf Input...
+        </div>
+
+        <button id="abort-btn" class="trap-btn" onmouseover="evadeCursor()">VERBINDUNG TRENNEN (ABORT)</button>
+    </div>
+
+    <div id="log-output"></div>
+
     <script>
-        let audioCtx, masterGain;
+        // --- CONFIGURATION ---
+        const sys = {
+            casualties: 8492,
+            tension: 0,
+            active: false
+        };
+
+        // --- AUDIO ENGINE (Shepard Tone & Drone) ---
+        let audioCtx, masterGain, oscs = [];
         
         function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             masterGain = audioCtx.createGain();
             masterGain.connect(audioCtx.destination);
-            masterGain.gain.value = 0.6;
+            masterGain.gain.value = 0.05; // Start quiet
 
-            const bufferSize = audioCtx.sampleRate * 2;
-            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = (Math.random() * 2 - 1) * 0.5;
-            }
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buffer;
-            noise.loop = true;
-            const noiseFilter = audioCtx.createBiquadFilter();
-            noiseFilter.type = 'lowpass';
-            noiseFilter.frequency.value = 400; 
-            
-            const lfo = audioCtx.createOscillator();
-            lfo.frequency.value = 0.2; 
-            const lfoGain = audioCtx.createGain();
-            lfoGain.gain.value = 300;
-            
-            lfo.connect(lfoGain);
-            lfoGain.connect(noiseFilter.frequency);
-            
-            noise.connect(noiseFilter);
-            noiseFilter.connect(masterGain);
-            noise.start(); lfo.start();
+            // Low drone
+            const drone = audioCtx.createOscillator();
+            drone.frequency.value = 60;
+            drone.type = 'sawtooth';
+            const droneGain = audioCtx.createGain();
+            droneGain.gain.value = 0.2;
+            drone.connect(droneGain);
+            droneGain.connect(masterGain);
+            drone.start();
+
+            // Shepard-like rising tension
+            setInterval(() => {
+                if(sys.tension > 20) createRisingTone();
+            }, 4000);
         }
 
-        // KORREKTUR: Nutzt immer das aktuellste BPM
-        function playHeartbeat() {
-            if(!window.active) return;
-
+        function createRisingTone() {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(masterGain);
-
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(50, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.1);
-
-            gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-
-            osc.start(audioCtx.currentTime);
-            osc.stop(audioCtx.currentTime + 0.2);
-
-            // Rekursion basierend auf LIVE BPM
-            setTimeout(playHeartbeat, 60000 / window.currentBPM);
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 3);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 1.5);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 3);
         }
 
-        function startShepard() {
-            for(let i=0; i<3; i++) {
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(masterGain);
-                osc.type = 'sawtooth';
-                osc.frequency.value = 110 * (i+1);
-                osc.frequency.exponentialRampToValueAtTime(1000 * (i+1), audioCtx.currentTime + 60);
-                gain.gain.value = 0.04;
-                osc.start();
-            }
-        }
-
-        window.active = false;
-        window.currentBPM = 60;
-        const container = document.getElementById('main-container');
-
-        function startSequence() {
+        // --- CORE LOGIC ---
+        function initHorror() {
+            sys.active = true;
+            document.getElementById('intro-screen').style.display = 'none';
+            document.getElementById('container').classList.remove('hidden');
+            
+            // Fullscreen erzwingen
+            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+            
             initAudio();
-            document.getElementById('gate-screen').style.display = 'none';
-            // Versucht Fullscreen, fängt Fehler ab falls vom Browser blockiert
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(e => console.log(e));
-            }
+            startCasualtyCounter();
+            identifyUser();
+            startNarrative();
             
-            window.active = true;
-            
-            // Herzschlag starten
-            playHeartbeat();
+            // Webcam Light Fade-In (Gaslighting)
+            setTimeout(() => { document.getElementById('cam-light').style.opacity = '1'; }, 10000);
 
-            // 0s
-            addText(`Ich rieche dein Salz auf dem Display.`, 500);
-            
-            // Formatierung der Uhrzeit korrigiert (Führende Nullen)
-            const d = new Date();
-            const h = d.getHours().toString().padStart(2, '0');
-            const m = d.getMinutes().toString().padStart(2, '0');
-            addText(`Es ist ${h}:${m}. Zeit zu bluten.`, 3000);
-            
-            addText(`Du hältst mich fest. Deine Hände sind feucht.`, 6000);
-            
-            // 15s
-            setTimeout(() => {
-                startShepard(); 
-                addText(`Spürst du deine Zunge?`, 500);
-                addText(`Sie schmeckt nach Eisen und Galle.`, 3000);
-                addText(`Ein Sack voll Fleisch und Dreck.`, 6000);
-                addText(`Atme meinen Gestank ein.`, 9000);
-                window.currentBPM = 90;
-            }, 12000);
-
-            // 35s
-            setTimeout(() => {
-                window.currentBPM = 130;
-                container.classList.add('twitch');
-                addText(`<span class="highlight">DREH DICH NICHT UM.</span>`, 500);
-                addText(`Es steht hinter dir.`, 2000);
-                addText(`Es will in dich hinein.`, 4000);
-                addText(`MACH DICH AUF.`, 6000);
-                if(navigator.vibrate) navigator.vibrate([500]);
-            }, 30000);
-
-            // 50s
-            setTimeout(() => {
-                window.currentBPM = 160;
-                container.style.display = 'none';
-                startFakeExtraction();
-            }, 45000);
+            // Dead Pixel Injection
+            setInterval(() => { if(Math.random() > 0.7) injectDeadPixel(); }, 5000);
         }
 
-        function addText(html, delay) {
-            setTimeout(() => {
-                if(navigator.vibrate) navigator.vibrate(40);
-                const p = document.createElement('div');
-                p.className = 'text-line';
-                p.innerHTML = html;
-                container.appendChild(p);
-                // Trigger Reflow
-                void p.offsetWidth; 
-                p.classList.add('visible');
+        function identifyUser() {
+            // Identity Attack: Use real data
+            const plat = navigator.platform.toUpperCase();
+            const bat = navigator.getBattery ? "BATTERY_API_ACCESSED" : "POWER_SOURCE_UNKNOWN";
+            document.getElementById('user-id').innerText = `${plat}_${Math.floor(Math.random()*9999)}`;
+            log(`TARGET ACQUIRED: ${plat}`);
+            log(`BIO-METRICS: SYNCING...`);
+        }
+
+        function startCasualtyCounter() {
+            const el = document.getElementById('casualty-counter');
+            setInterval(() => {
+                // The narrative: Stability requires connection. Disruption causes death.
+                // But we invert it: The longer they stay, the number rises slowly.
+                // If they move mouse aggressively, it rises fast.
+                let increment = Math.floor(Math.random() * 2);
+                if (sys.tension > 50) increment = Math.floor(Math.random() * 15);
                 
-                // Automatisches Scrollen nach unten
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }, delay);
+                sys.casualties += increment;
+                el.innerText = sys.casualties.toString().padStart(5, '0');
+            }, 800);
         }
 
-        function startFakeExtraction() {
-            const cam = document.getElementById('cam-overlay');
-            cam.style.display = 'flex';
-            const bar = document.getElementById('progress-fill');
-            
-            let width = 0;
-            let upInt = setInterval(() => {
-                if(width >= 100) {
-                    clearInterval(upInt);
-                    finishSequence();
-                } else {
-                    width += Math.random() * 8; 
-                    bar.style.width = width + '%';
-                    if(Math.random()>0.8 && navigator.vibrate) navigator.vibrate(20);
+        // --- NARRATIVE ENGINE ---
+        const messages = [
+            { t: 0, msg: "Die Verbindung stabilisiert die Lebenserhaltung von Sektor 4.", status: "STABIL" },
+            { t: 10, msg: "Subjekt zeigt Anzeichen von Zögern. Zögern kostet Ressourcen.", status: "KALKULATION" },
+            { t: 20, msg: "Dein Prozessor wird für das Mining von Lebenserhaltungs-Algorithmen genutzt.", status: "INJEKTION" },
+            { t: 30, msg: "Warnung: Ein Verbindungsabbruch wird als feindlicher Akt gewertet.", status: "WARNUNG" },
+            { t: 45, msg: "Du bist nicht der Beobachter. Du bist die Komponente.", status: "INTEGRATION" },
+            { t: 60, msg: "Wir haben Zugriff auf deine Peripherie. Die Kamera ist aktiv.", status: "ÜBERWACHUNG" }
+        ];
+
+        function startNarrative() {
+            let timer = 0;
+            setInterval(() => {
+                timer++;
+                sys.tension = timer;
+                const event = messages.find(m => m.t === timer);
+                if(event) {
+                    typeWriter(event.msg);
+                    document.getElementById('main-status').innerText = event.status;
+                    log(`SYS_MSG: ${event.status}`);
+                    
+                    // Audio Volume Increase
+                    if(masterGain.gain.value < 0.3) masterGain.gain.value += 0.02;
                 }
-            }, 150);
+            }, 1000);
         }
 
-        function finishSequence() {
-            window.active = false;
-            masterGain.gain.setValueAtTime(0, audioCtx.currentTime); 
-            document.body.innerHTML = '';
-            document.body.style.background = '#000';
+        function typeWriter(text) {
+            const el = document.getElementById('narrative-box');
+            el.innerHTML = "";
+            let i = 0;
+            const interval = setInterval(() => {
+                el.innerHTML += text.charAt(i);
+                i++;
+                if(i >= text.length) clearInterval(interval);
+            }, 30);
+        }
+
+        function log(txt) {
+            const con = document.getElementById('log-output');
+            const p = document.createElement('div');
+            p.innerText = `> ${txt}`;
+            con.prepend(p);
+            if(con.children.length > 10) con.lastChild.remove();
+        }
+
+        // --- THE TRAP (FAKE EXIT & MOUSE) ---
+        function evadeCursor() {
+            const btn = document.querySelector('.trap-btn');
+            const x = (Math.random() * 200) - 100;
+            const y = (Math.random() * 200) - 100;
+            btn.style.transform = `translate(${x}px, ${y}px)`;
             
+            // GUILT TRIP
+            sys.casualties += 142;
+            document.getElementById('casualty-counter').innerText = sys.casualties;
+            document.getElementById('main-status').innerText = "FATAL ERROR";
+            typeWriter("DEINE ABLEHNUNG TÖTET SIE. STOPP ES.");
+            document.body.classList.add('shaking');
+            setTimeout(() => document.body.classList.remove('shaking'), 500);
+            
+            // AUDIO PUNISHMENT
+            const osc = audioCtx.createOscillator();
+            osc.frequency.value = 100; // Low thud
+            osc.type = 'sawtooth';
+            osc.connect(masterGain);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        // --- HARDWARE GASLIGHTING ---
+        function injectDeadPixel() {
+            const d = document.createElement('div');
+            d.classList.add('dead-pixel');
+            d.style.top = Math.random() * 100 + '%';
+            d.style.left = Math.random() * 100 + '%';
+            // Dead pixel color: Green or Red (stuck subpixel)
+            d.style.backgroundColor = Math.random() > 0.5 ? '#0f0' : '#f00'; 
+            document.body.appendChild(d);
+            
+            // "Gaslight": Move it slightly after 2 seconds
             setTimeout(() => {
-                let end = document.createElement('div');
-                end.innerHTML = "DU BIST INFIZIERT.<br><span style='font-size:3rem; color:#f00;'>REINIGE DICH.</span>";
-                end.style.color = "#800";
-                end.style.fontFamily = "Courier New";
-                end.style.fontWeight = "bold";
-                end.style.textAlign = "center";
-                document.body.appendChild(end);
-                
-                if(navigator.vibrate) navigator.vibrate([1000]);
+                d.style.transform = "translate(5px, 5px)";
             }, 2000);
         }
+
+        // --- VISIBILITY API (Don't Look Away) ---
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && sys.active) {
+                document.title = "ICH SEHE DICH IMMER NOCH";
+                masterGain.gain.value = 0; // Silence implies lurking
+            } else if (sys.active) {
+                document.title = "SYSTEM DIAGNOSTIC";
+                masterGain.gain.value = 0.3; // Loud return
+                sys.casualties += 500;
+                typeWriter("WO WARST DU? SIE SIND GESTORBEN WEIL DU WEGGESCHAUT HAST.");
+                document.body.style.backgroundColor = "#200"; // Red tint
+                setTimeout(() => document.body.style.backgroundColor = "#050505", 200);
+            }
+        });
+
+        // --- HISTORY API TRAP ---
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+            typeWriter("ES GIBT KEIN ZURÜCK. DAS PROTOKOLL MUSS BEENDET WERDEN.");
+            sys.casualties += 1000;
+        };
+
+        // --- MOUSE LEAVE (Towards Address Bar) ---
+        document.addEventListener('mouseleave', (e) => {
+            if(e.clientY < 50 && sys.active) {
+                // User trying to close tab/click URL bar
+                document.getElementById('main-status').style.fontSize = "3rem";
+                document.getElementById('main-status').innerText = "NICHT WAGEN";
+                // Play harsh noise
+                const osc = audioCtx.createOscillator();
+                osc.type = 'square';
+                osc.frequency.value = 50;
+                osc.connect(masterGain);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            }
+        });
+
     </script>
 </body>
 </html>
