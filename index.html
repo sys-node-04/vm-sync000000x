@@ -47,22 +47,24 @@
             font-weight: 900;
             opacity: 0; transition: opacity 0.2s; color: #ccc;
             text-transform: uppercase; 
-            word-wrap: break-word; 
-            overflow-wrap: break-word;
-            hyphens: auto;
+            word-wrap: break-word; overflow-wrap: break-word; hyphens: auto;
             text-shadow: 2px 2px 0 #500; pointer-events: none;
             line-height: 1.1;
         }
         
-        /* KAMERA FINALE */
+        /* KAMERA FINALE & VERZERRUNG */
         #mirror {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 100; display: none; background: #000;
         }
+        
+        /* Das ist der Schlüssel zum Horror: Der SVG Filter */
         video {
             width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);
-            filter: sepia(100%) saturate(500%) contrast(200%) brightness(0.4) hue-rotate(-50deg);
+            /* Standard Filter + SVG Reference */
+            filter: sepia(100%) saturate(600%) contrast(300%) brightness(0.6) hue-rotate(-50deg) url(#horror-melt);
         }
+        
         #final-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 95%; text-align: center; color: #f00; 
@@ -72,9 +74,21 @@
         }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        /* SVG Filter Container (unsichtbar) */
+        svg { position: absolute; width:0; height:0; }
     </style>
 </head>
 <body>
+
+    <svg>
+        <filter id="horror-melt">
+            <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="3" result="turbulence" seed="1">
+                <animate attributeName="baseFrequency" dur="10s" values="0.02;0.05;0.02" repeatCount="indefinite" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="50" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+    </svg>
 
     <div id="gate">
         <div class="loader"></div>
@@ -234,19 +248,22 @@
             
             if(navigator.vibrate) navigator.vibrate([1000, 100, 1000, 100, 1000]); 
 
-            const freqs = [8000, 11000, 14000]; 
+            // EXTREM SCHRILLER DISSONANZ-CLUSTER
+            const freqs = [700, 5000, 9000, 12000, 100]; 
             freqs.forEach(f => {
                 const s = audioCtx.createOscillator();
                 s.type = 'sawtooth'; 
                 s.frequency.value = f;
-                s.detune.value = Math.random() * 100;
+                s.detune.value = Math.random() * 500; // Extreme Verstimmung
                 const g = audioCtx.createGain(); 
-                g.gain.value = 0.8; 
+                g.gain.value = 1.0; // MAX VOLUME
                 s.connect(g); 
                 g.connect(audioCtx.destination);
                 s.start();
-                g.gain.setValueAtTime(0.8, audioCtx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 4);
+                
+                // Modulieren der Frequenz für "Screaming" Effekt
+                s.frequency.exponentialRampToValueAtTime(f * 1.5, audioCtx.currentTime + 0.5);
+                s.frequency.exponentialRampToValueAtTime(f * 0.5, audioCtx.currentTime + 3);
             });
 
             document.getElementById('mirror').style.display = 'block';
@@ -255,7 +272,8 @@
             if(window.cameraDenied) {
                 txt.innerText = "ICH WEISS\nDASS DU DA BIST\nDU FEIGLING";
             } else {
-                txt.innerText = "HURE DES SYSTEMS"; 
+                // Korrekter JS String mit Backticks für Zeilenumbrüche
+                txt.innerText = `HURE DES SYSTEMS\n\nZERFRISS DICH SELBST`; 
             }
             
             let active = false;
@@ -263,9 +281,15 @@
                 active = !active;
                 txt.style.color = active ? "#fff" : "#f00";
                 if(!window.cameraDenied) {
-                    document.getElementById('cam').style.filter = active ? "invert(1)" : "sepia(100%) saturate(500%) contrast(200%) brightness(0.4)";
+                    const v = document.getElementById('cam');
+                    // Flackern zwischen extremer Verzerrung und Invertierung
+                    if(active) {
+                         v.style.filter = "invert(1) contrast(500%)";
+                    } else {
+                         v.style.filter = "sepia(100%) saturate(1000%) contrast(300%) hue-rotate(-50deg) url(#horror-melt)";
+                    }
                 }
-            }, 50);
+            }, 40);
         }
     </script>
 </body>
