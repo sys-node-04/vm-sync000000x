@@ -2,20 +2,114 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERMINAL_SESSION</title>
-    <style>
-        body { background-color: black; color: #00FF41; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
-        #content { border: 1px solid #00FF41; padding: 20px; box-shadow: 0 0 15px #00FF41; max-width: 80%; }
-        .blink { animation: blinker 1.5s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>‎</title> <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #b30000; /* Blutroter Text */
+            font-family: 'Courier New', Courier, monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* Der Hintergrund-Effekt (Statisches Rauschen & Scanlines) */
+        .noise {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.5), rgba(0,0,0,0.5) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.7;
+        }
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 50%, black 150%);
+            z-index: -2;
+        }
+
+        /* Der Text-Glitch-Effekt */
+        .glitch-container {
+            text-align: center;
+            position: relative;
+            animation: shake 2s infinite;
+        }
+        h1 {
+            font-size: 2rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 2px 0 0 red, -2px 0 0 blue;
+            animation: glitch 1s infinite reverse;
+        }
+        p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        /* Der Fortschrittsbalken */
+        .progress-container {
+            width: 80%;
+            max-width: 300px;
+            border: 2px solid #550000;
+            padding: 3px;
+            margin-top: 30px;
+            box-shadow: 0 0 20px #550000;
+        }
+        .progress-bar {
+            height: 20px;
+            width: 1%; /* STARTWERT TAG 1 */
+            background-color: #b30000;
+            animation: flickerBar 0.1s infinite;
+        }
+
+        /* Animationen */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        @keyframes glitch {
+            0% { clip-path: inset(10% 0 30% 0); transform: translate(-5px, 5px); }
+            20% { clip-path: inset(60% 0 10% 0); transform: translate(5px, -5px); }
+            40% { clip-path: inset(40% 0 50% 0); transform: translate(-5px, 5px); }
+            60% { clip-path: inset(80% 0 5% 0); transform: translate(5px, -5px); }
+            80% { clip-path: inset(10% 0 70% 0); transform: translate(-5px, 5px); }
+            100% { clip-path: inset(30% 0 20% 0); transform: translate(5px, -5px); }
+        }
+        @keyframes flickerBar {
+            0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; }
+        }
     </style>
 </head>
 <body>
-    <div id="content">
-        <p>> INITIALIZING CONNECTION...</p>
-        <p>> TARGET_LOCATION: VIENNA</p>
-        <p class="blink">> PLEASE WAIT_</p>
+    <div class="noise"></div>
+    <div class="overlay"></div>
+
+    <div class="glitch-container">
+        <h1>ES SIEHT DICH.</h1>
+        <p>Standort: Wien<br>Subjekt wird fixiert.</p>
+
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 1%;"></div>
+        </div>
+        <p style="font-size: 0.8rem; margin-top: 10px;">Manifestation: 1%</p>
     </div>
+
 </body>
 </html>
