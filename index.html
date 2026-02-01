@@ -1,131 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>‎</title>
     <style>
         body {
+            background-color: #000000;
+            color: #b0b0b0; /* Helles, klinisches Grau */
+            font-family: 'Courier New', Courier, monospace; /* Schreibmaschinen-Stil */
             margin: 0;
-            padding: 0;
-            background-color: #050000;
-            color: #8a0000; /* Dunkleres, geronnenes Rot */
-            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
             height: 100vh;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            perspective: 1000px;
         }
 
-        /* Hintergrund-Rauschen */
-        .noise {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.5), rgba(0,0,0,0.5) 1px, transparent 1px, transparent 2px);
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0.6;
-        }
-        .vignette {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 40%, black 140%);
-            z-index: -2;
+        #log-container {
+            border-left: 1px solid #333;
+            padding-left: 15px;
+            height: 80%;
+            overflow-y: auto;
         }
 
-        /* Glitch Text Container */
-        .container {
-            text-align: center;
-            position: relative;
-            z-index: 10;
+        .entry {
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
         }
 
-        h1 {
-            font-size: 2.5rem;
-            letter-spacing: 6px;
+        .timestamp {
+            color: #555;
+            font-size: 0.8rem;
+        }
+
+        .data-point {
+            color: #ffffff;
             font-weight: bold;
-            margin-bottom: 5px;
-            text-shadow: 3px 0 0 rgba(255,0,0,0.5), -2px 0 0 rgba(0,0,255,0.3);
-            animation: textGlitch 2.5s infinite;
         }
 
-        .subtext {
-            font-size: 1rem;
+        .warning {
             color: #ff3333;
-            opacity: 0.7;
-            margin-bottom: 40px;
-            text-transform: uppercase;
         }
 
-        .latin {
-            font-style: italic;
-            font-family: 'Times New Roman', serif; /* Kontrast zur Technik-Schrift */
-            letter-spacing: 2px;
+        #status-bar {
+            margin-top: auto;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
         }
 
-        /* Fortschrittsbalken */
-        .progress-box {
-            width: 80vw;
-            max-width: 350px;
-            height: 4px;
-            background: #220000;
-            margin: 0 auto;
-            position: relative;
-            box-shadow: 0 0 10px #550000;
-        }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+        @keyframes fadeIn { to { opacity: 1; } }
 
-        .bar {
-            height: 100%;
-            width: 1%; /* HIER ÄNDERN */
-            background-color: #ff0000;
-            box-shadow: 0 0 15px #ff0000;
-            animation: flicker 0.2s infinite;
-        }
-
-        .status-text {
-            margin-top: 15px;
-            font-size: 0.7rem;
-            color: #cc0000;
-            letter-spacing: 3px;
-        }
-
-        /* Animationen */
-        @keyframes textGlitch {
-            0% { opacity: 1; transform: skew(0deg); }
-            20% { opacity: 0.8; transform: skew(-20deg); }
-            21% { opacity: 1; transform: skew(0deg); }
-            60% { opacity: 1; transform: skew(0deg); }
-            61% { opacity: 0.5; transform: skew(20deg); }
-            62% { opacity: 1; transform: skew(0deg); }
-            100% { opacity: 1; transform: skew(0deg); }
-        }
-        @keyframes flicker {
-            0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.8; }
-        }
     </style>
 </head>
 <body>
-    <div class="noise"></div>
-    <div class="vignette"></div>
 
-    <div class="container">
-        <h1>OCULUS <br><span style="font-size: 1.5rem">NON DORMIT</span></h1>
-        
-        <p class="subtext">
-            TARGET: <span class="latin">VINDOBONA</span><br>
-            SECTOR: VII
-        </p>
-
-        <div class="progress-box">
-            <div class="bar" style="width: 1%;"></div>
+    <div id="log-container">
+        <div class="entry" style="animation-delay: 0.5s;">
+            <span class="timestamp">[LOG START]</span><br>
+            Initialisiere Überwachungsprotokoll für Subjekt-ID: <span class="data-point">WIEN_TARGET_ALPHA</span>
         </div>
 
-        <p class="status-text">
-            ADVENTUS: 1%
-        </p>
+        <div class="entry" style="animation-delay: 1.5s;">
+            <span class="timestamp">[SYS_INFO]</span><br>
+            Verbindung hergestellt. Standort triangulation...
+        </div>
+
+        <div class="entry" style="animation-delay: 3s;">
+            <span class="timestamp">[DATA_CAPTURE]</span><br>
+            Standort bestätigt: <span class="data-point">WIEN (Vindobona)</span>. 
+            <br>Genauigkeit: <span class="warning">HOCH</span>.
+        </div>
+
+        <div class="entry" style="animation-delay: 4.5s;">
+            <span class="timestamp">[STATUS]</span><br>
+            Beobachtung aktiv. Warte auf Bewegungsmuster.
+        </div>
+
     </div>
+
+    <div id="status-bar">
+        <span>OP_MODE: SILENT_WATCH</span>
+        <span class="blink">REC ●</span>
+    </div>
+
+    <script>
+        // Ein kleines Script, das das aktuelle Datum anzeigt, um es realer zu machen
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        document.querySelector('.timestamp').innerText = `[LOG START - ${dateStr}]`;
+    </script>
+
 </body>
 </html>
