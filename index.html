@@ -6,101 +6,62 @@
     <title>‎</title>
     <style>
         body {
-            margin: 0;
-            background: #020000;
-            color: #d00;
+            margin: 0; background: #000; color: #d00;
             font-family: 'Times New Roman', serif;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* WICHTIG: Cursor verstecken für mehr Immersion */
-            cursor: none; 
-            -webkit-tap-highlight-color: transparent;
-            perspective: 1000px;
+            height: 100vh; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            cursor: none; -webkit-tap-highlight-color: transparent;
+            touch-action: none;
         }
 
-        /* Der Schock-Invertierungseffekt */
-        body.inverted {
-            filter: invert(1) contrast(2);
-            background: #fff;
+        /* Heftiges visuelles Zittern bei Schock */
+        @keyframes shiver {
+            0% { transform: translate(0,0); }
+            20% { transform: translate(-8px, 5px) rotate(1deg); }
+            40% { transform: translate(8px, -5px) rotate(-1deg); }
+            60% { transform: translate(-5px, -2px) rotate(0.5deg); }
+            80% { transform: translate(5px, 2px) rotate(-0.5deg); }
+            100% { transform: translate(0,0); }
         }
+        .vibrate-effect { animation: shiver 0.1s infinite !important; }
 
-        /* Das visuelle Rauschen */
-        canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.15; z-index: 1; pointer-events: none;
-            mix-blend-mode: overlay;
-        }
+        body.inverted { filter: invert(1) contrast(5); background: #fff; }
 
-        /* Der Hauptcontainer, der sich bewegen wird */
+        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.18; z-index: 1; pointer-events: none; }
+
         .container {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            width: 90%;
-            transition: transform 0.1s ease-out; /* Weiche Bewegung */
+            position: relative; z-index: 2; text-align: center; width: 90%;
+            transition: transform 0.08s ease-out; /* Schnelles Ausweichen */
+            will-change: transform;
         }
 
-        /* Hauptüberschrift - Atmet und glüht */
         h1 {
-            font-size: 2.4rem;
-            letter-spacing: 0.15em;
-            margin: 0;
-            text-transform: uppercase;
-            color: #f00;
-            text-shadow: 0 0 20px rgba(255,0,0,0.9), 0 0 10px rgba(100,0,0,1);
-            animation: breathe 8s infinite ease-in-out;
+            font-size: 2.6rem; letter-spacing: 0.2em; margin: 0;
+            text-transform: uppercase; color: #f00;
+            text-shadow: 0 0 20px rgba(255,0,0,1);
+            animation: breathe 12s infinite ease-in-out;
         }
 
-        .latin {
-            font-style: italic;
-            font-size: 1.2rem;
-            margin-top: 25px;
-            color: #b00;
-            opacity: 0.8;
-        }
-
-        /* Der Subliminale Flash-Text (optimiert) */
+        /* Subliminaler Flash-Balken */
         #ghost-flash {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            text-align: center;
-            font-size: 2.5rem;
-            color: #fff;
-            background: #f00;
-            padding: 30px 0;
-            z-index: 100;
-            display: none; /* Unsichtbar by default */
-            pointer-events: none;
-            font-weight: bold;
-            font-family: sans-serif;
-            box-shadow: 0 0 100px #f00;
-            letter-spacing: 2px;
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100%; text-align: center; font-size: 2.4rem;
+            color: #fff; background: #f00; padding: 30px 0;
+            z-index: 100; display: none; pointer-events: none;
+            font-weight: bold; font-family: sans-serif;
+            box-shadow: 0 0 60px #f00;
         }
 
-        .status {
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
-            margin-top: 50px;
-            color: #500;
-            letter-spacing: 2px;
-            line-height: 1.5;
-        }
+        .status { font-family: 'Courier New', monospace; font-size: 0.8rem; margin-top: 60px; color: #400; letter-spacing: 2px; }
 
-        /* Langsames, bedrohliches Atmen */
         @keyframes breathe {
-            0%, 100% { opacity: 0.8; filter: blur(0.5px); transform: scale(1); }
-            50% { opacity: 1; filter: blur(0px); transform: scale(1.05); text-shadow: 0 0 30px red; }
+            0%, 100% { transform: scale(1); filter: blur(0px); opacity: 0.8; }
+            50% { transform: scale(1.15); filter: blur(3px); opacity: 1; }
         }
 
-        /* Die Vignette für den Tunnelblick */
         .vignette {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 25%, #000 160%);
+            background: radial-gradient(circle, transparent 20%, #000 160%);
             z-index: 3; pointer-events: none;
         }
     </style>
@@ -109,108 +70,85 @@
 
     <canvas id="canvas"></canvas>
     <div class="vignette"></div>
-    
-    <div id="ghost-flash">ER SIEHT DICH</div>
+    <div id="ghost-flash">ICH HABE ANGST</div>
 
     <div class="container" id="main-container">
         <h1>PROXIMITAS</h1>
-        <div class="latin">"Nonne vides? Iam prope est."</div>
+        <div style="font-style: italic; font-size: 1.2rem; margin-top: 25px; color: #a00;">"Iam prope est."</div>
         
         <div class="status">
-            [IDENT_CODE: 22.09.11.20.15.18]<br>
-            STATUS: <span style="color: #f00; animation: blink 1s infinite;">WATCHING_YOU</span><br>
+            [IDENT: 22.09.11.20.15.18]<br>
+            <span style="color: #f00; animation: blink 0.8s infinite;">WATCHING_YOU</span><br>
             MANIFESTATIO: 1%
         </div>
     </div>
-
-    <audio id="drone-sound" loop preload="auto">
-        <source src="https://www.soundjay.com/ambient/sounds/ambient-drone-1.mp3" type="audio/mpeg">
-    </audio>
 
     <script>
         const body = document.body;
         const ghost = document.getElementById('ghost-flash');
         const container = document.getElementById('main-container');
-        const audio = document.getElementById('drone-sound');
-        let audioStarted = false;
 
-        // Die Liste der psychologischen Trigger-Sätze
-        const traumaTexts = [
-            "ICH HABE ANGST",
-            "ER SIEHT MICH",
-            "HILF MIR",
-            "VIKTOR", // SEIN NAME!
-            "ES IST IM RAUM",
-            "HÖRST DU ES?",
-            "DREH DICH NICHT UM",
-            "MEIN KOPF BRENNT"
-        ];
+        const traumaTexts = ["ICH HABE ANGST", "ER SIEHT MICH", "HILF MIR", "VIKTOR", "ES IST IM RAUM", "DREH DICH NICHT UM", "ICH KANN NICHT ATMEN"];
 
-        // Funktion, die das "lebendige" Ausweichen steuert
-        function moveContainer(e) {
-            // Funktioniert für Maus und Touch
-            let clientX = e.clientX || e.touches[0].clientX;
-            let clientY = e.clientY || e.touches[0].clientY;
+        // 1. DYNAMISCHES AUSWEICHEN (Aggressiver)
+        function handleMove(e) {
+            let cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            let cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
 
-            // Berechnet die Distanz zur Mitte
-            let x = (window.innerWidth / 2 - clientX) / 25;
-            let y = (window.innerHeight / 2 - clientY) / 25;
+            // Der Text flieht vor der Berührung
+            let dx = (window.innerWidth / 2 - cx) / 6;
+            let dy = (window.innerHeight / 2 - cy) / 6;
             
-            // Bewegt den Container leicht weg vom Finger
-            container.style.transform = `translate(${x}px, ${y}px) rotateX(${-y}deg) rotateY(${x}deg)`;
-
-            // Startet Audio bei der allerersten Berührung/Bewegung
-            if (!audioStarted) {
-                audio.volume = 0.3; // Leise starten
-                audio.play().catch(e => console.log("Audio needs interaction"));
-                audioStarted = true;
-            }
+            // Rotation basierend auf Position für 3D-Effekt
+            container.style.transform = `translate(${dx}px, ${dy}px) rotateY(${-dx/2}deg) rotateX(${dy/2}deg)`;
         }
 
-        // Funktion für den subliminalen Blitz + Vibration
-        function flashGhost() {
-            // Zufälligen Text wählen
-            ghost.innerText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
-            ghost.style.display = 'block';
-            
-            // VIBRATION: Kurzer Impuls, wenn unterstützt
+        // 2. ANDROID VIBRATION + SCHOCK-EFFEKT
+        function triggerShock() {
+            // Visueller Schock
+            body.classList.add('inverted', 'vibrate-effect');
+
+            // ECHTE ANDROID VIBRATION
+            // Ein unregelmäßiges "Stottern", als ob das Handy kaputt geht
             if (navigator.vibrate) {
-                navigator.vibrate(50);
+                navigator.vibrate([80, 40, 100, 30, 150]); 
+            }
+            
+            // Flash-Logik
+            if(Math.random() > 0.4) {
+                ghost.innerText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
+                ghost.style.display = 'block';
+                setTimeout(() => ghost.style.display = 'none', 45);
             }
 
-            // 45ms Sichtbarkeit - genau an der Wahrnehmungsgrenze
+            // Nach 150ms alles zurücksetzen
             setTimeout(() => {
-                ghost.style.display = 'none';
-            }, 45); 
+                body.classList.remove('inverted', 'vibrate-effect');
+            }, 150);
         }
 
-        // Zufällige Blitze steuern
-        function randomGhostCycle() {
-            // 30% Chance bei jedem Zyklus
-            if(Math.random() > 0.7) { flashGhost(); }
-            // Nächster Check in 2-6 Sekunden
-            setTimeout(randomGhostCycle, Math.random() * 4000 + 2000);
+        // Event Listener für Android (Touch + Maus)
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('touchmove', handleMove, {passive: false});
+        document.addEventListener('touchstart', (e) => {
+            handleMove(e);
+            triggerShock();
+        }, {passive: true});
+        document.addEventListener('mousedown', triggerShock);
+
+        // Automatischer Schocker alle 5-10 Sekunden (wenn er nur starrt)
+        function idleScare() {
+            if(Math.random() > 0.6) {
+                ghost.innerText = "ER SIEHT DICH";
+                ghost.style.display = 'block';
+                if (navigator.vibrate) navigator.vibrate(200);
+                setTimeout(() => ghost.style.display = 'none', 45);
+            }
+            setTimeout(idleScare, Math.random() * 5000 + 5000);
         }
+        setTimeout(idleScare, 5000);
 
-        // Schock-Invertierung bei Klick
-        function triggerClickShock() {
-             body.classList.add('inverted');
-             // Stärkere Vibration bei Klick
-             if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-             setTimeout(() => body.classList.remove('inverted'), 150);
-        }
-
-
-        // Event Listener hinzufügen
-        document.addEventListener('mousemove', moveContainer);
-        document.addEventListener('touchmove', moveContainer, {passive: false});
-        document.addEventListener('click', triggerClickShock);
-        document.addEventListener('touchstart', triggerClickShock, {passive: true});
-        
-        // Starte den Zyklus
-        setTimeout(randomGhostCycle, 3000);
-
-        // Rauschen-Generator (leicht rötlich)
+        // Rauschen-Generator
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         function noise() {
@@ -219,7 +157,7 @@
             let idata = ctx.createImageData(canvas.width, canvas.height);
             let buffer32 = new Uint32Array(idata.data.buffer);
             for(let i=0; i<buffer32.length; i++) {
-                if(Math.random() < 0.15) buffer32[i] = 0xff110000; 
+                if(Math.random() < 0.12) buffer32[i] = 0xff220000; 
             }
             ctx.putImageData(idata, 0, 0);
             requestAnimationFrame(noise);
