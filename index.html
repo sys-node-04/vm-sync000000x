@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMINAL_SESSION</title>
+    <style>
+        body { background-color: black; color: #00FF41; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        #content { border: 1px solid #00FF41; padding: 20px; box-shadow: 0 0 15px #00FF41; max-width: 80%; }
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <p>> INITIALIZING CONNECTION...</p>
+        <p>> TARGET_LOCATION: VIENNA</p>
+        <p class="blink">> PLEASE WAIT_</p>
+    </div>
+</body>
+</html>
