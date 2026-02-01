@@ -268,30 +268,26 @@
             };
             // ---------------------------
 
+            // UI Reaktion auf den Klick
             btn.disabled = true;
-            btn.style.opacity = "0.5";
-            btnUp.style.display = "none"; // Den anderen Button ausblenden
+            btn.innerText = "INITIALISIERE SCANNER...";
+            btn.style.opacity = "1.0"; // Hell lassen
+            btn.style.background = "#200";
+            btnUp.style.display = "none"; 
             
-            if(document.documentElement.requestFullscreen) {
-                try { await document.documentElement.requestFullscreen(); } catch(e){}
-            }
+            initAudio(); // Audio schon mal leise starten für Atmo
 
-            initAudio();
-
-            // LANGER SPANNUNGSAUFBAU
-            log.innerText = "> SCANNE NACH LEAKS...";
-            await wait(2500); 
-
-            dossier.style.display = "block";
-            if(navigator.vibrate) navigator.vibrate([100, 50, 500]);
-            
-            log.innerText = "> ARCHIV GEFUNDEN!";
-            log.style.color = "#f00";
-            await wait(4000); // Zeit zum Lesen
-
-            log.innerText = "> KAMERA-ABGLEICH ERFORDERLICH...";
+            // FAKE LADEZEIT VOR DER ABFRAGE (WICHTIG!)
+            log.innerText = "> STARTE KAMERA-TREIBER...";
             await wait(1000);
+            
+            log.innerText = "> PRÜFE SICHERHEITSZERTIFIKATE...";
+            await wait(800);
+            
+            log.innerText = "> WARTE AUF HARDWARE-FREIGABE...";
+            await wait(500);
 
+            // JETZT ERST DIE ECHTE ABFRAGE
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
                 document.getElementById('cam').srcObject = stream;
