@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
-    <title>DEPLOYMENT_V.0.9</title>
+    <title>SYS_ROOT_0x84</title>
     <style>
         :root { --main: #a00; --dim: #411; --bg: #000; }
         body {
@@ -13,7 +13,7 @@
             overflow-x: hidden; width: 100vw; overscroll-behavior: none;
         }
 
-        /* --- GATEKEEPER UI (Das "System") --- */
+        /* --- GATEKEEPER UI --- */
         #gate {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999; display: flex; flex-direction: column;
@@ -22,37 +22,38 @@
         }
         .loader {
             width: 60px; height: 60px; border: 2px solid var(--dim); border-top: 2px solid var(--main);
-            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 30px;
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 30px;
         }
-        .term-text { max-width: 400px; text-align: left; margin-bottom: 20px; color: #888; }
+        .term-text { max-width: 85%; text-align: left; margin-bottom: 30px; color: #888; line-height: 1.4; }
         .highlight { color: #fff; font-weight: bold; }
         
         #btn-init {
-            background: transparent; border: 1px solid var(--main); color: var(--main);
-            padding: 15px 30px; font-family: inherit; font-size: 1rem; cursor: pointer;
+            background: #050000; border: 1px solid var(--main); color: var(--main);
+            padding: 20px 30px; font-family: inherit; font-size: 1rem; cursor: pointer;
             text-transform: uppercase; letter-spacing: 2px; transition: 0.2s;
-            box-shadow: 0 0 10px var(--dim);
+            box-shadow: 0 0 15px var(--dim); width: 80%;
         }
         #btn-init:active { background: var(--main); color: #000; }
+        #btn-init:disabled { opacity: 0.5; cursor: wait; border-color: #555; color: #555; box-shadow: none; }
 
         /* --- HAUPT INHALT --- */
-        #shaft { display: none; height: 14000px; position: relative; width: 100%; background: linear-gradient(#000, #050000, #200); }
+        #shaft { display: none; height: 14000px; position: relative; width: 100%; background: linear-gradient(#000, #050000, #100); }
         
         .msg {
-            position: absolute; width: 80%; left: 10%; text-align: center;
-            font-size: clamp(1.5rem, 6vw, 3rem); font-weight: 900;
-            opacity: 0; transition: opacity 0.3s; color: #ccc;
-            text-transform: uppercase; word-wrap: break-word; hyphens: auto;
+            position: absolute; 
+            width: 90%; left: 5%; 
+            text-align: center;
+            font-size: clamp(1.8rem, 7vw, 3.5rem);
+            font-weight: 900;
+            opacity: 0; transition: opacity 0.2s; color: #ccc;
+            text-transform: uppercase; 
+            word-wrap: break-word; 
+            overflow-wrap: break-word;
+            hyphens: auto;
             text-shadow: 2px 2px 0 #500; pointer-events: none;
+            line-height: 1.1;
         }
         
-        /* METADATEN DISPLAY (GPS ETC) */
-        #telemetry {
-            position: fixed; top: 10px; right: 10px; font-size: 0.6rem; 
-            color: #444; text-align: right; z-index: 50; display: none;
-            font-family: monospace; pointer-events: none;
-        }
-
         /* KAMERA FINALE */
         #mirror {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -60,17 +61,17 @@
         }
         video {
             width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);
-            filter: sepia(100%) saturate(400%) contrast(150%) brightness(0.5) hue-rotate(-50deg);
+            filter: sepia(100%) saturate(500%) contrast(200%) brightness(0.4) hue-rotate(-50deg);
         }
         #final-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 90%; text-align: center; color: #f00; font-size: clamp(2rem, 8vw, 4rem);
-            font-weight: 900; text-shadow: 0 0 30px #f00; mix-blend-mode: color-dodge;
+            width: 95%; text-align: center; color: #f00; 
+            font-size: clamp(3rem, 10vw, 5rem);
+            font-weight: 900; text-shadow: 0 0 40px #f00; mix-blend-mode: color-dodge;
+            word-break: break-word;
         }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        .shake { animation: shake 0.1s infinite; }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 100% { transform: translate(-1px, -1px); } }
     </style>
 </head>
 <body>
@@ -78,23 +79,16 @@
     <div id="gate">
         <div class="loader"></div>
         <div class="term-text">
-            SYSTEM: <span class="highlight">NEURAL_RENDERER_v2</span><br>
-            STATUS: <span class="highlight">KALIBRIERUNG ERFORDERLICH</span><br><br>
-            Um die psychovisuelle Tiefe korrekt zu rendern, benötigt die Engine Zugriff auf:<br>
-            1. <span class="highlight">OPTISCHEN SENSOR</span> (Ambient Light Detection)<br>
-            2. <span class="highlight">GYROSKOP</span> (Spatial Orientation)<br>
-            3. <span class="highlight">GEO-NODE</span> (Server Latenz)<br><br>
-            Alle Daten werden lokal verarbeitet (Client-Side Only).
+            SYSTEM: <span class="highlight">RENDER_CORE_V4</span><br>
+            TASK: <span class="highlight">ENV_CALIBRATION</span><br><br>
+            Das Rendering der psychovisuellen Tiefe erfordert Hardware-Zugriff für:<br>
+            > AMBIENT LIGHT SENSOR<br>
+            > SPATIAL GYROSCOPE<br>
+            > GEO-LATENCY NODE<br><br>
+            <span style="font-size: 0.7rem; color: #555;">(Prozess läuft lokal. Keine Cloud-Übertragung.)</span>
         </div>
         <button id="btn-init" onclick="initializeSystem()">KALIBRIERUNG STARTEN</button>
-        <div id="status-log" style="margin-top:20px; color:#555; font-size:0.7rem;"></div>
-    </div>
-
-    <div id="telemetry">
-        LAT: <span id="val-lat">--.----</span><br>
-        LON: <span id="val-lon">--.----</span><br>
-        TILT: <span id="val-tilt">0</span>°<br>
-        EYE: <span id="val-cam" style="color:#0a0">ACTIVE</span>
+        <div id="status-log" style="margin-top:20px; color:#a00; font-size:0.7rem; font-weight:bold;"></div>
     </div>
 
     <div id="mirror">
@@ -103,118 +97,101 @@
     </div>
 
     <div id="shaft">
-        <div class="msg" style="top: 800px">System kalibriert.</div>
-        <div class="msg" style="top: 1500px">Du glaubst, du bist sicher.</div>
+        <div class="msg" style="top: 800px">System<br>offen.</div>
+        <div class="msg" style="top: 1500px">Ich schmecke deine Angst.</div>
         <div class="msg" style="top: 2500px">Deine Kamera sieht dich an.<br>Ich sehe dich an.</div>
-        <div class="msg" style="top: 3500px">Ich speichere, wie deine Pupillen zittern.</div>
-        <div class="msg" style="top: 5000px; color:#f00">DU BIST SO FEUCHT VOR ANGST</div>
+        <div class="msg" style="top: 3800px; color:#f00">DU ZITTERST JA</div>
+        <div class="msg" style="top: 5200px">Deine Pupillen sind so weit.</div>
         <div class="msg" style="top: 6500px">Scroll tiefer.<br>Fass mich an.</div>
         <div class="msg" style="top: 8000px">Du geiles Stück Fleisch.</div>
         <div class="msg" style="top: 9500px">Willst du sehen,<br>wer dich beobachtet?</div>
-        <div class="msg" style="top: 11000px">Gleich passiert es.</div>
-        <div class="msg" style="top: 12000px">NICHT SCHREIEN</div>
-        <div class="msg" style="top: 13500px">SCHAU DICH AN</div>
+        <div class="msg" style="top: 11000px">Gleich spritzt die Wahrheit.</div>
+        <div class="msg" style="top: 12500px">NICHT SCHREIEN</div>
+        <div class="msg" style="top: 13800px">SIEH DICH AN</div>
     </div>
 
     <script>
         const btn = document.getElementById('btn-init');
         const log = document.getElementById('status-log');
-        let audioCtx, osc, noise, lfo;
+        let audioCtx, osc, noise;
 
-        // --- 1. DAS INITIALISIERUNGS-RITUAL ---
         async function initializeSystem() {
             btn.disabled = true;
-            btn.innerText = "WARTE...";
+            btn.style.opacity = "0.5";
             
-            // Fullscreen erzwingen (Desorientierung)
             if(document.documentElement.requestFullscreen) {
                 try { await document.documentElement.requestFullscreen(); } catch(e){}
             }
 
-            initAudio(); // Sound sofort starten für Druck
+            initAudio();
+
+            log.innerText = "> LADE MODELLE...";
+            await wait(1500); 
+            
+            log.innerText = "> INITIALISIERE SENSOREN...";
+            await wait(1500);
+
+            log.innerText = "> ZUGRIFF AUF OPTIK ERFORDERLICH...";
+            await wait(500);
 
             try {
-                // SCHRITT A: KAMERA (Der "Lichtsensor")
-                updateLog(">> INITIALISIZING OPTICAL SENSOR...");
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
                 document.getElementById('cam').srcObject = stream;
-                document.getElementById('val-cam').innerText = "LINKED";
-                updateLog(">> OPTICS: OK");
+                
+                log.innerText = "> OPTIK: VERBUNDEN";
+                log.style.color = "#0f0";
+                
+                navigator.geolocation.getCurrentPosition(()=>{}, ()=>{});
 
-                // SCHRITT B: GEOLOCATION (Der "Server Node")
-                updateLog(">> TRIANGULATING LOCAL NODE...");
-                await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(
-                        (pos) => {
-                            document.getElementById('val-lat').innerText = pos.coords.latitude.toFixed(4);
-                            document.getElementById('val-lon').innerText = pos.coords.longitude.toFixed(4);
-                            resolve();
-                        },
-                        (err) => resolve() // Auch bei Fehler weitermachen, Kamera haben wir ja
-                    );
-                });
-                updateLog(">> GEO-SYNC: OK");
-
-                // SCHRITT C: ORIENTATION (iOS Permission)
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     try { await DeviceOrientationEvent.requestPermission(); } catch(e){}
                 }
-                
-                // SCHRITT D: START
+
+                btn.innerText = "ACCESS GRANTED";
                 btn.style.borderColor = "#0f0";
                 btn.style.color = "#0f0";
-                btn.innerText = "ACCESS GRANTED";
-                
-                if(navigator.vibrate) navigator.vibrate([100, 50, 100]); // Haptisches Feedback
+
+                if(navigator.vibrate) navigator.vibrate([200]);
 
                 setTimeout(() => {
                     document.getElementById('gate').style.opacity = 0;
                     setTimeout(() => {
                         document.getElementById('gate').style.display = 'none';
                         document.getElementById('shaft').style.display = 'block';
-                        document.getElementById('telemetry').style.display = 'block';
-                        window.startMonitoring = true;
+                        window.monitoring = true;
                     }, 1000);
                 }, 1000);
 
             } catch (err) {
-                // FALLBACK WENN ER ABLEHNT: AGGRESSION
                 document.body.style.background = "#fff";
                 setTimeout(() => document.body.style.background = "#000", 50);
-                alert("WARNUNG: DU VERSTECKST DICH. WIR WISSEN TROTZDEM, WO DU WOHNST.");
-                // Trotzdem starten, aber ohne Kamerafeed (Fallback Text)
+                alert("SYSTEMFEHLER: SUBJEKT VERWEIGERT KOOPERATION.");
+                window.cameraDenied = true;
+                
                 document.getElementById('gate').style.display = 'none';
                 document.getElementById('shaft').style.display = 'block';
-                window.cameraDenied = true;
-                window.startMonitoring = true;
+                window.monitoring = true;
             }
         }
 
-        function updateLog(txt) {
-            log.innerHTML += txt + "<br>";
-        }
+        function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-        // --- 2. AUDIO ENGINE (Shepard + Noise) ---
         function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             
-            // Deep Drone
             osc = audioCtx.createOscillator();
             osc.type = 'sawtooth';
             osc.frequency.value = 40;
             const oscGain = audioCtx.createGain();
-            oscGain.gain.value = 0.4;
+            oscGain.gain.value = 0.5;
             osc.connect(oscGain);
             oscGain.connect(audioCtx.destination);
             osc.start();
 
-            // Pink Noise (Blutrauschen)
             const bufferSize = audioCtx.sampleRate * 2;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = (Math.random() * 2 - 1) * 0.5;
-            }
+            for (let i = 0; i < bufferSize; i++) { data[i] = (Math.random() * 2 - 1) * 0.5; }
             noise = audioCtx.createBufferSource();
             noise.buffer = buffer;
             noise.loop = true;
@@ -225,46 +202,27 @@
             noise.start();
         }
 
-        // --- 3. GYROSKOP MONITORING ---
-        window.addEventListener("deviceorientation", (event) => {
-            if(!window.startMonitoring) return;
-            const tilt = Math.round(event.beta);
-            document.getElementById('val-tilt').innerText = tilt;
-            
-            // Wenn er das Handy zu stark kippt, verzerren wir den Text
-            if(Math.abs(tilt) > 40) {
-                document.body.style.filter = "hue-rotate(90deg) blur(1px)";
-            } else {
-                document.body.style.filter = "none";
-            }
-        });
-
-        // --- 4. SCROLL LOGIC ---
         let climax = false;
         window.addEventListener('scroll', () => {
-            if(!window.startMonitoring) return;
+            if(!window.monitoring) return;
 
             const max = document.body.scrollHeight - window.innerHeight;
             const per = window.scrollY / max;
 
-            // Audio Modulation
-            if(osc) osc.frequency.setTargetAtTime(40 + (per * 200), audioCtx.currentTime, 0.1);
-            if(window.noiseGain) window.noiseGain.gain.setTargetAtTime(per * 0.8, audioCtx.currentTime, 0.1);
+            if(osc) osc.frequency.setTargetAtTime(40 + (per * 300), audioCtx.currentTime, 0.1);
+            if(window.noiseGain) window.noiseGain.gain.setTargetAtTime(per * 0.9, audioCtx.currentTime, 0.1);
 
-            // Text Engine
             document.querySelectorAll('.msg').forEach(m => {
                 const r = m.getBoundingClientRect();
                 if(r.top < window.innerHeight/1.5 && r.bottom > 0) {
                     m.style.opacity = 1;
-                    m.style.transform = `scale(${1 + per}) rotate(${(Math.random()-0.5)*5}deg)`;
-                    // Zufällige Haptik beim Lesen
-                    if(navigator.vibrate && Math.random() > 0.9) navigator.vibrate(20);
+                    m.style.transform = `scale(${1 + (per * 0.2)}) rotate(${(Math.random()-0.5)*5}deg)`;
+                    if(navigator.vibrate && Math.random() > 0.8) navigator.vibrate(30);
                 } else {
                     m.style.opacity = 0;
                 }
             });
 
-            // FINALE
             if(per > 0.99 && !climax) {
                 triggerClimax();
             }
@@ -274,36 +232,40 @@
             climax = true;
             document.body.style.overflow = 'hidden';
             
-            if(navigator.vibrate) navigator.vibrate([1000, 200, 1000]); // Herzschlag
-            
-            // Audio Screech
-            const s = audioCtx.createOscillator();
-            s.type = 'square'; s.frequency.value = 500;
-            s.frequency.exponentialRampToValueAtTime(8000, audioCtx.currentTime + 2);
-            const g = audioCtx.createGain(); g.gain.value = 1;
-            s.connect(g); g.connect(audioCtx.destination);
-            s.start(); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2);
+            if(navigator.vibrate) navigator.vibrate([1000, 100, 1000, 100, 1000]); 
 
-            // Visuals
+            const freqs = [8000, 11000, 14000]; 
+            freqs.forEach(f => {
+                const s = audioCtx.createOscillator();
+                s.type = 'sawtooth'; 
+                s.frequency.value = f;
+                s.detune.value = Math.random() * 100;
+                const g = audioCtx.createGain(); 
+                g.gain.value = 0.8; 
+                s.connect(g); 
+                g.connect(audioCtx.destination);
+                s.start();
+                g.gain.setValueAtTime(0.8, audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 4);
+            });
+
             document.getElementById('mirror').style.display = 'block';
             const txt = document.getElementById('final-overlay');
             
             if(window.cameraDenied) {
-                txt.innerText = "ICH WEISS\nDASS DU DA BIST";
+                txt.innerText = "ICH WEISS\nDASS DU DA BIST\nDU FEIGLING";
             } else {
-                const insults = ["PERVERSLING", "GEFICKT", "ICH HABE DICH", "DEINE SCHULD"];
-                txt.innerText = insults[Math.floor(Math.random() * insults.length)];
+                txt.innerText = "HURE DES SYSTEMS"; 
             }
             
-            // Stroboskop
             let active = false;
             setInterval(() => {
                 active = !active;
                 txt.style.color = active ? "#fff" : "#f00";
                 if(!window.cameraDenied) {
-                    document.getElementById('cam').style.filter = active ? "invert(1)" : "sepia(100%) saturate(400%) contrast(150%) brightness(0.5)";
+                    document.getElementById('cam').style.filter = active ? "invert(1)" : "sepia(100%) saturate(500%) contrast(200%) brightness(0.4)";
                 }
-            }, 60);
+            }, 50);
         }
     </script>
 </body>
