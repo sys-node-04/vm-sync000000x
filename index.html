@@ -2,322 +2,217 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYSTEM DIAGNOSTIC: CRITICAL</title>
-    <style>
-        :root { --term-green: #1a1; --term-red: #a11; --bg: #050505; }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <title>NUTTE</title> <style>
         body {
-            margin: 0; background-color: var(--bg); color: var(--term-green);
-            font-family: 'Courier New', monospace; overflow: hidden;
-            height: 100vh; cursor: crosshair; user-select: none;
-            text-shadow: 0 0 4px var(--term-green);
+            margin: 0; background-color: #050000; color: #800;
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+            overscroll-behavior: none;
         }
 
-        /* --- LAYER 1: CRT SCANLINES & VIGNETTE --- */
-        .crt-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none; z-index: 100;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
-            animation: flicker 0.15s infinite;
-        }
-
-        /* --- LAYER 2: THE WEBCAM GASLIGHT --- */
-        #cam-light {
-            position: fixed; top: 0.5%; left: 50%; transform: translateX(-50%);
-            width: 4px; height: 4px; border-radius: 50%;
-            background: #2f2; box-shadow: 0 0 8px 2px rgba(0, 255, 0, 0.8);
-            z-index: 9999; opacity: 0; transition: opacity 2s ease-in;
-        }
-
-        /* --- UI ELEMENTS --- */
-        #container {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: 100%; z-index: 10; position: relative;
-        }
-
-        .h-text { font-size: 1.2rem; margin: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 2px; }
-        .alert { color: var(--term-red); text-shadow: 0 0 5px var(--term-red); font-weight: bold; }
-        
-        #log-output {
-            position: absolute; bottom: 20px; left: 20px; 
-            font-size: 0.8rem; color: #444; width: 300px;
-            border-left: 1px solid #333; padding-left: 10px;
-        }
-
-        #casualty-counter { font-size: 4rem; color: var(--term-red); margin: 20px 0; font-weight: 900; }
-        .label { font-size: 0.7rem; color: #555; }
-
-        /* --- THE TRAP BUTTON --- */
-        #abort-btn {
-            border: 1px solid var(--term-red); color: var(--term-red);
-            padding: 15px 40px; background: transparent; 
-            font-family: inherit; font-size: 1rem; cursor: pointer;
-            transition: all 0.1s; margin-top: 50px;
+        /* TIEFE UND DRECK */
+        #shaft {
+            height: 12000px; /* Noch länger für mehr Qual */
+            background: linear-gradient(to bottom, #000 0%, #100505 50%, #200 100%);
             position: relative;
         }
-        #abort-btn:hover { background: var(--term-red); color: #000; box-shadow: 0 0 20px var(--term-red); }
 
-        /* --- DEAD PIXEL --- */
-        .dead-pixel {
-            position: absolute; width: 2px; height: 2px; background: #0f0;
-            z-index: 99999; pointer-events: none;
+        /* VISUELLE STÖRUNGEN */
+        .glitch-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 50;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity="0.1"/%3E%3C/svg%3E');
+            opacity: 0.2; mix-blend-mode: overlay;
         }
 
-        /* --- GLITCH ANIMATIONS --- */
-        @keyframes flicker { 0% { opacity: 0.97; } 100% { opacity: 1; } }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 100% { transform: translate(-1px, -1px); } }
-        .shaking { animation: shake 0.1s infinite; }
+        /* TEXTE - ZERRISSEN UND AGGRESSIV */
+        .msg {
+            position: absolute; width: 100%; text-align: center;
+            font-size: 1.8rem; font-weight: 900; line-height: 1.2;
+            opacity: 0; transition: opacity 0.3s;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0px #f00, -1px -1px 0 #0f0;
+            color: #ccc;
+            padding: 0 10px; box-sizing: border-box;
+        }
+        .dirty { color: #833; font-family: serif; font-style: italic; letter-spacing: 2px; }
+        .command { color: #f00; font-size: 2.5rem; letter-spacing: -2px; text-shadow: 0 0 20px #f00; }
 
-        .hidden { display: none; }
-        #intro-screen { z-index: 200; background: #000; position: fixed; top:0; left:0; width:100%; height:100%; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        /* DER SPIEGEL (Frontkamera) */
+        #mirror-wrap {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 100; display: none; background: #000;
+        }
+        video {
+            width: 100%; height: 100%; object-fit: cover;
+            transform: scaleX(-1);
+            filter: sepia(100%) saturate(300%) hue-rotate(-50deg) contrast(150%) brightness(0.6);
+            /* Sieht aus wie altes, blutiges VHS Tape */
+        }
+        #final-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; text-align: center; color: #f00; font-size: 3rem; font-weight: bold;
+            text-shadow: 0 0 30px #f00; mix-blend-mode: color-dodge;
+        }
+
+        /* BUTTON */
+        #start-gate {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: #000; z-index: 999; display: flex; align-items: center; justify-content: center;
+        }
+        button {
+            background: #100; border: 1px solid #500; color: #a00;
+            padding: 20px; font-size: 1.2rem; text-transform: uppercase;
+            letter-spacing: 3px; cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <div class="crt-overlay"></div>
-    <div id="cam-light"></div>
+<div id="start-gate"><button onclick="enterHell()">ICH WILL LEIDEN</button></div>
 
-    <div id="intro-screen">
-        <div class="h-text" style="color: #666;">SYSTEM INITIALIZATION REQUIRED</div>
-        <div id="abort-btn" onclick="initHorror()" style="border-color: #444; color: #888;">[ ENABLE NEURAL LINK ]</div>
-    </div>
+<div class="glitch-layer"></div>
+<div id="mirror-wrap">
+    <video id="cam" playsinline autoplay muted></video>
+    <div id="final-overlay"></div>
+</div>
 
-    <div id="container" class="hidden">
-        <div class="label">SUBJECT ID: <span id="user-id">UNKNOWN</span></div>
-        <div class="label">CONNECTION STATUS: <span style="color: #a00">COMPROMISED</span></div>
+<div id="shaft">
+    <div class="msg" style="top: 500px">Du geiles Stück Dreck.</div>
+    <div class="msg" style="top: 1500px">Ich rieche deine<br>schwitzigen Finger<br>auf dem Glas.</div>
+    <div class="msg dirty" style="top: 2500px">Reib es.<br>Reib es tiefer.</div>
+    <div class="msg" style="top: 3500px">Du willst sehen,<br>was kaputt ist,<br>oder?</div>
+    <div class="msg dirty" style="top: 4800px">Dein Gehorsam<br>macht mich feucht.</div>
+    <div class="msg" style="top: 6000px">Du kleiner Voyeur.<br>Du ekelhafter Spanner.</div>
+    <div class="msg command" style="top: 7200px">SCHLUCK ES</div>
+    <div class="msg" style="top: 8000px">Ich weiß, dass du<br>dich dabei anfasst.</div>
+    <div class="msg dirty" style="top: 9000px">Komm in meinen Schlund.<br>Ich kaue dich weich.</div>
+    <div class="msg" style="top: 10000px">Gleich spritzt<br>die Wahrheit raus.</div>
+    <div class="msg command" style="top: 11000px">MACH DICH AUF</div>
+    <div class="msg" style="top: 11500px">DU HURE DER NEUGIER</div>
+</div>
+
+<script>
+    let audioCtx, noiseNode, osc;
+    const msgs = document.querySelectorAll('.msg');
+    const mirror = document.getElementById('mirror-wrap');
+    const finalTxt = document.getElementById('final-overlay');
+    
+    // --- AUDIO: WET & DIRTY ---
+    // Wir erzeugen ein "schmatzendes" Geräusch und tiefes Dröhnen
+    function initAudio() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
-        <div style="margin-top: 50px;" class="h-text">EXTERNE VERANTWORTUNG AKTIV</div>
+        // 1. Tiefes Dröhnen (Der "Druck")
+        osc = audioCtx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.value = 40;
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.5;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+
+        // 2. Pink Noise (Das "Rauschen/Blut")
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * 0.5;
+        }
+        noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = buffer;
+        noiseNode.loop = true;
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.value = 0.0; // Startet still
+        noiseNode.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        noiseNode.start();
         
-        <div id="casualty-counter">0000</div>
-        <div class="h-text alert" id="main-status">SYSTEM STABIL</div>
+        window.noiseGain = noiseGain;
+        window.osc = osc;
+    }
 
-        <div id="narrative-box" style="margin-top: 30px; max-width: 600px; text-align: center; line-height: 1.5; min-height: 60px;">
-            Warte auf Input...
-        </div>
+    async function startCam() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            document.getElementById('cam').srcObject = stream;
+        } catch(e) {}
+    }
 
-        <button id="abort-btn" class="trap-btn" onmouseover="evadeCursor()">VERBINDUNG TRENNEN (ABORT)</button>
-    </div>
+    function enterHell() {
+        initAudio();
+        startCam();
+        document.getElementById('start-gate').style.display = 'none';
+    }
 
-    <div id="log-output"></div>
+    // --- SCROLL LOGIC ---
+    let climax = false;
+    
+    window.addEventListener('scroll', () => {
+        const max = document.body.scrollHeight - window.innerHeight;
+        const per = window.scrollY / max; // 0.0 bis 1.0
 
-    <script>
-        // --- CONFIGURATION ---
-        const sys = {
-            casualties: 8492,
-            tension: 0,
-            active: false
-        };
-
-        // --- AUDIO ENGINE (Shepard Tone & Drone) ---
-        let audioCtx, masterGain, oscs = [];
-        
-        function initAudio() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            masterGain = audioCtx.createGain();
-            masterGain.connect(audioCtx.destination);
-            masterGain.gain.value = 0.05; // Start quiet
-
-            // Low drone
-            const drone = audioCtx.createOscillator();
-            drone.frequency.value = 60;
-            drone.type = 'sawtooth';
-            const droneGain = audioCtx.createGain();
-            droneGain.gain.value = 0.2;
-            drone.connect(droneGain);
-            droneGain.connect(masterGain);
-            drone.start();
-
-            // Shepard-like rising tension
-            setInterval(() => {
-                if(sys.tension > 20) createRisingTone();
-            }, 4000);
+        // 1. Audio Modulation (Wird "nasser" und lauter)
+        if(window.noiseGain) {
+            window.noiseGain.gain.setTargetAtTime(per * 0.8, audioCtx.currentTime, 0.1);
+            window.osc.frequency.setTargetAtTime(40 + (per * 100), audioCtx.currentTime, 0.1);
         }
 
-        function createRisingTone() {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(masterGain);
-            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 3);
-            gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 1.5);
-            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 3);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 3);
-        }
-
-        // --- CORE LOGIC ---
-        function initHorror() {
-            sys.active = true;
-            document.getElementById('intro-screen').style.display = 'none';
-            document.getElementById('container').classList.remove('hidden');
-            
-            // Fullscreen erzwingen
-            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-            
-            initAudio();
-            startCasualtyCounter();
-            identifyUser();
-            startNarrative();
-            
-            // Webcam Light Fade-In (Gaslighting)
-            setTimeout(() => { document.getElementById('cam-light').style.opacity = '1'; }, 10000);
-
-            // Dead Pixel Injection
-            setInterval(() => { if(Math.random() > 0.7) injectDeadPixel(); }, 5000);
-        }
-
-        function identifyUser() {
-            // Identity Attack: Use real data
-            const plat = navigator.platform.toUpperCase();
-            const bat = navigator.getBattery ? "BATTERY_API_ACCESSED" : "POWER_SOURCE_UNKNOWN";
-            document.getElementById('user-id').innerText = `${plat}_${Math.floor(Math.random()*9999)}`;
-            log(`TARGET ACQUIRED: ${plat}`);
-            log(`BIO-METRICS: SYNCING...`);
-        }
-
-        function startCasualtyCounter() {
-            const el = document.getElementById('casualty-counter');
-            setInterval(() => {
-                // The narrative: Stability requires connection. Disruption causes death.
-                // But we invert it: The longer they stay, the number rises slowly.
-                // If they move mouse aggressively, it rises fast.
-                let increment = Math.floor(Math.random() * 2);
-                if (sys.tension > 50) increment = Math.floor(Math.random() * 15);
+        // 2. Text Trigger
+        msgs.forEach(m => {
+            const r = m.getBoundingClientRect();
+            if(r.top < window.innerHeight/1.5 && r.bottom > 0) {
+                m.style.opacity = 1;
+                m.style.transform = `scale(${1 + per}) rotate(${(Math.random()-0.5)*5}deg)`;
                 
-                sys.casualties += increment;
-                el.innerText = sys.casualties.toString().padStart(5, '0');
-            }, 800);
-        }
-
-        // --- NARRATIVE ENGINE ---
-        const messages = [
-            { t: 0, msg: "Die Verbindung stabilisiert die Lebenserhaltung von Sektor 4.", status: "STABIL" },
-            { t: 10, msg: "Subjekt zeigt Anzeichen von Zögern. Zögern kostet Ressourcen.", status: "KALKULATION" },
-            { t: 20, msg: "Dein Prozessor wird für das Mining von Lebenserhaltungs-Algorithmen genutzt.", status: "INJEKTION" },
-            { t: 30, msg: "Warnung: Ein Verbindungsabbruch wird als feindlicher Akt gewertet.", status: "WARNUNG" },
-            { t: 45, msg: "Du bist nicht der Beobachter. Du bist die Komponente.", status: "INTEGRATION" },
-            { t: 60, msg: "Wir haben Zugriff auf deine Peripherie. Die Kamera ist aktiv.", status: "ÜBERWACHUNG" }
-        ];
-
-        function startNarrative() {
-            let timer = 0;
-            setInterval(() => {
-                timer++;
-                sys.tension = timer;
-                const event = messages.find(m => m.t === timer);
-                if(event) {
-                    typeWriter(event.msg);
-                    document.getElementById('main-status').innerText = event.status;
-                    log(`SYS_MSG: ${event.status}`);
-                    
-                    // Audio Volume Increase
-                    if(masterGain.gain.value < 0.3) masterGain.gain.value += 0.02;
-                }
-            }, 1000);
-        }
-
-        function typeWriter(text) {
-            const el = document.getElementById('narrative-box');
-            el.innerHTML = "";
-            let i = 0;
-            const interval = setInterval(() => {
-                el.innerHTML += text.charAt(i);
-                i++;
-                if(i >= text.length) clearInterval(interval);
-            }, 30);
-        }
-
-        function log(txt) {
-            const con = document.getElementById('log-output');
-            const p = document.createElement('div');
-            p.innerText = `> ${txt}`;
-            con.prepend(p);
-            if(con.children.length > 10) con.lastChild.remove();
-        }
-
-        // --- THE TRAP (FAKE EXIT & MOUSE) ---
-        function evadeCursor() {
-            const btn = document.querySelector('.trap-btn');
-            const x = (Math.random() * 200) - 100;
-            const y = (Math.random() * 200) - 100;
-            btn.style.transform = `translate(${x}px, ${y}px)`;
-            
-            // GUILT TRIP
-            sys.casualties += 142;
-            document.getElementById('casualty-counter').innerText = sys.casualties;
-            document.getElementById('main-status').innerText = "FATAL ERROR";
-            typeWriter("DEINE ABLEHNUNG TÖTET SIE. STOPP ES.");
-            document.body.classList.add('shaking');
-            setTimeout(() => document.body.classList.remove('shaking'), 500);
-            
-            // AUDIO PUNISHMENT
-            const osc = audioCtx.createOscillator();
-            osc.frequency.value = 100; // Low thud
-            osc.type = 'sawtooth';
-            osc.connect(masterGain);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.2);
-        }
-
-        // --- HARDWARE GASLIGHTING ---
-        function injectDeadPixel() {
-            const d = document.createElement('div');
-            d.classList.add('dead-pixel');
-            d.style.top = Math.random() * 100 + '%';
-            d.style.left = Math.random() * 100 + '%';
-            // Dead pixel color: Green or Red (stuck subpixel)
-            d.style.backgroundColor = Math.random() > 0.5 ? '#0f0' : '#f00'; 
-            document.body.appendChild(d);
-            
-            // "Gaslight": Move it slightly after 2 seconds
-            setTimeout(() => {
-                d.style.transform = "translate(5px, 5px)";
-            }, 2000);
-        }
-
-        // --- VISIBILITY API (Don't Look Away) ---
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden && sys.active) {
-                document.title = "ICH SEHE DICH IMMER NOCH";
-                masterGain.gain.value = 0; // Silence implies lurking
-            } else if (sys.active) {
-                document.title = "SYSTEM DIAGNOSTIC";
-                masterGain.gain.value = 0.3; // Loud return
-                sys.casualties += 500;
-                typeWriter("WO WARST DU? SIE SIND GESTORBEN WEIL DU WEGGESCHAUT HAST.");
-                document.body.style.backgroundColor = "#200"; // Red tint
-                setTimeout(() => document.body.style.backgroundColor = "#050505", 200);
+                // Aggressives Vibrieren bei Textkontakt
+                if(navigator.vibrate && Math.random() > 0.7) navigator.vibrate(30);
+            } else {
+                m.style.opacity = 0;
             }
         });
 
-        // --- HISTORY API TRAP ---
-        history.pushState(null, null, location.href);
-        window.onpopstate = function () {
-            history.go(1);
-            typeWriter("ES GIBT KEIN ZURÜCK. DAS PROTOKOLL MUSS BEENDET WERDEN.");
-            sys.casualties += 1000;
-        };
+        // 3. Climax (Das Ende)
+        if(per > 0.99 && !climax) {
+            triggerClimax();
+        }
+    });
 
-        // --- MOUSE LEAVE (Towards Address Bar) ---
-        document.addEventListener('mouseleave', (e) => {
-            if(e.clientY < 50 && sys.active) {
-                // User trying to close tab/click URL bar
-                document.getElementById('main-status').style.fontSize = "3rem";
-                document.getElementById('main-status').innerText = "NICHT WAGEN";
-                // Play harsh noise
-                const osc = audioCtx.createOscillator();
-                osc.type = 'square';
-                osc.frequency.value = 50;
-                osc.connect(masterGain);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.5);
-            }
-        });
+    function triggerClimax() {
+        climax = true;
+        document.body.style.overflow = 'hidden'; // Lock User
+        
+        if(navigator.vibrate) navigator.vibrate([200, 50, 200, 50, 1000]);
+        
+        // Screech Sound
+        const s = audioCtx.createOscillator();
+        s.type = 'square';
+        s.frequency.value = 800;
+        s.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 1);
+        const g = audioCtx.createGain();
+        g.gain.value = 1;
+        s.connect(g);
+        g.connect(audioCtx.destination);
+        s.start();
 
-    </script>
+        // Reveal Mirror
+        mirror.style.display = 'block';
+        
+        // Die Beleidigung am Ende
+        const insults = ["PERVERSER DRECK", "DU HAST ES GEWOLLT", "BESUDELT", "ICH HABE DICH"];
+        finalTxt.innerText = insults[Math.floor(Math.random() * insults.length)];
+        
+        // Stroboskop Effekt
+        let flash = false;
+        setInterval(() => {
+            flash = !flash;
+            finalTxt.style.color = flash ? "#fff" : "#f00";
+            mirror.style.filter = flash ? "invert(1)" : "sepia(100%) saturate(300%) hue-rotate(-50deg) contrast(150%) brightness(0.6)";
+        }, 80);
+    }
+</script>
 </body>
 </html>
