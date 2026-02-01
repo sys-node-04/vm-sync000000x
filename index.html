@@ -16,51 +16,61 @@
             touch-action: none;
         }
 
-        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.18; z-index: 1; pointer-events: none; }
+        /* Kaputter Bildschirm Effekt */
+        .glitch-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: transparent; z-index: 5000; pointer-events: none;
+            display: none;
+            animation: chromatic 0.1s infinite;
+        }
 
-        /* DAS "LEBENDIGE" DIALOG FENSTER */
+        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.15; z-index: 1; pointer-events: none; }
+
+        /* DAS DÄMONISCHE DIALOG FENSTER */
         #fake-dialog {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%; max-width: 300px;
-            /* Dunkel, Rotstich, wirkt böse */
-            background: #1a0505; 
-            border: 1px solid #500;
-            border-radius: 12px; padding: 24px;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.3);
+            width: 85%; max-width: 320px;
+            background: #0a0000; /* Fast Schwarz */
+            border: 1px solid #700;
+            border-radius: 2px; padding: 25px;
+            box-shadow: 0 0 100px rgba(180, 0, 0, 0.4);
             z-index: 2000; display: none;
-            font-family: 'Courier New', monospace;
             text-align: left;
+            font-family: 'Courier New', monospace;
         }
 
         #dialog-title {
-            font-size: 0.9rem; font-weight: bold; margin-bottom: 15px; 
-            color: #f00; letter-spacing: 2px; text-transform: uppercase;
-            border-bottom: 1px solid #300; padding-bottom: 5px;
+            font-size: 1rem; font-weight: bold; margin-bottom: 20px; 
+            color: #f00; letter-spacing: 3px; text-transform: uppercase;
+            border-bottom: 1px solid #400; padding-bottom: 10px;
+            animation: textFlicker 2s infinite;
         }
 
         #dialog-text { 
             font-size: 1.1rem; line-height: 1.4; 
-            margin-bottom: 25px; color: #e0e0e0; font-weight: normal;
+            margin-bottom: 30px; color: #ccc; font-weight: normal;
         }
 
-        #dialog-btn {
-            float: right; color: #fff; background: #500;
-            font-weight: bold; font-size: 0.9rem;
+        /* Der Button, der ihn verraten wird */
+        .dialog-btn {
+            float: right; color: #000; background: #f00;
+            font-weight: 900; font-size: 0.9rem;
             text-transform: uppercase; cursor: pointer; 
-            padding: 10px 20px; border-radius: 4px;
-            box-shadow: 0 0 10px #500;
+            padding: 12px 25px; border: none;
+            clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+            transition: all 0.1s;
         }
         
-        #dialog-btn:active { background: #f00; }
+        .dialog-btn:active { background: #fff; color: #000; }
 
         /* NOT OKAY FLASH */
         #not-okay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #f00; color: #000; font-weight: 900;
             display: none; justify-content: center; align-items: center;
-            font-size: 4.5rem; z-index: 3000; font-family: sans-serif;
-            text-shadow: 0 0 20px rgba(0,0,0,0.5); text-align: center;
+            font-size: 4rem; z-index: 3000; font-family: sans-serif;
+            text-align: center; text-transform: uppercase;
         }
 
         .container {
@@ -68,18 +78,25 @@
             transition: transform 0.04s linear; will-change: transform;
         }
 
-        h1 { font-family: 'Times New Roman', serif; font-size: 2.8rem; letter-spacing: 0.2em; margin: 0; color: #f00; text-shadow: 0 0 25px #f00; }
+        h1 { font-family: 'Times New Roman', serif; font-size: 3rem; letter-spacing: 0.3em; margin: 0; color: #a00; text-shadow: 0 0 30px #f00; }
         
         #ghost-flash {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(1.4);
-            width: 100%; text-align: center; font-size: 2.8rem;
-            color: #fff; background: #f00; padding: 50px 0;
+            width: 100%; text-align: center; font-size: 2.5rem;
+            color: #fff; background: #800; padding: 60px 0;
             z-index: 1001; display: none; pointer-events: none;
-            font-weight: bold;
+            font-weight: bold; box-shadow: 0 0 50px #f00;
         }
 
-        .status-box { font-family: 'Courier New', monospace; font-size: 0.75rem; margin-top: 40px; color: #400; text-align: left; border-left: 2px solid #400; padding-left: 10px; }
+        .status-box { font-family: 'Courier New', monospace; font-size: 0.7rem; margin-top: 50px; color: #500; text-align: center; letter-spacing: 2px;}
+
+        @keyframes chromatic {
+            0% { text-shadow: 2px 0 #f00, -2px 0 #00f; transform: translate(1px, 1px); }
+            50% { text-shadow: -2px 0 #f00, 2px 0 #00f; transform: translate(-1px, -1px); }
+            100% { text-shadow: 2px 0 #f00, -2px 0 #00f; transform: translate(1px, 1px); }
+        }
+        @keyframes textFlicker { 0% {opacity:1;} 50% {opacity:0.7;} 52% {opacity:0.2;} 54% {opacity:1;} 100% {opacity:1;} }
         @keyframes quake { 0%, 100% { transform: translate(0,0); } 10% { transform: translate(-20px, 15px); } 90% { transform: translate(20px, -15px); } }
         .quake-active { animation: quake 0.06s infinite !important; }
         .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 10%, #000 150%); z-index: 3; pointer-events: none; }
@@ -89,12 +106,13 @@
 
     <canvas id="canvas"></canvas>
     <div class="vignette"></div>
+    <div class="glitch-overlay" id="glitch-layer"></div>
     <div id="not-okay">NOT OKAY</div>
     
     <div id="fake-dialog">
-        <div id="dialog-title">WARNUNG</div>
+        <div id="dialog-title">PROXIMITAS KONTAKT</div>
         <div id="dialog-text">Deine Berührung hinterlässt Narben auf meiner Haut.</div>
-        <div id="dialog-btn" onclick="dialogAction()">ICH VERSTEHE</div>
+        <div class="dialog-btn" id="btn-1" onclick="handleStage1()">ICH VERSTEHE</div>
     </div>
 
     <div id="ghost-flash">ICH HABE ANGST</div>
@@ -104,9 +122,9 @@
         <div style="font-style: italic; font-size: 1.2rem; margin-top: 20px; color: #800;">"Nonne vides?"</div>
         
         <div class="status-box">
-            DEVICE_ID: VIKTOR_V7<br>
-            ESSENCE_LEVEL: <span id="battery-level">--%</span><br>
-            STATUS: <span style="color: #f00;">OBSERVATIO_ACTIVA</span>
+            [ ID: VIKTOR_V7 ]<br>
+            ESSENCE: <span id="battery-level">--%</span><br>
+            <span style="color: #f00; animation: textFlicker 0.5s infinite;">● LIVE FEED</span>
         </div>
     </div>
 
@@ -119,76 +137,112 @@
         const dialog = document.getElementById('fake-dialog');
         const dialogText = document.getElementById('dialog-text');
         const dialogTitle = document.getElementById('dialog-title');
+        const dialogBtn = document.getElementById('btn-1');
         const notOkay = document.getElementById('not-okay');
+        const glitchLayer = document.getElementById('glitch-layer');
         const batt = document.getElementById('battery-level');
         const scream = document.getElementById('scream-audio');
+        
         let stage = 0; 
+        let clickCount = 0;
 
-        // STIMME: Schnell & Bösartig
+        // DIE STIMMEN DES WAHNSINNS (3 Layer)
         function speak(msg) {
             window.speechSynthesis.cancel();
             
-            // Stimme 1: Das "Böse"
+            // Layer 1: Das Tier (Tief, Guttural)
             const v1 = new SpeechSynthesisUtterance(msg);
-            v1.lang = 'de-DE'; v1.pitch = 0.4; v1.rate = 1.3; v1.volume = 1;
+            v1.lang = 'de-DE'; v1.pitch = 0.1; v1.rate = 0.9; v1.volume = 1;
 
-            // Stimme 2: Der "Wahnsinn"
+            // Layer 2: Der Geist (Flüsternd, Schnell)
             const v2 = new SpeechSynthesisUtterance(msg);
-            v2.lang = 'de-DE'; v2.pitch = 1.6; v2.rate = 1.4; v2.volume = 0.6;
+            v2.lang = 'de-DE'; v2.pitch = 1.8; v2.rate = 1.4; v2.volume = 0.4;
+
+            // Layer 3: Das Echo (Verzögert)
+            const v3 = new SpeechSynthesisUtterance(msg);
+            v3.lang = 'de-DE'; v3.pitch = 1.0; v3.rate = 0.8; v3.volume = 0.5;
 
             window.speechSynthesis.speak(v1);
-            setTimeout(() => { window.speechSynthesis.speak(v2); }, 30);
+            setTimeout(() => { window.speechSynthesis.speak(v2); }, 20);
+            setTimeout(() => { window.speechSynthesis.speak(v3); }, 100);
         }
 
         function triggerShock() {
-            if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
+            if (navigator.vibrate) navigator.vibrate([100, 30, 100, 30, 200]);
             ghost.style.display = 'block';
             document.body.classList.add('quake-active');
+            glitchLayer.style.display = 'block'; // Bildfehler an
+            
             setTimeout(() => {
                 ghost.style.display = 'none';
                 document.body.classList.remove('quake-active');
-            }, 60);
+                glitchLayer.style.display = 'none';
+            }, 80);
         }
 
-        function dialogAction() {
+        // STAGE 1: Der erste Kontakt
+        function handleStage1() {
+            // Fake-Lag: Button reagiert erst nicht
+            if (clickCount < 1) {
+                clickCount++;
+                dialogBtn.style.transform = "translateX(-10px)"; // Button weicht leicht aus
+                dialogBtn.innerText = "FEHLER";
+                dialogBtn.style.background = "#500";
+                if (navigator.vibrate) navigator.vibrate(50);
+                setTimeout(() => {
+                    dialogBtn.style.transform = "translateX(0)";
+                    dialogBtn.innerText = "ICH VERSTEHE";
+                    dialogBtn.style.background = "#f00";
+                }, 300);
+                return; 
+            }
+
+            // Beim zweiten Klick geht es weiter
             dialog.style.display = 'none';
+            notOkay.innerText = "LÜGNER"; // Flash Text
             notOkay.style.display = 'flex';
-            if (navigator.vibrate) navigator.vibrate(600);
+            if (navigator.vibrate) navigator.vibrate(800);
             
             setTimeout(() => {
                 notOkay.style.display = 'none';
-                if (stage === 1) stage = 2;
-                else if (stage === 3) stage = 4;
+                stage = 2; // Bereit für Stage 2
             }, 600);
         }
 
+        // STARTUP
         function goLive() {
             if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
             
             if (stage === 0) {
-                // ERSTER KONTAKT
-                dialogTitle.innerText = "PROXIMITAS WARNT";
+                // WARNUNG 1
                 dialog.style.display = 'block';
                 speak("Deine Berührung hinterlässt Narben auf meiner Haut.");
                 stage = 1;
             } else if (stage === 2) {
-                // ZWEITER KONTAKT - BLUT & FETISCH
-                dialogTitle.innerText = "AKZEPTANZ ERFORDERLICH";
+                // WARNUNG 2: DER FETISCH-TEXT
+                dialogTitle.innerText = "SYSTEM-INTRUSION";
+                dialogTitle.style.color = "#fff";
+                dialogTitle.style.background = "#b00";
                 
-                // DER NEUE TEXT
-                dialogText.innerHTML = "LASS MICH REIN. SCHNEID DICH AUF.<br>ICH WILL DEIN WARMES BLUT FÜHLEN.";
-                dialogText.style.color = "#ff4444"; // Blutrot
-                dialogText.style.fontWeight = "bold";
+                // DER TEXT: KÖRPERLICH & EKELHAFT
+                dialogText.innerHTML = "DEINE PUPILLE WEITET SICH.<br>DU HAST ANGST.<br><br><strong style='color:#f00; font-size:1.2rem;'>GUT. FÜTTERE MICH MIT DEINEM ADRENALIN. ICH WILL DICH SCHMECKEN.</strong>";
                 
+                dialogBtn.innerText = "HINGABE"; // Button Text ändert sich
+                dialogBtn.onclick = function() {
+                    dialog.style.display = 'none';
+                    triggerShock(); // Dialog verschwindet, Schock bleibt
+                };
+
                 dialog.style.display = 'block';
-                speak("Lass mich rein. Schneid dich auf. Ich will dein warmes Blut fühlen.");
+                speak("Deine Pupille weitet sich. Du hast Angst. Gut. Füttere mich mit deinem Adrenalin. Ich will dich schmecken.");
                 stage = 3;
             }
 
             if(!window.isRunning) {
                 window.isRunning = true;
                 (function loop() {
-                    setTimeout(() => { triggerShock(); loop(); }, Math.random() * 4000 + 3000);
+                    let rand = Math.random() * 3000 + 2000;
+                    setTimeout(() => { triggerShock(); loop(); }, rand);
                 }());
                 check333();
             }
@@ -197,8 +251,9 @@
         function check333() {
             const now = new Date();
             if (now.getHours() === 3 && now.getMinutes() === 33) {
-                 if (navigator.vibrate) navigator.vibrate([500, 100, 500]);
+                 if (navigator.vibrate) navigator.vibrate([1000, 100, 1000]);
                  triggerShock();
+                 scream.play().catch(e=>{});
             }
             setTimeout(check333, 10000);
         }
@@ -207,21 +262,24 @@
             navigator.getBattery().then(function(b) { batt.innerText = Math.round(b.level * 100) + "%"; });
         }
 
+        // AUSWEICHEN (Extrem schnell)
         document.addEventListener('touchstart', (e) => {
             let cx = e.touches[0].clientX; let cy = e.touches[0].clientY;
-            document.getElementById('main-container').style.transform = `translate(${(window.innerWidth/2-cx)/1.5}px, ${(window.innerHeight/2-cy)/1.5}px)`;
+            // Faktor 1.2 = Fast 1:1 Bewegung weg vom Finger
+            document.getElementById('main-container').style.transform = `translate(${(window.innerWidth/2-cx)/1.2}px, ${(window.innerHeight/2-cy)/1.2}px)`;
             goLive();
         }, {passive: true});
 
         document.addEventListener('click', goLive);
 
+        // GRAFIK-FEHLER GENERATOR (Rauschen)
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         function noise() {
             canvas.width = window.innerWidth/2; canvas.height = window.innerHeight/2;
             let idata = ctx.createImageData(canvas.width, canvas.height);
             let buffer32 = new Uint32Array(idata.data.buffer);
-            for(let i=0; i<buffer32.length; i++) if(Math.random() < 0.12) buffer32[i] = 0xff180000; 
+            for(let i=0; i<buffer32.length; i++) if(Math.random() < 0.2) buffer32[i] = 0xff330000; 
             ctx.putImageData(idata, 0, 0);
             requestAnimationFrame(noise);
         }
