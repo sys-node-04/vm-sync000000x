@@ -12,49 +12,55 @@
             margin: 0; background: #000; color: #d00;
             font-family: 'Times New Roman', serif;
             height: 100vh; overflow: hidden;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
+            display: flex; justify-content: center; align-items: center;
             cursor: none; -webkit-tap-highlight-color: transparent;
             touch-action: none;
         }
 
-        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.2; z-index: 1; pointer-events: none; }
+        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.18; z-index: 1; pointer-events: none; }
 
-        #top-warning {
-            position: fixed; top: 0; width: 100%;
-            text-align: center; color: #fff; background: #f00;
-            font-family: 'Courier New', monospace; font-size: 0.9rem;
-            padding: 15px 5px; letter-spacing: 1px; font-weight: bold;
-            z-index: 1000; display: none;
-            animation: glitchShake 0.1s infinite;
-            box-shadow: 0 10px 50px #f00;
+        /* DER FAKE ANDROID DIALOG */
+        #fake-dialog {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; max-width: 320px;
+            background: #fff; color: #000;
+            border-radius: 28px; padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            z-index: 2000; display: none;
+            font-family: sans-serif;
+        }
+
+        #dialog-text { font-size: 1rem; line-height: 1.5; margin-bottom: 24px; color: #1c1b1f; }
+        #dialog-btn {
+            float: right; color: #6750a4; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; padding: 10px;
+        }
+
+        /* NOT OKAY FLASH */
+        #not-okay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #f00; color: #fff; font-weight: bold;
+            display: none; justify-content: center; align-items: center;
+            font-size: 5rem; z-index: 3000; font-family: sans-serif;
         }
 
         .container {
             position: relative; z-index: 2; text-align: center; width: 90%;
-            transition: transform 0.05s cubic-bezier(0, 1, 0, 1);
-            will-change: transform;
+            transition: transform 0.05s linear; will-change: transform;
         }
 
-        h1 {
-            font-size: 2.6rem; letter-spacing: 0.2em; margin: 0;
-            text-transform: uppercase; color: #f00;
-            text-shadow: 0 0 30px #f00;
-        }
-
+        h1 { font-size: 2.8rem; letter-spacing: 0.2em; margin: 0; color: #f00; text-shadow: 0 0 25px #f00; }
         #ghost-flash {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(1.4);
             width: 100%; text-align: center; font-size: 2.8rem;
             color: #fff; background: #f00; padding: 50px 0;
             z-index: 1001; display: none; pointer-events: none;
-            font-weight: bold; font-family: sans-serif;
         }
 
-        .status { font-family: 'Courier New', monospace; font-size: 0.85rem; margin-top: 60px; color: #500; font-weight: bold; }
-
-        @keyframes glitchShake { 0% { transform: translate(0,0); } 50% { transform: translate(-2px, 2px); } 100% { transform: translate(2px, -2px); } }
-        @keyframes quake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-20px, 15px); } 50% { transform: translate(20px, -15px); } }
+        .status-box { font-family: 'Courier New', monospace; font-size: 0.75rem; margin-top: 40px; color: #400; text-align: left; border-left: 2px solid #400; padding-left: 10px; }
+        @keyframes quake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-15px, 10px); } 50% { transform: translate(15px, -10px); } }
         .quake-active { animation: quake 0.07s infinite !important; }
         .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 10%, #000 150%); z-index: 3; pointer-events: none; }
     </style>
@@ -63,16 +69,23 @@
 
     <canvas id="canvas"></canvas>
     <div class="vignette"></div>
-    <div id="top-warning">DEINE FINGER HINTERLASSEN NARBEN AUF MEINER HAUT.</div>
+    <div id="not-okay">NOT OKAY</div>
+    
+    <div id="fake-dialog">
+        <div id="dialog-text">Deine Finger hinterlassen Narben auf meiner Haut.</div>
+        <div id="dialog-btn" onclick="dialogOk()">OK</div>
+    </div>
+
     <div id="ghost-flash">ICH HABE ANGST</div>
 
     <div class="container" id="main-container">
         <h1>PROXIMITAS</h1>
-        <div style="font-style: italic; font-size: 1.3rem; margin-top: 25px; color: #a00;">"Iam prope est."</div>
-        <div class="status">
-            [IDENT: 22.09.11.20.15.18]<br>
-            STATUS: <span style="color: #f00;">VIGILATIO ACTIVA</span><br>
-            MANIFESTATIO: 1%
+        <div style="font-style: italic; font-size: 1.2rem; margin-top: 20px; color: #800;">"Nonne vides?"</div>
+        
+        <div class="status-box">
+            DEVICE_ID: VIKTOR_V7<br>
+            ESSENCE_LEVEL: <span id="battery-level">--%</span><br>
+            STATUS: <span style="color: #f00;">OBSERVATIO_ACTIVA</span>
         </div>
     </div>
 
@@ -81,87 +94,85 @@
     </audio>
 
     <script>
-        const body = document.body;
         const ghost = document.getElementById('ghost-flash');
-        const warn = document.getElementById('top-warning');
-        const container = document.getElementById('main-container');
+        const dialog = document.getElementById('fake-dialog');
+        const dialogText = document.getElementById('dialog-text');
+        const notOkay = document.getElementById('not-okay');
+        const batt = document.getElementById('battery-level');
         const scream = document.getElementById('scream-audio');
+        let stage = 0;
 
-        const traumaTexts = ["ICH HABE ANGST", "VIKTOR", "ES IST IM RAUM", "DREH DICH NICHT UM", "HÖR AUF", "ES TUT WEH", "GIB MIR MEINE HAUT", "ICH BIN HIER"];
-
-        function handleMove(e) {
-            let cx = e.clientX || (e.touches ? e.touches[0].clientX : window.innerWidth/2);
-            let cy = e.clientY || (e.touches ? e.touches[0].clientY : window.innerHeight/2);
-            let dx = (window.innerWidth / 2 - cx);
-            let dy = (window.innerHeight / 2 - cy);
-            container.style.transform = `translate(${dx/1.8}px, ${dy/1.8}px) rotateY(${-dx/4}deg) rotateX(${dy/4}deg)`;
+        function speak(msg) {
+            const v1 = new SpeechSynthesisUtterance(msg);
+            v1.lang = 'de-DE'; v1.pitch = 0.1; v1.rate = 0.7;
+            const v2 = new SpeechSynthesisUtterance(msg);
+            v2.lang = 'de-DE'; v2.pitch = 1.5; v2.rate = 0.8; v2.volume = 0.6;
+            window.speechSynthesis.speak(v1);
+            setTimeout(() => { window.speechSynthesis.speak(v2); }, 50);
         }
 
         function triggerShock(isUltra = false) {
-            // Normale Vibration oder Aggro-Vibration um 3:33
-            if (navigator.vibrate) {
-                isUltra ? navigator.vibrate([500, 100, 500, 100, 500, 100, 1000]) : navigator.vibrate([200, 100, 200]);
-            }
-            
-            body.classList.add('quake-active');
-            ghost.innerText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
+            if (navigator.vibrate) navigator.vibrate(isUltra ? [500, 100, 500] : [150, 50, 150]);
             ghost.style.display = 'block';
-
-            if (isUltra) {
-                scream.play().catch(e => console.log("Audio locked"));
-                body.style.backgroundColor = "#f00"; // Ganzer Bildschirm wird rot
-            }
-
+            document.body.classList.add('quake-active');
+            if(isUltra) scream.play().catch(e => {});
             setTimeout(() => {
                 ghost.style.display = 'none';
-                body.classList.remove('quake-active');
-                if (isUltra) body.style.backgroundColor = "#000";
-            }, isUltra ? 500 : 55);
+                document.body.classList.remove('quake-active');
+            }, 60);
         }
 
-        // PRÜFE DIE UHRZEIT
-        function checkTime() {
-            const now = new Date();
-            const hours = now.getHours();
-            const minutes = now.getMinutes();
-
-            // UM 03:33 UHR GEHT ES LOS
-            if (hours === 3 && minutes === 33) {
-                triggerShock(true); // "Ultra" Modus
-                setTimeout(checkTime, 2000); // Alle 2 Sek triggern während dieser Minute
-            } else {
-                setTimeout(checkTime, 10000); // Sonst alle 10 Sek prüfen
-            }
+        function dialogOk() {
+            dialog.style.display = 'none';
+            notOkay.style.display = 'flex';
+            if (navigator.vibrate) navigator.vibrate(500);
+            setTimeout(() => {
+                notOkay.style.display = 'none';
+                stage = 2; // Bereit für die zweite Fehlermeldung
+            }, 600);
         }
 
         function goLive() {
             if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-            warn.style.display = 'block';
+            if (stage === 0) {
+                dialog.style.display = 'block';
+                speak("Deine Finger hinterlassen Narben auf meiner Haut.");
+                stage = 1;
+            } else if (stage === 2) {
+                dialogText.innerText = "DEIN SCHWEIẞ ÄTZT SICH IN MEINE POREN. HÖR AUF MICH ZU BESUDELN, DU ELENDES STÜCK FLEISCH.";
+                dialog.style.display = 'block';
+                speak("Dein Schweiß ätzt sich in meine Poren. Hör auf mich zu besudeln, du elendes Stück Fleisch.");
+                stage = 3;
+            }
             if(!window.isRunning) {
                 window.isRunning = true;
                 (function loop() {
-                    let r = Math.random() * 3000 + 1500;
-                    setTimeout(() => { triggerShock(); loop(); }, r);
+                    setTimeout(() => { triggerShock(); loop(); }, Math.random() * 4000 + 3000);
                 }());
-                checkTime(); // Starte die Uhrzeit-Prüfung
             }
         }
 
-        document.addEventListener('touchstart', goLive, {passive: true});
-        document.addEventListener('click', goLive);
-        document.addEventListener('touchmove', handleMove, {passive: true});
-        document.addEventListener('mousemove', handleMove);
+        if (navigator.getBattery) {
+            navigator.getBattery().then(function(b) {
+                batt.innerText = Math.round(b.level * 100) + "%";
+            });
+        }
 
-        // Noise Generator
+        document.addEventListener('touchstart', (e) => {
+            let cx = e.touches[0].clientX; let cy = e.touches[0].clientY;
+            document.getElementById('main-container').style.transform = `translate(${(window.innerWidth/2-cx)/2}px, ${(window.innerHeight/2-cy)/2}px)`;
+            goLive();
+        }, {passive: true});
+
+        document.addEventListener('click', goLive);
+
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         function noise() {
-            canvas.width = window.innerWidth / 2; canvas.height = window.innerHeight / 2;
+            canvas.width = window.innerWidth/2; canvas.height = window.innerHeight/2;
             let idata = ctx.createImageData(canvas.width, canvas.height);
             let buffer32 = new Uint32Array(idata.data.buffer);
-            for(let i=0; i<buffer32.length; i++) {
-                if(Math.random() < 0.15) buffer32[i] = 0xff150000; 
-            }
+            for(let i=0; i<buffer32.length; i++) if(Math.random() < 0.12) buffer32[i] = 0xff150000; 
             ctx.putImageData(idata, 0, 0);
             requestAnimationFrame(noise);
         }
