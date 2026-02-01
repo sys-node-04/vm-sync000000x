@@ -1,69 +1,203 @@
-const body = document.body;
-const ghost = document.getElementById('ghost-flash');
+<!DOCTYPE html>
+<html lang="la">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>‎</title>
+    <style>
+        /* DAS VISUELLE GEFÄNGNIS */
+        body {
+            margin: 0;
+            background: #020000;
+            color: #d00;
+            font-family: 'Times New Roman', serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: filter 0.1s ease-out;
+        }
 
-// Die Liste der "Implanted Commands"
-const traumaTexts = [
-    "ICH HABE ANGST",
-    "ER SIEHT MICH",
-    "HILF MIR",
-    "VIKTOR",
-    "ES IST IM RAUM",
-    "ICH KANN NICHT ATMEN",
-    "DREH DICH NICHT UM",
-    "TE HABEO" // Ein kleiner Rest Latein für das "Ritual"
-];
+        /* Schock-Effekt bei Berührung */
+        body.inverted {
+            filter: invert(1) contrast(2) hue-rotate(180deg);
+            background: #ffffff;
+        }
 
-function triggerTrauma() {
-    // Inversionseffekt für den visuellen Schock
-    body.classList.add('inverted');
-    setTimeout(() => {
-        body.classList.remove('inverted');
-    }, 100); 
-    
-    // Bei jedem Klick/Touch blitzt fast garantiert ein Kommando auf
-    if(Math.random() > 0.4) {
-        flashGhost();
-    }
-}
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.25;
+            z-index: 1;
+            pointer-events: none;
+        }
 
-function randomGhost() {
-    // Zufälliges Aufblitzen auch ohne Interaktion (alle 2-5 Sekunden)
-    if(Math.random() > 0.8) {
-        flashGhost();
-    }
-    setTimeout(randomGhost, Math.random() * 3000 + 2000);
-}
+        .container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 90%;
+        }
 
-function flashGhost() {
-    const randomText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
-    ghost.innerText = randomText;
-    
-    ghost.style.display = 'block';
-    // 25 Millisekunden: Das Unterbewusstsein frisst es, das Auge kann es nicht fixieren
-    setTimeout(() => {
-        ghost.style.display = 'none';
-    }, 25); 
-}
+        h1 {
+            font-size: 3.2rem;
+            letter-spacing: 0.2em;
+            margin: 0;
+            text-transform: uppercase;
+            color: #f00;
+            text-shadow: 0 0 25px rgba(255,0,0,0.9);
+            animation: approach 60s linear infinite, jitter 0.15s infinite;
+        }
 
-// Event-Listener für Interaktion
-document.addEventListener('touchstart', triggerTrauma, {passive: true});
-document.addEventListener('click', triggerTrauma);
+        .latin {
+            font-style: italic;
+            font-size: 1.4rem;
+            margin-top: 30px;
+            color: #900;
+            opacity: 0.8;
+        }
 
-// Starte den Zyklus
-setTimeout(randomGhost, 3000);
+        /* DAS UNTERBEWUSSTE KOMMANDO */
+        #ghost-flash {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(2.5);
+            font-size: 4.5rem;
+            color: #000;
+            background: #f00;
+            padding: 40px;
+            z-index: 100;
+            display: none;
+            pointer-events: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-family: sans-serif;
+        }
 
-// Rauschen-Generator (leicht rötlich, wirkt wie Blutadern auf dem Screen)
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-function noise() {
-    canvas.width = window.innerWidth / 2;
-    canvas.height = window.innerHeight / 2;
-    let idata = ctx.createImageData(canvas.width, canvas.height);
-    let buffer32 = new Uint32Array(idata.data.buffer);
-    for(let i=0; i<buffer32.length; i++) {
-        if(Math.random() < 0.15) buffer32[i] = 0xff220000; 
-    }
-    ctx.putImageData(idata, 0, 0);
-    requestAnimationFrame(noise);
-}
-noise();
+        .status {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            margin-top: 60px;
+            color: #400;
+            letter-spacing: 3px;
+        }
+
+        /* ANIMATIONEN DES WAHNSINNS */
+        @keyframes approach {
+            0% { transform: scale(0.85); filter: blur(4px); }
+            100% { transform: scale(1.5); filter: blur(0px); }
+        }
+
+        @keyframes jitter {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(-2px, 2px); }
+            50% { transform: translate(2px, -2px); }
+            75% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, 1px); }
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 20%, #000 150%);
+            z-index: 3;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+    <div class="vignette"></div>
+    <div id="ghost-flash">ICH HABE ANGST</div>
+
+    <div class="container">
+        <h1>PROXIMITAS</h1>
+        <div class="latin">"Nonne vides? Iam prope est."</div>
+        
+        <div class="status">
+            [IDENT_CODE: 22.09.11.20.15.18]<br>
+            STATUS: <span style="color: #f00; animation: blink 0.4s infinite;">WATCHING_YOU</span><br>
+            <span style="font-size: 0.6rem; opacity: 0.5;">MANIFESTATIO: 1%</span>
+        </div>
+    </div>
+
+    <script>
+        const body = document.body;
+        const ghost = document.getElementById('ghost-flash');
+
+        // Die "Eingepflanzten Befehle"
+        const traumaTexts = [
+            "ICH HABE ANGST",
+            "ER SIEHT MICH",
+            "HILF MIR",
+            "VIKTOR",
+            "ES IST IM RAUM",
+            "ICH KANN NICHT ATMEN",
+            "DREH DICH NICHT UM",
+            "TE HABEO"
+        ];
+
+        // Funktion für den physischen Schock
+        function triggerTrauma() {
+            body.classList.add('inverted');
+            setTimeout(() => {
+                body.classList.remove('inverted');
+            }, 80); 
+            
+            if(Math.random() > 0.4) {
+                flashGhost();
+            }
+        }
+
+        // Subliminales Aufblitzen
+        function randomGhost() {
+            if(Math.random() > 0.85) {
+                flashGhost();
+            }
+            setTimeout(randomGhost, Math.random() * 3000 + 1500);
+        }
+
+        function flashGhost() {
+            const randomText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
+            ghost.innerText = randomText;
+            ghost.style.display = 'block';
+            
+            // 25 Millisekunden - die Grenze zur Halluzination
+            setTimeout(() => {
+                ghost.style.display = 'none';
+            }, 25); 
+        }
+
+        document.addEventListener('touchstart', triggerTrauma, {passive: true});
+        document.addEventListener('click', triggerTrauma);
+        setTimeout(randomGhost, 4000);
+
+        // Der Rauschen-Generator
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        function noise() {
+            canvas.width = window.innerWidth / 2;
+            canvas.height = window.innerHeight / 2;
+            let idata = ctx.createImageData(canvas.width, canvas.height);
+            let buffer32 = new Uint32Array(idata.data.buffer);
+            for(let i=0; i<buffer32.length; i++) {
+                if(Math.random() < 0.12) buffer32[i] = 0xff220000; 
+            }
+            ctx.putImageData(idata, 0, 0);
+            requestAnimationFrame(noise);
+        }
+        noise();
+    </script>
+</body>
+</html>
