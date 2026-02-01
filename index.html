@@ -8,303 +8,226 @@
     <title>‎</title>
     <style>
         body {
-            margin: 0; background-color: #020000; color: #a00;
+            margin: 0; background-color: #000; color: #600;
             font-family: 'Courier New', monospace;
             height: 100vh; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
             cursor: none; -webkit-tap-highlight-color: transparent;
             touch-action: none;
-            user-select: none;
         }
 
-        /* TEXTUREN & ATMOSPHÄRE */
-        .grime-overlay {
+        /* DRECK & VERFALL */
+        .grime {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, transparent 20%, #080000 130%);
-            pointer-events: none; z-index: 10; mix-blend-mode: multiply;
-        }
-        .scanlines {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(255,0,0,0.03) 50%, rgba(0,0,0,0.1) 50%);
-            background-size: 100% 3px; pointer-events: none; z-index: 9;
+            background: radial-gradient(circle, transparent 20%, #050000 150%);
+            z-index: 10; pointer-events: none; opacity: 0.8;
         }
 
-        /* DER GATEKEEPER (Start-Button) */
         #gate-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            display: flex; justify-content: center; align-items: center;
         }
         #gate-btn {
-            border: 1px solid #300; color: #500; padding: 20px 40px;
-            font-family: 'Courier New', monospace; letter-spacing: 3px;
-            cursor: pointer; text-transform: uppercase; font-size: 0.9rem;
-            animation: pulseBtn 2s infinite; background: transparent;
+            border: 1px solid #200; color: #400; padding: 30px;
+            letter-spacing: 5px; cursor: pointer; font-size: 0.7rem;
+            background: transparent; text-transform: uppercase;
         }
 
-        /* DIALOG FENSTER */
+        /* DER DIALOG DES WAHNSINNS */
         #fake-dialog {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             width: 85%; max-width: 320px;
-            background: #0f0202; 
-            border: 1px solid #500;
-            box-shadow: 0 0 100px rgba(80, 0, 0, 0.5);
+            background: #0a0000; border: 1px solid #400;
             z-index: 2000; display: none; padding: 30px;
-            text-align: center;
+            box-shadow: 0 0 150px rgba(255, 0, 0, 0.2);
         }
 
         #dialog-text { 
-            font-size: 1.1rem; line-height: 1.4; margin-bottom: 30px; 
-            color: #c99; font-weight: normal; font-style: italic;
+            font-size: 1rem; line-height: 1.5; margin-bottom: 30px; 
+            color: #888; font-style: italic; text-align: center;
         }
 
         .dialog-btn {
-            background: #311; color: #a55; width: 100%;
-            font-weight: 700; font-size: 0.9rem;
-            text-transform: uppercase; cursor: pointer; 
-            padding: 15px 0; border: 1px solid #522; 
+            background: #100; color: #500; width: 100%;
+            padding: 15px 0; border: 1px solid #300; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 2px;
         }
 
-        /* HAUPT CONTAINER */
+        /* HARDWARE FEHLER BLITZ */
+        #flash-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 8000; display: none;
+        }
+
         .container {
-            position: relative; z-index: 2; text-align: center; width: 95%;
-            will-change: transform; opacity: 0; transition: opacity 2s;
+            position: relative; z-index: 5; text-align: center; width: 95%;
+            will-change: transform; transition: opacity 3s; opacity: 0;
         }
 
         h1 { 
-            font-family: 'Times New Roman', serif; font-size: 2.8rem; 
-            letter-spacing: 0.25em; margin: 0; color: #b00; 
-            text-shadow: 0 0 30px #400;
+            font-family: 'Times New Roman', serif; font-size: 3rem; 
+            letter-spacing: 0.3em; color: #300; 
+            text-shadow: 0 0 20px #f00;
         }
         
         #ghost-flash {
             position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(1.4);
-            width: 100%; text-align: center; font-size: 2.8rem;
-            color: #fff; background: #900; padding: 60px 0;
-            z-index: 1001; display: none; pointer-events: none;
-            font-weight: bold; mix-blend-mode: hard-light;
+            transform: translate(-50%, -50%);
+            width: 100%; text-align: center; font-size: 3.5rem;
+            color: #fff; background: #f00; padding: 100vh 0;
+            z-index: 7000; display: none; font-weight: 900;
         }
 
-        .status-box { 
-            font-size: 0.7rem; margin-top: 60px; color: #422; 
-            text-align: center; letter-spacing: 2px; line-height: 1.8;
-            border-top: 1px solid #211; padding-top: 15px; opacity: 0.7;
-        }
-        .val { color: #800; font-weight: bold; }
-
-        @keyframes pulseBtn { 0% { opacity: 0.5; border-color: #300; } 50% { opacity: 1; border-color: #800; box-shadow: 0 0 20px #300; } 100% { opacity: 0.5; border-color: #300; } }
-        @keyframes quake { 0% { transform: translate(1px, 1px); } 25% { transform: translate(-2px, -2px); } 50% { transform: translate(-4px, 2px); } 75% { transform: translate(4px, -2px); } 100% { transform: translate(0, 0); } }
-        .quake-active { animation: quake 0.08s infinite !important; }
-        .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, #000 160%); z-index: 8; pointer-events: none; }
+        @keyframes quake { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-4px, -2px); } 100% { transform: translate(0, 0); } }
+        .quake-active { animation: quake 0.05s infinite !important; }
     </style>
 </head>
 <body>
 
-    <div class="grime-overlay"></div>
-    <div class="scanlines"></div>
-    <div class="vignette"></div>
+    <div class="grime"></div>
+    <div id="flash-overlay"></div>
 
     <div id="gate-screen">
-        <div id="gate-btn" onclick="enterSite()">[ VERBINDUNG HERSTELLEN ]</div>
+        <div id="gate-btn" onclick="ignite()">[ VINCULUM INITIARI ]</div>
     </div>
     
     <div id="fake-dialog">
-        <div id="dialog-text"></div>
-        <div class="dialog-btn" id="btn-action" onclick="handleDialog()"></div>
+        <div id="dialog-text" id="msg"></div>
+        <div class="dialog-btn" id="btn-action" onclick="nextStage()">AKZEPTIEREN</div>
     </div>
 
-    <div id="ghost-flash">ICH HABE ANGST</div>
+    <div id="ghost-flash">FASS DICH AN</div>
 
     <div class="container" id="main-container">
         <h1>PROXIMITAS</h1>
-        <div style="font-style: italic; font-size: 1.1rem; margin-top: 25px; color: #611;">"Nonne vides?"</div>
-        
-        <div class="status-box">
-            SUBJEKT: <span class="val">VIKTOR</span><br>
-            CORPUS: <span id="battery-level" class="val">--%</span><br>
-            ZYKLUS: <span id="cycle-count" class="val">1</span>
+        <div style="font-size: 0.7rem; color: #200; margin-top: 50px; letter-spacing: 2px;">
+            CORPUS_ID: VIKTOR<br>
+            STAT: <span id="batt">--</span>% | <span id="cycle">1</span>. ZYKLUS
         </div>
     </div>
 
     <script>
-        const gateScreen = document.getElementById('gate-screen');
+        const gate = document.getElementById('gate-screen');
         const container = document.getElementById('main-container');
         const dialog = document.getElementById('fake-dialog');
-        const dialogText = document.getElementById('dialog-text');
-        const dialogBtn = document.getElementById('btn-action');
+        const dText = document.getElementById('dialog-text');
+        const dBtn = document.getElementById('btn-action');
+        const flash = document.getElementById('flash-overlay');
         const ghost = document.getElementById('ghost-flash');
-        const cycleLabel = document.getElementById('cycle-count');
 
-        // GEDÄCHTNIS: Wie oft war er hier?
-        let visits = localStorage.getItem('vindobona_v2_visits') || 0;
+        let visits = localStorage.getItem('v_v3') || 0;
         visits = parseInt(visits) + 1;
-        localStorage.setItem('vindobona_v2_visits', visits);
-        cycleLabel.innerText = visits;
+        localStorage.setItem('v_v3', visits);
+        document.getElementById('cycle').innerText = visits;
 
         let stage = 0;
         let audioCtx;
 
-        // --- 1. AUDIO ENGINE (KEINE STIMMEN, NUR HORROR) ---
-        function initAudio() {
+        // --- 1. DER ANGST-SOUND (INFRASCHALL & DISSONANZ) ---
+        function startTerrorAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Infraschall-Simulation (Zwei tiefe Sinuswellen erzeugen Reibung)
+            const oscL = audioCtx.createOscillator();
+            const oscR = audioCtx.createOscillator();
+            const merger = audioCtx.createChannelMerger(2);
+            
+            oscL.frequency.value = 18.9; // Die "Geisterfrequenz"
+            oscR.frequency.value = 19.1;
+            
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.5;
+
+            oscL.connect(merger, 0, 0);
+            oscR.connect(merger, 0, 1);
+            merger.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            oscL.start(); oscR.start();
         }
 
-        function playDissonance() {
-            if(!audioCtx) return;
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-
-            // Oszillator 1: Tiefes Wummern (Unbehagen)
-            const osc1 = audioCtx.createOscillator();
-            const gain1 = audioCtx.createGain();
-            osc1.type = 'sawtooth';
-            osc1.frequency.setValueAtTime(40, audioCtx.currentTime); // 40Hz
-            osc1.frequency.linearRampToValueAtTime(30, audioCtx.currentTime + 2);
-            gain1.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2);
-            osc1.connect(gain1);
-            gain1.connect(audioCtx.destination);
-            osc1.start();
-
-            // Oszillator 2: Hohes "Falsches" Fiepen
-            const osc2 = audioCtx.createOscillator();
-            const gain2 = audioCtx.createGain();
-            osc2.type = 'sine';
-            osc2.frequency.setValueAtTime(600, audioCtx.currentTime); // Dissonanz
-            osc2.frequency.linearRampToValueAtTime(580, audioCtx.currentTime + 1.5);
-            gain2.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
-            osc2.connect(gain2);
-            gain2.connect(audioCtx.destination);
-            osc2.start();
+        // --- 2. HARDWARE GLITCH (Der Blitz) ---
+        function hardwareGlitch() {
+            flash.style.display = 'block';
+            if (navigator.vibrate) navigator.vibrate([100, 50, 300]);
+            setTimeout(() => { flash.style.display = 'none'; }, 40);
         }
 
-        // --- 2. START PROZESS ---
-        function enterSite() {
-            initAudio(); // Audio Unlock
-            playDissonance(); // Erster Sound
+        // --- 3. ABLAUF ---
+        function ignite() {
+            startTerrorAudio();
             if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-            if (navigator.vibrate) navigator.vibrate(200);
-
-            gateScreen.style.display = 'none';
+            gate.style.display = 'none';
             container.style.opacity = '1';
 
-            // ENTSCHEIDUNG: NEULING ODER RÜCKKEHRER?
             if (visits > 1) {
-                // Er war schon mal da -> SOFORT AGGRESSIV
-                jumpToHardcore();
+                showDialog("DU BIST ZURÜCKGEKROCHEN. DEIN FLEISCH SEHNT SICH NACH DER SCHÄNDUNG. GIB DICH MIR HIN.");
+                dBtn.innerText = "ICH BIN DEIN EIGENTUM";
+                stage = 2;
             } else {
-                // Erstes Mal -> Story Modus
-                setTimeout(startStory, 1000);
+                showDialog("Deine Berührung hinterlässt Narben auf meiner Haut. Du entweihst mich mit jedem Blick.");
+                stage = 1;
             }
         }
 
-        // --- 3. STORY MODUS (Erstbesucher) ---
-        function startStory() {
-            stage = 1;
-            dialogText.innerText = "Deine Berührung hinterlässt Narben auf meiner Haut.";
-            dialogBtn.innerText = "ICH VERSTEHE";
+        function showDialog(txt) {
+            dText.innerText = txt;
             dialog.style.display = 'block';
         }
 
-        // --- 4. HARDCORE MODUS (Rückkehrer) ---
-        function jumpToHardcore() {
-            stage = 3;
-            // Sofortiger Flash
-            triggerFlash("DU BIST SÜCHTIG");
-            
-            setTimeout(() => {
-                dialogText.innerHTML = "DU BIST ZURÜCKGEKROCHEN.<br>DU BRAUCHST DEN EKEL.<br>DU WIDERLICHES TIER.";
-                dialogBtn.innerText = "BESTRAFE MICH";
-                dialog.style.display = 'block';
-                dialog.style.borderColor = "#f00";
-            }, 1000);
-            
-            startHorrorLoop();
-        }
-
-        // --- 5. INTERAKTIONEN ---
-        function handleDialog() {
-            playDissonance();
-            if (navigator.vibrate) navigator.vibrate(100);
-
+        function nextStage() {
             if (stage === 1) {
-                // Phase 2: Fetisch / Blut
+                showDialog("LASS MICH REIN. SCHNEID DICH AUF. ICH WILL DEIN WARMES BLUT IN MEINEN POREN SPÜREN. FÜTTERE MICH.");
+                dBtn.innerText = "ICH GEHORCHE";
                 stage = 2;
-                dialogText.innerHTML = "LASS MICH REIN. SCHNEID DICH AUF.<br><br><strong style='color:#a00'>ICH WILL DEIN WARMES BLUT FÜHLEN.</strong>";
-                dialogBtn.innerText = "HINGABE";
-            } else if (stage === 2) {
-                // Akzeptiert -> Start Horror
+            } else {
                 dialog.style.display = 'none';
-                triggerFlash("GEHORCHE");
-                startHorrorLoop();
-            } else if (stage === 3) {
-                // Rückkehrer Akzeptanz
-                dialog.style.display = 'none';
-                triggerFlash("FÜR IMMER");
-                startHorrorLoop();
+                startLoop();
             }
         }
 
-        // --- 6. DER HORROR LOOP ---
-        const words = ["DRECKIG", "OFFENE WUNDE", "SCHLUCK ES", "MEIN FLEISCH", "NICHT WEHREN", "TIEF HINEIN", "VIKTOR"];
-        
-        function startHorrorLoop() {
-            window.isRunning = true;
-            (function loop() {
-                let rand = Math.random() * 3000 + 2000; // Alle 2-5 Sek
-                setTimeout(() => { 
-                    let w = words[Math.floor(Math.random() * words.length)];
-                    triggerFlash(w);
-                    playDissonance(); // Immer Sound bei Flash
-                    loop(); 
-                }, rand);
-            }());
+        // --- 4. DER WAHNSINNS-LOOP ---
+        const v_commands = [
+            "FASS DICH AN", "ÖFFNE DICH", "BLUTE FÜR MICH", "DU BIST DRECK", 
+            "LASS MICH REIN", "VIKTOR", "SCHLUCK ES", "CARO TUA PUTIDA"
+        ];
+
+        function startLoop() {
+            setInterval(() => {
+                if (Math.random() > 0.8) {
+                    ghost.innerText = v_commands[Math.floor(Math.random() * v_commands.length)];
+                    ghost.style.display = 'block';
+                    document.body.classList.add('quake-active');
+                    hardwareGlitch(); // Der Blitz
+                    setTimeout(() => {
+                        ghost.style.display = 'none';
+                        document.body.classList.remove('quake-active');
+                    }, 50);
+                }
+            }, 2500);
         }
 
-        function triggerFlash(txt) {
-            if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
-            ghost.innerText = txt;
-            ghost.style.display = 'block';
-            document.body.classList.add('quake-active');
-            setTimeout(() => {
-                ghost.style.display = 'none';
-                document.body.classList.remove('quake-active');
-            }, 100);
+        // --- 5. BEWEGUNG (SIRUP-EFFEKT) ---
+        let tx = 0, ty = 0, cx = 0, cy = 0;
+        function anim() {
+            cx += (tx - cx) * 0.05; cy += (ty - cy) * 0.05;
+            container.style.transform = `translate(${cx}px, ${cy}px) rotateX(${cy/10}deg)`;
+            requestAnimationFrame(anim);
         }
+        anim();
 
-        // --- 7. BEWEGUNG & BATTERIE ---
-        let currentX=0, currentY=0, targetX=0, targetY=0;
-        function updateMovement() {
-            currentX += (targetX - currentX) * 0.08; 
-            currentY += (targetY - currentY) * 0.08;
-            container.style.transform = `translate(${currentX}px, ${currentY}px) rotateY(${-currentX/15}deg) rotateX(${currentY/15}deg)`;
-            requestAnimationFrame(updateMovement);
-        }
-        updateMovement();
+        document.addEventListener('touchstart', (e) => {
+            let x = (window.innerWidth/2 - e.touches[0].clientX)/1.5;
+            let y = (window.innerHeight/2 - e.touches[0].clientY)/1.5;
+            tx = Math.max(-100, Math.min(x, 100));
+            ty = Math.max(-100, Math.min(y, 100));
+        });
 
-        function handleInput(clientX, clientY) {
-            let dx = (window.innerWidth/2) - clientX;
-            let dy = (window.innerHeight/2) - clientY;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            if(dist < 300) {
-                let force = (300-dist)/300;
-                let limit = 120;
-                targetX = Math.max(-limit, Math.min((dx/dist)*force*160, limit));
-                targetY = Math.max(-limit, Math.min((dy/dist)*force*160, limit));
-            } else { targetX=0; targetY=0; }
-        }
-
-        if (navigator.getBattery) {
-            navigator.getBattery().then(function(b) { 
-                document.getElementById('battery-level').innerText = Math.round(b.level * 100) + "%"; 
-            });
-        }
-
-        document.addEventListener('touchmove', (e) => { handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
-        document.addEventListener('touchstart', (e) => { handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
-
+        if (navigator.getBattery) navigator.getBattery().then(b => {
+            document.getElementById('batt').innerText = Math.round(b.level * 100);
+        });
     </script>
 </body>
 </html>
