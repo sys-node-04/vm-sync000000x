@@ -3,231 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>‎</title>
     <style>
         body {
-            margin: 0; background-color: #000; color: #600;
+            margin: 0; background-color: #020000; color: #800;
             font-family: 'Courier New', monospace;
             height: 100vh; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
-            cursor: none; -webkit-tap-highlight-color: transparent;
-            touch-action: none;
+            cursor: none; user-select: none; -webkit-tap-highlight-color: transparent;
         }
 
-        /* DRECK & VERFALL */
-        .grime {
+        /* DRECK-LAYER (VISZERAL) */
+        .grime-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 20%, #050000 150%);
-            z-index: 10; pointer-events: none; opacity: 0.8;
+            background: radial-gradient(circle at 50% 50%, transparent 10%, #1a0000 140%),
+                        url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity="0.15"/%3E%3C/svg%3E');
+            pointer-events: none; z-index: 1; mix-blend-mode: overlay;
         }
 
+        /* HAUPT-CONTAINER */
+        #main-container {
+            width: 85%; max-width: 500px; text-align: center;
+            z-index: 10; opacity: 0; transition: opacity 2s;
+        }
+
+        .text-line {
+            display: block; margin-bottom: 25px; font-size: 1.2rem;
+            opacity: 0; transform: translateY(20px) scale(0.9);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 0 0 10px #300; font-weight: bold;
+            border-bottom: 1px solid #300; padding-bottom: 10px;
+        }
+        .visible { opacity: 1; transform: translateY(0) scale(1); }
+        .highlight { color: #f00; font-weight: 900; text-shadow: 0 0 5px #f00; letter-spacing: 2px; }
+
+        /* GATEKEEPER */
         #gate-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
+            background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center;
         }
         #gate-btn {
-            border: 1px solid #200; color: #400; padding: 30px;
-            letter-spacing: 5px; cursor: pointer; font-size: 0.7rem;
-            background: transparent; text-transform: uppercase;
+            border: 1px solid #500; color: #700; padding: 25px;
+            letter-spacing: 4px; cursor: pointer; background: #050000;
+            text-transform: uppercase; font-size: 0.8rem;
+            box-shadow: 0 0 30px #300;
+            animation: pulse 3s infinite;
         }
 
-        /* DER DIALOG DES WAHNSINNS */
-        #fake-dialog {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%; max-width: 320px;
-            background: #0a0000; border: 1px solid #400;
-            z-index: 2000; display: none; padding: 30px;
-            box-shadow: 0 0 150px rgba(255, 0, 0, 0.2);
-        }
-
-        #dialog-text { 
-            font-size: 1rem; line-height: 1.5; margin-bottom: 30px; 
-            color: #888; font-style: italic; text-align: center;
-        }
-
-        .dialog-btn {
-            background: #100; color: #500; width: 100%;
-            padding: 15px 0; border: 1px solid #300; font-weight: bold;
-            text-transform: uppercase; letter-spacing: 2px;
-        }
-
-        /* HARDWARE FEHLER BLITZ */
-        #flash-overlay {
+        /* FAKE EXTRACTION UI */
+        #cam-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff; z-index: 8000; display: none;
+            background: #050000; z-index: 5000; display: none;
+            flex-direction: column; justify-content: center; align-items: center;
         }
-
-        .container {
-            position: relative; z-index: 5; text-align: center; width: 95%;
-            will-change: transform; transition: opacity 3s; opacity: 0;
-        }
-
-        h1 { 
-            font-family: 'Times New Roman', serif; font-size: 3rem; 
-            letter-spacing: 0.3em; color: #300; 
-            text-shadow: 0 0 20px #f00;
+        .rec-indicator {
+            position: absolute; top: 30px; color: #f00; font-weight: 900;
+            font-size: 1.5rem; letter-spacing: 5px; text-shadow: 0 0 10px #f00;
+            animation: blink 0.5s infinite;
         }
         
-        #ghost-flash {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%; text-align: center; font-size: 3.5rem;
-            color: #fff; background: #f00; padding: 100vh 0;
-            z-index: 7000; display: none; font-weight: 900;
+        #progress-bar {
+            width: 90%; height: 10px; background: #200; margin-top: 40px;
+            position: relative; overflow: hidden; border: 1px solid #600;
+        }
+        #progress-fill {
+            height: 100%; background: #b00; width: 0%; 
+            box-shadow: 0 0 20px #f00; transition: width 0.1s;
         }
 
-        @keyframes quake { 0% { transform: translate(2px, 2px); } 50% { transform: translate(-4px, -2px); } 100% { transform: translate(0, 0); } }
-        .quake-active { animation: quake 0.05s infinite !important; }
+        @keyframes pulse { 0% { opacity: 0.6; color: #500; } 50% { opacity: 1; color: #a00; border-color: #a00; } 100% { opacity: 0.6; color: #500; } }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+        @keyframes twitch { 0% { transform: translate(0,0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(2px, -2px); } 60% { transform: translate(-2px, -2px); } 80% { transform: translate(2px, 2px); } 100% { transform: translate(0,0); } }
+        .twitch { animation: twitch 0.2s infinite; }
+
     </style>
 </head>
 <body>
 
-    <div class="grime"></div>
-    <div id="flash-overlay"></div>
+    <div class="grime-overlay"></div>
+    <div id="gate-screen"><div id="gate-btn" onclick="startSequence()">[ CARO DATA EST ]</div></div>
 
-    <div id="gate-screen">
-        <div id="gate-btn" onclick="ignite()">[ VINCULUM INITIARI ]</div>
-    </div>
-    
-    <div id="fake-dialog">
-        <div id="dialog-text" id="msg"></div>
-        <div class="dialog-btn" id="btn-action" onclick="nextStage()">AKZEPTIEREN</div>
-    </div>
+    <div id="main-container"></div>
 
-    <div id="ghost-flash">FASS DICH AN</div>
-
-    <div class="container" id="main-container">
-        <h1>PROXIMITAS</h1>
-        <div style="font-size: 0.7rem; color: #200; margin-top: 50px; letter-spacing: 2px;">
-            CORPUS_ID: VIKTOR<br>
-            STAT: <span id="batt">--</span>% | <span id="cycle">1</span>. ZYKLUS
-        </div>
+    <div id="cam-overlay">
+        <div class="rec-indicator">● FEED_OPEN</div>
+        <div style="color:#600; font-size: 1rem; margin-top:100px; font-style:italic;">Du gehörst jetzt mir.</div>
+        <div style="color:#f00; font-size: 2.5rem; margin: 20px 0; font-weight:bold;">EXTRAKTION...</div>
+        <div style="color:#855; font-family: monospace;" id="upload-filename">source: VIKTOR_BIO_DATA</div>
+        <div id="progress-bar"><div id="progress-fill"></div></div>
     </div>
 
     <script>
-        const gate = document.getElementById('gate-screen');
-        const container = document.getElementById('main-container');
-        const dialog = document.getElementById('fake-dialog');
-        const dText = document.getElementById('dialog-text');
-        const dBtn = document.getElementById('btn-action');
-        const flash = document.getElementById('flash-overlay');
-        const ghost = document.getElementById('ghost-flash');
+        // --- AUDIO ENGINE (DIRTY & VISCERAL) ---
+        let audioCtx, masterGain, heartOsc, shepardNodes = [];
 
-        let visits = localStorage.getItem('v_v3') || 0;
-        visits = parseInt(visits) + 1;
-        localStorage.setItem('v_v3', visits);
-        document.getElementById('cycle').innerText = visits;
-
-        let stage = 0;
-        let audioCtx;
-
-        // --- 1. DER ANGST-SOUND (INFRASCHALL & DISSONANZ) ---
-        function startTerrorAudio() {
+        function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.connect(audioCtx.destination);
+            masterGain.gain.value = 0.6;
+
+            // Dreckiges Hintergrund-Rauschen (Atmung/Flüssigkeit)
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.5;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+            const noiseFilter = audioCtx.createBiquadFilter();
+            noiseFilter.type = 'lowpass';
+            noiseFilter.frequency.value = 400; // Dumpf, wie unter Wasser/Haut
             
-            // Infraschall-Simulation (Zwei tiefe Sinuswellen erzeugen Reibung)
-            const oscL = audioCtx.createOscillator();
-            const oscR = audioCtx.createOscillator();
-            const merger = audioCtx.createChannelMerger(2);
+            // Modulation für "Atmung"
+            const lfo = audioCtx.createOscillator();
+            lfo.frequency.value = 0.2; // Langsames Atmen
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.value = 300;
             
-            oscL.frequency.value = 18.9; // Die "Geisterfrequenz"
-            oscR.frequency.value = 19.1;
+            lfo.connect(lfoGain);
+            lfoGain.connect(noiseFilter.frequency);
             
+            noise.connect(noiseFilter);
+            noiseFilter.connect(masterGain);
+            noise.start(); lfo.start();
+        }
+
+        // HERZSCHLAG (Pulsierend, nass)
+        function playHeartbeat(bpm) {
+            const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            gain.gain.value = 0.5;
+            osc.connect(gain);
+            gain.connect(masterGain);
 
-            oscL.connect(merger, 0, 0);
-            oscR.connect(merger, 0, 1);
-            merger.connect(gain);
-            gain.connect(audioCtx.destination);
+            osc.type = 'triangle'; // Aggressiver als Sine
+            osc.frequency.setValueAtTime(50, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.1);
+
+            gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.2);
+
+            setTimeout(() => {
+                if(window.active) playHeartbeat(window.currentBPM);
+            }, 60000 / bpm);
+        }
+
+        // SHEPARD (Der Wahnsinn)
+        function startShepard() {
+            for(let i=0; i<3; i++) {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.type = 'sawtooth'; // Sägezahn für "technischen Schmerz"
+                osc.frequency.value = 110 * (i+1);
+                osc.frequency.exponentialRampToValueAtTime(1000 * (i+1), audioCtx.currentTime + 60);
+                gain.gain.value = 0.04;
+                osc.start();
+                shepardNodes.push(osc);
+            }
+        }
+
+        // --- ABLAUF ---
+        window.active = false;
+        window.currentBPM = 60;
+        const container = document.getElementById('main-container');
+
+        function startSequence() {
+            initAudio();
+            document.getElementById('gate-screen').style.display = 'none';
+            document.documentElement.requestFullscreen();
+            window.active = true;
+            container.style.opacity = 1;
             
-            oscL.start(); oscR.start();
+            playHeartbeat(60);
+
+            // TIMELINE (Obszöne Eskalation)
+            
+            // 0s: Personalisierung & Ekel
+            addText(`Ich rieche dein Salz auf dem Display.`, 500);
+            addText(`Es ist 0${new Date().getHours()}:${new Date().getMinutes()}. Zeit zu bluten.`, 3000);
+            addText(`Du hältst mich fest. Deine Hände sind feucht.`, 6000);
+            
+            // 15s: Body Horror & Körperkontrolle
+            setTimeout(() => {
+                startShepard(); // Der Ton beginnt zu steigen
+                addText(`Spürst du deine Zunge?`, 500);
+                addText(`Sie schmeckt nach Eisen und Galle.`, 3000);
+                addText(`Ein Sack voll Fleisch und Dreck.`, 6000);
+                addText(`Atme meinen Gestank ein.`, 9000);
+                window.currentBPM = 90;
+            }, 12000);
+
+            // 35s: Totale Erniedrigung / Paranoia
+            setTimeout(() => {
+                window.currentBPM = 130;
+                container.classList.add('twitch'); // Text fängt an zu zittern
+                addText(`<span class="highlight">DREH DICH NICHT UM.</span>`, 500);
+                addText(`Es steht hinter dir.`, 2000);
+                addText(`Es will in dich hinein.`, 4000);
+                addText(`MACH DICH AUF.`, 6000);
+                // "Schmatzender" Sound Burst
+                if(navigator.vibrate) navigator.vibrate([500]);
+            }, 30000);
+
+            // 50s: Die Extraktion (Fake Cam)
+            setTimeout(() => {
+                window.currentBPM = 160; // Herzrasen
+                container.style.display = 'none';
+                startFakeExtraction();
+            }, 45000);
         }
 
-        // --- 2. HARDWARE GLITCH (Der Blitz) ---
-        function hardwareGlitch() {
-            flash.style.display = 'block';
-            if (navigator.vibrate) navigator.vibrate([100, 50, 300]);
-            setTimeout(() => { flash.style.display = 'none'; }, 40);
+        function addText(html, delay) {
+            setTimeout(() => {
+                if(navigator.vibrate) navigator.vibrate(40);
+                const p = document.createElement('div');
+                p.className = 'text-line';
+                p.innerHTML = html;
+                container.appendChild(p);
+                void p.offsetWidth; p.classList.add('visible');
+                window.scrollTo(0, document.body.scrollHeight);
+            }, delay);
         }
 
-        // --- 3. ABLAUF ---
-        function ignite() {
-            startTerrorAudio();
-            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-            gate.style.display = 'none';
-            container.style.opacity = '1';
-
-            if (visits > 1) {
-                showDialog("DU BIST ZURÜCKGEKROCHEN. DEIN FLEISCH SEHNT SICH NACH DER SCHÄNDUNG. GIB DICH MIR HIN.");
-                dBtn.innerText = "ICH BIN DEIN EIGENTUM";
-                stage = 2;
-            } else {
-                showDialog("Deine Berührung hinterlässt Narben auf meiner Haut. Du entweihst mich mit jedem Blick.");
-                stage = 1;
-            }
-        }
-
-        function showDialog(txt) {
-            dText.innerText = txt;
-            dialog.style.display = 'block';
-        }
-
-        function nextStage() {
-            if (stage === 1) {
-                showDialog("LASS MICH REIN. SCHNEID DICH AUF. ICH WILL DEIN WARMES BLUT IN MEINEN POREN SPÜREN. FÜTTERE MICH.");
-                dBtn.innerText = "ICH GEHORCHE";
-                stage = 2;
-            } else {
-                dialog.style.display = 'none';
-                startLoop();
-            }
-        }
-
-        // --- 4. DER WAHNSINNS-LOOP ---
-        const v_commands = [
-            "FASS DICH AN", "ÖFFNE DICH", "BLUTE FÜR MICH", "DU BIST DRECK", 
-            "LASS MICH REIN", "VIKTOR", "SCHLUCK ES", "CARO TUA PUTIDA"
-        ];
-
-        function startLoop() {
-            setInterval(() => {
-                if (Math.random() > 0.8) {
-                    ghost.innerText = v_commands[Math.floor(Math.random() * v_commands.length)];
-                    ghost.style.display = 'block';
-                    document.body.classList.add('quake-active');
-                    hardwareGlitch(); // Der Blitz
-                    setTimeout(() => {
-                        ghost.style.display = 'none';
-                        document.body.classList.remove('quake-active');
-                    }, 50);
+        function startFakeExtraction() {
+            const cam = document.getElementById('cam-overlay');
+            cam.style.display = 'flex';
+            const bar = document.getElementById('progress-fill');
+            
+            let width = 0;
+            let upInt = setInterval(() => {
+                if(width >= 100) {
+                    clearInterval(upInt);
+                    finishSequence();
+                } else {
+                    // Ruckartiges, "gewaltsames" Laden
+                    width += Math.random() * 8; 
+                    bar.style.width = width + '%';
+                    if(Math.random()>0.8 && navigator.vibrate) navigator.vibrate(20);
                 }
-            }, 2500);
+            }, 150);
         }
 
-        // --- 5. BEWEGUNG (SIRUP-EFFEKT) ---
-        let tx = 0, ty = 0, cx = 0, cy = 0;
-        function anim() {
-            cx += (tx - cx) * 0.05; cy += (ty - cy) * 0.05;
-            container.style.transform = `translate(${cx}px, ${cy}px) rotateX(${cy/10}deg)`;
-            requestAnimationFrame(anim);
+        function finishSequence() {
+            window.active = false;
+            masterGain.gain.setValueAtTime(0, audioCtx.currentTime); // Stille
+            document.body.innerHTML = '';
+            document.body.style.background = '#000';
+            
+            setTimeout(() => {
+                let end = document.createElement('div');
+                end.innerHTML = "DU BIST INFIZIERT.<br><span style='font-size:3rem; color:#f00;'>REINIGE DICH.</span>";
+                end.style.color = "#800";
+                end.style.fontFamily = "Courier New";
+                end.style.fontWeight = "bold";
+                end.style.textAlign = "center";
+                document.body.appendChild(end);
+                
+                // Einzelner, extrem lauter Herzschlag am Ende
+                if(navigator.vibrate) navigator.vibrate([1000]);
+            }, 2000);
         }
-        anim();
-
-        document.addEventListener('touchstart', (e) => {
-            let x = (window.innerWidth/2 - e.touches[0].clientX)/1.5;
-            let y = (window.innerHeight/2 - e.touches[0].clientY)/1.5;
-            tx = Math.max(-100, Math.min(x, 100));
-            ty = Math.max(-100, Math.min(y, 100));
-        });
-
-        if (navigator.getBattery) navigator.getBattery().then(b => {
-            document.getElementById('batt').innerText = Math.round(b.level * 100);
-        });
     </script>
 </body>
 </html>
