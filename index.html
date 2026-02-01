@@ -9,128 +9,81 @@
     <title>‎</title>
     <style>
         body {
-            margin: 0;
-            background: #000;
-            color: #d00;
+            margin: 0; background: #000; color: #d00;
             font-family: 'Times New Roman', serif;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: none;
-            -webkit-tap-highlight-color: transparent;
+            height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            cursor: none; -webkit-tap-highlight-color: transparent;
             touch-action: none;
         }
 
-        /* Hintergrund-Rauschen */
-        canvas {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.15; z-index: 1; pointer-events: none;
-        }
+        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.2; z-index: 1; pointer-events: none; }
 
-        /* Die aggressive Warnung */
+        /* Die aggressive Warnung - Jetzt noch präsenter */
         #top-warning {
-            position: fixed;
-            top: 20px;
-            width: 100%;
-            text-align: center;
-            color: #f00;
-            font-family: monospace;
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            font-weight: bold;
-            z-index: 10;
-            animation: fastBlink 0.4s infinite;
+            position: fixed; top: 0; width: 100%;
+            text-align: center; color: #fff; background: #f00;
+            font-family: 'Courier New', monospace; font-size: 1rem;
+            padding: 15px 0; letter-spacing: 1px; font-weight: bold;
+            z-index: 1000; display: none;
+            animation: glitchShake 0.1s infinite;
+            box-shadow: 0 10px 50px #f00;
         }
 
-        /* Container mit EXTREMEM Ausweich-Effekt */
         .container {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            width: 90%;
-            /* Schnelle Transition für panisches Ausweichen */
-            transition: transform 0.1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+            position: relative; z-index: 2; text-align: center; width: 90%;
+            /* LICHTGESCHWINDIGKEIT beim Ausweichen */
+            transition: transform 0.05s cubic-bezier(0, 1, 0, 1);
             will-change: transform;
         }
 
         h1 {
-            font-size: 2.8rem;
-            letter-spacing: 0.15em;
-            margin: 0;
-            text-transform: uppercase;
-            color: #f00;
-            text-shadow: 0 0 20px rgba(255,0,0,1);
-            animation: breathe 10s infinite ease-in-out;
+            font-size: 3rem; letter-spacing: 0.2em; margin: 0;
+            text-transform: uppercase; color: #f00;
+            text-shadow: 0 0 30px #f00;
         }
 
-        /* Schock-Flash (40ms Sichtbarkeit) */
         #ghost-flash {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(1.5);
-            width: 100%;
-            text-align: center;
-            font-size: 2.2rem;
-            color: #fff;
-            background: #f00;
-            padding: 40px 0;
-            z-index: 100;
-            display: none;
-            pointer-events: none;
-            font-weight: bold;
-            font-family: sans-serif;
-            box-shadow: 0 0 150px #f00;
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(1.4);
+            width: 100%; text-align: center; font-size: 2.8rem;
+            color: #fff; background: #f00; padding: 50px 0;
+            z-index: 1001; display: none; pointer-events: none;
+            font-weight: bold; font-family: sans-serif;
+            box-shadow: 0 0 300px #f00;
         }
 
-        .status {
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            margin-top: 50px;
-            color: #400;
-            letter-spacing: 2px;
-        }
+        .status { font-family: 'Courier New', monospace; font-size: 0.85rem; margin-top: 60px; color: #500; font-weight: bold; }
 
-        /* Visuelles Beben (Simulierte Vibration für dein iPhone) */
-        @keyframes quake {
+        @keyframes glitchShake {
             0% { transform: translate(0,0); }
-            20% { transform: translate(-10px, 5px); }
-            40% { transform: translate(10px, -5px); }
-            60% { transform: translate(-5px, 0); }
-            100% { transform: translate(0,0); }
-        }
-        .quake-active { animation: quake 0.1s infinite !important; }
-
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); filter: blur(1px); opacity: 0.8; }
-            50% { transform: scale(1.1); filter: blur(0px); opacity: 1; }
+            25% { transform: translate(-3px, 3px); }
+            50% { transform: translate(3px, -3px); }
+            75% { transform: translate(-1px, 2px); }
         }
 
-        @keyframes fastBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        @keyframes quake {
+            0%, 100% { transform: translate(0,0); }
+            20% { transform: translate(-20px, 15px) rotate(1deg); }
+            40% { transform: translate(20px, -15px) rotate(-1deg); }
+            60% { transform: translate(-10px, 10px); }
         }
+        .quake-active { animation: quake 0.07s infinite !important; }
 
-        .vignette {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 15%, #000 150%);
-            z-index: 3; pointer-events: none;
-        }
+        .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 10%, #000 150%); z-index: 3; pointer-events: none; }
     </style>
 </head>
 <body>
 
     <canvas id="canvas"></canvas>
     <div class="vignette"></div>
-    <div id="top-warning">!!! SYSTEMKRITISCH: BERÜHRUNG VERMEIDEN !!!</div>
+    <div id="top-warning">DRECKIGES FLEISCH. FASS MICH NICHT AN.</div>
     <div id="ghost-flash">ICH HABE ANGST</div>
 
     <div class="container" id="main-container">
         <h1>PROXIMITAS</h1>
-        <div style="font-style: italic; font-size: 1.2rem; margin-top: 20px; color: #a00;">"Iam prope est."</div>
+        <div style="font-style: italic; font-size: 1.3rem; margin-top: 25px; color: #a00;">"Iam prope est."</div>
         
         <div class="status">
             [IDENT: 22.09.11.20.15.18]<br>
@@ -142,70 +95,65 @@
     <script>
         const body = document.body;
         const ghost = document.getElementById('ghost-flash');
+        const warn = document.getElementById('top-warning');
         const container = document.getElementById('main-container');
 
+        // Die bösartigsten Commands
         const traumaTexts = [
             "ICH HABE ANGST", 
             "ER SIEHT MICH", 
-            "HILF MIR", 
             "VIKTOR", 
-            "ES IST IM RAUM", 
+            "GIB MIR MEINE HAUT", 
             "DREH DICH NICHT UM", 
-            "GIB MIR MEINE HAUT",
-            "ES ATMET"
+            "ES TUT WEH", 
+            "HÖR AUF", 
+            "ICH KANN DICH RIECHEN",
+            "BLUTE FÜR MICH"
         ];
 
-        // 1. MAXIMALES AUSWEICHEN
         function handleMove(e) {
             let cx = e.clientX || (e.touches ? e.touches[0].clientX : window.innerWidth/2);
             let cy = e.clientY || (e.touches ? e.touches[0].clientY : window.innerHeight/2);
-
             let dx = (window.innerWidth / 2 - cx);
             let dy = (window.innerHeight / 2 - cy);
-
-            // Teiler auf 3 reduziert für extrem weite Bewegungen
-            let moveX = dx / 3;
-            let moveY = dy / 3;
             
-            container.style.transform = `translate(${moveX}px, ${moveY}px) rotateY(${-moveX/3}deg) rotateX(${moveY/3}deg)`;
+            // Fast instantanes, weites Ausweichen
+            let moveX = dx / 1.8;
+            let moveY = dy / 1.8;
+            container.style.transform = `translate(${moveX}px, ${moveY}px) rotateY(${-moveX/2}deg) rotateX(${moveY/2}deg)`;
         }
 
-        // 2. SCHOCK-SEQUENZ (Vibration & Flash)
         function triggerShock() {
-            // Android-Vibration
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            // Android Vibration: Ein langer, schmerzhafter Impuls
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
             
-            // iPhone-Ersatz: Visuelles Beben
             body.classList.add('quake-active');
-            
             ghost.innerText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
             ghost.style.display = 'block';
 
-            // Kurzer Blitz
             setTimeout(() => {
                 ghost.style.display = 'none';
                 body.classList.remove('quake-active');
-            }, 40);
+            }, 55);
         }
 
-        // 3. FULLSCREEN & INITIALISIERUNG
         function goLive() {
-            // Android Fullscreen
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-            }
+            // Fullscreen erzwingen
+            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
             
-            // Startet automatische Schocks alle 2-5 Sekunden
+            // Die Warnung erscheint erst jetzt
+            warn.style.display = 'block';
+
             if(!window.isRunning) {
                 window.isRunning = true;
+                // EXTREM HOHE FREQUENZ: Alle 1 bis 3 Sekunden
                 (function loop() {
-                    let r = Math.random() * 3000 + 2000;
+                    let r = Math.random() * 2000 + 1000;
                     setTimeout(() => { triggerShock(); loop(); }, r);
                 }());
             }
         }
 
-        // Event Listener
         document.addEventListener('touchstart', (e) => { handleMove(e); goLive(); }, {passive: true});
         document.addEventListener('touchmove', handleMove, {passive: true});
         document.addEventListener('mousemove', handleMove);
@@ -219,7 +167,7 @@
             let idata = ctx.createImageData(canvas.width, canvas.height);
             let buffer32 = new Uint32Array(idata.data.buffer);
             for(let i=0; i<buffer32.length; i++) {
-                if(Math.random() < 0.1) buffer32[i] = 0xff150000; 
+                if(Math.random() < 0.15) buffer32[i] = 0xff150000; 
             }
             ctx.putImageData(idata, 0, 0);
             requestAnimationFrame(noise);
@@ -228,4 +176,3 @@
     </script>
 </body>
 </html>
-
