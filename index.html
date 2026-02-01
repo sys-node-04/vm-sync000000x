@@ -3,66 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>‎</title>
     <style>
         body {
-            margin: 0; background: #000; color: #d00;
+            margin: 0;
+            background: #000;
+            color: #d00;
             font-family: 'Times New Roman', serif;
-            height: 100vh; overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
-            cursor: none; -webkit-tap-highlight-color: transparent;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: none;
+            -webkit-tap-highlight-color: transparent;
             touch-action: none;
         }
 
-        /* Heftiges visuelles Zittern bei Schock */
-        @keyframes shiver {
-            0% { transform: translate(0,0); }
-            20% { transform: translate(-8px, 5px) rotate(1deg); }
-            40% { transform: translate(8px, -5px) rotate(-1deg); }
-            60% { transform: translate(-5px, -2px) rotate(0.5deg); }
-            80% { transform: translate(5px, 2px) rotate(-0.5deg); }
-            100% { transform: translate(0,0); }
+        /* Dynamisches Rauschen */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.12;
+            z-index: 1;
+            pointer-events: none;
+            mix-blend-mode: overlay;
         }
-        .vibrate-effect { animation: shiver 0.1s infinite !important; }
 
-        body.inverted { filter: invert(1) contrast(5); background: #fff; }
-
-        canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.18; z-index: 1; pointer-events: none; }
-
+        /* Container mit weichem Ausweich-Effekt */
         .container {
-            position: relative; z-index: 2; text-align: center; width: 90%;
-            transition: transform 0.08s ease-out; /* Schnelles Ausweichen */
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 90%;
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             will-change: transform;
         }
 
         h1 {
-            font-size: 2.6rem; letter-spacing: 0.2em; margin: 0;
-            text-transform: uppercase; color: #f00;
-            text-shadow: 0 0 20px rgba(255,0,0,1);
-            animation: breathe 12s infinite ease-in-out;
+            font-size: 2.6rem;
+            letter-spacing: 0.2em;
+            margin: 0;
+            text-transform: uppercase;
+            color: #f00;
+            text-shadow: 0 0 25px rgba(255,0,0,0.9);
+            animation: pulseDeep 8s infinite ease-in-out;
         }
 
-        /* Subliminaler Flash-Balken */
+        /* Subliminaler Schock-Balken */
         #ghost-flash {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 100%; text-align: center; font-size: 2.4rem;
-            color: #fff; background: #f00; padding: 30px 0;
-            z-index: 100; display: none; pointer-events: none;
-            font-weight: bold; font-family: sans-serif;
-            box-shadow: 0 0 60px #f00;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+            font-size: 2.4rem;
+            color: #fff;
+            background: #a00;
+            padding: 30px 0;
+            z-index: 100;
+            display: none;
+            pointer-events: none;
+            font-weight: bold;
+            font-family: sans-serif;
+            box-shadow: 0 0 80px #f00;
         }
 
-        .status { font-family: 'Courier New', monospace; font-size: 0.8rem; margin-top: 60px; color: #400; letter-spacing: 2px; }
+        .status {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            margin-top: 60px;
+            color: #600;
+            letter-spacing: 2px;
+        }
 
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); filter: blur(0px); opacity: 0.8; }
-            50% { transform: scale(1.15); filter: blur(3px); opacity: 1; }
+        @keyframes pulseDeep {
+            0%, 100% { transform: scale(1); opacity: 0.8; filter: blur(1px); }
+            50% { transform: scale(1.08); opacity: 1; filter: blur(0px); text-shadow: 0 0 40px red; }
         }
 
         .vignette {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 20%, #000 160%);
-            z-index: 3; pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 10%, #000 150%);
+            z-index: 3;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -78,86 +113,81 @@
         
         <div class="status">
             [IDENT: 22.09.11.20.15.18]<br>
-            <span style="color: #f00; animation: blink 0.8s infinite;">WATCHING_YOU</span><br>
+            STATUS: <span style="color: #f00; animation: blink 2s infinite;">VIGILATIO ACTIVA</span><br>
             MANIFESTATIO: 1%
         </div>
     </div>
 
     <script>
-        const body = document.body;
         const ghost = document.getElementById('ghost-flash');
         const container = document.getElementById('main-container');
 
-        const traumaTexts = ["ICH HABE ANGST", "ER SIEHT MICH", "HILF MIR", "VIKTOR", "ES IST IM RAUM", "DREH DICH NICHT UM", "ICH KANN NICHT ATMEN"];
+        const traumaTexts = ["ICH HABE ANGST", "ER SIEHT MICH", "HILF MIR", "VIKTOR", "ES IST IM RAUM", "DREH DICH NICHT UM", "ES ATMET"];
 
-        // 1. DYNAMISCHES AUSWEICHEN (Aggressiver)
+        // 1. FULLSCREEN-MODUS (Blendet Suchleiste aus)
+        function toggleFullscreen() {
+            const doc = document.documentElement;
+            if (doc.requestFullscreen) doc.requestFullscreen();
+            else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+            else if (doc.mozRequestFullScreen) doc.mozRequestFullScreen();
+        }
+
+        // 2. WEICHES AUSWEICHEN
         function handleMove(e) {
-            let cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-            let cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            let cx = e.clientX || (e.touches ? e.touches[0].clientX : window.innerWidth/2);
+            let cy = e.clientY || (e.touches ? e.touches[0].clientY : window.innerHeight/2);
 
-            // Der Text flieht vor der Berührung
-            let dx = (window.innerWidth / 2 - cx) / 6;
-            let dy = (window.innerHeight / 2 - cy) / 6;
+            let dx = (window.innerWidth / 2 - cx);
+            let dy = (window.innerHeight / 2 - cy);
+
+            let moveX = dx / 8;
+            let moveY = dy / 8;
             
-            // Rotation basierend auf Position für 3D-Effekt
-            container.style.transform = `translate(${dx}px, ${dy}px) rotateY(${-dx/2}deg) rotateX(${dy/2}deg)`;
+            container.style.transform = `translate(${moveX}px, ${moveY}px) rotateY(${-moveX/4}deg) rotateX(${moveY/4}deg)`;
         }
 
-        // 2. ANDROID VIBRATION + SCHOCK-EFFEKT
-        function triggerShock() {
-            // Visueller Schock
-            body.classList.add('inverted', 'vibrate-effect');
-
-            // ECHTE ANDROID VIBRATION
-            // Ein unregelmäßiges "Stottern", als ob das Handy kaputt geht
+        // 3. AUTONOMER SCHOCK (Vibration + Flash)
+        function autonomousShock() {
+            ghost.innerText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
+            ghost.style.display = 'block';
+            
             if (navigator.vibrate) {
-                navigator.vibrate([80, 40, 100, 30, 150]); 
-            }
-            
-            // Flash-Logik
-            if(Math.random() > 0.4) {
-                ghost.innerText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
-                ghost.style.display = 'block';
-                setTimeout(() => ghost.style.display = 'none', 45);
+                navigator.vibrate(200); 
             }
 
-            // Nach 150ms alles zurücksetzen
             setTimeout(() => {
-                body.classList.remove('inverted', 'vibrate-effect');
-            }, 150);
+                ghost.style.display = 'none';
+            }, 45);
+
+            scheduleNextShock();
         }
 
-        // Event Listener für Android (Touch + Maus)
-        document.addEventListener('mousemove', handleMove);
-        document.addEventListener('touchmove', handleMove, {passive: false});
-        document.addEventListener('touchstart', (e) => {
-            handleMove(e);
-            triggerShock();
-        }, {passive: true});
-        document.addEventListener('mousedown', triggerShock);
+        function scheduleNextShock() {
+            let nextTime = Math.random() * 10000 + 5000;
+            setTimeout(autonomousShock, nextTime);
+        }
 
-        // Automatischer Schocker alle 5-10 Sekunden (wenn er nur starrt)
-        function idleScare() {
-            if(Math.random() > 0.6) {
-                ghost.innerText = "ER SIEHT DICH";
-                ghost.style.display = 'block';
-                if (navigator.vibrate) navigator.vibrate(200);
-                setTimeout(() => ghost.style.display = 'none', 45);
+        // INITIALISIERUNG BEI BERÜHRUNG
+        document.addEventListener('touchstart', function() {
+            toggleFullscreen(); // Suchleiste weg
+            if(!window.shockStarted) {
+                scheduleNextShock(); // Schocks starten
+                window.shockStarted = true;
             }
-            setTimeout(idleScare, Math.random() * 5000 + 5000);
-        }
-        setTimeout(idleScare, 5000);
+        }, {passive: true});
 
-        // Rauschen-Generator
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('touchmove', handleMove, {passive: true});
+
+        // RAUSCHEN-GENERATOR
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         function noise() {
-            canvas.width = window.innerWidth / 2;
-            canvas.height = window.innerHeight / 2;
+            canvas.width = window.innerWidth / 2; canvas.height = window.innerHeight / 2;
             let idata = ctx.createImageData(canvas.width, canvas.height);
             let buffer32 = new Uint32Array(idata.data.buffer);
             for(let i=0; i<buffer32.length; i++) {
-                if(Math.random() < 0.12) buffer32[i] = 0xff220000; 
+                if(Math.random() < 0.08) buffer32[i] = 0xff110000; 
             }
             ctx.putImageData(idata, 0, 0);
             requestAnimationFrame(noise);
