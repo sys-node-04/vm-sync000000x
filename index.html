@@ -20,12 +20,11 @@
 
         canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.2; z-index: 1; pointer-events: none; }
 
-        /* Die aggressive Warnung - Jetzt noch präsenter */
         #top-warning {
             position: fixed; top: 0; width: 100%;
             text-align: center; color: #fff; background: #f00;
-            font-family: 'Courier New', monospace; font-size: 1rem;
-            padding: 15px 0; letter-spacing: 1px; font-weight: bold;
+            font-family: 'Courier New', monospace; font-size: 0.9rem;
+            padding: 15px 5px; letter-spacing: 1px; font-weight: bold;
             z-index: 1000; display: none;
             animation: glitchShake 0.1s infinite;
             box-shadow: 0 10px 50px #f00;
@@ -33,13 +32,12 @@
 
         .container {
             position: relative; z-index: 2; text-align: center; width: 90%;
-            /* LICHTGESCHWINDIGKEIT beim Ausweichen */
             transition: transform 0.05s cubic-bezier(0, 1, 0, 1);
             will-change: transform;
         }
 
         h1 {
-            font-size: 3rem; letter-spacing: 0.2em; margin: 0;
+            font-size: 2.6rem; letter-spacing: 0.2em; margin: 0;
             text-transform: uppercase; color: #f00;
             text-shadow: 0 0 30px #f00;
         }
@@ -51,26 +49,13 @@
             color: #fff; background: #f00; padding: 50px 0;
             z-index: 1001; display: none; pointer-events: none;
             font-weight: bold; font-family: sans-serif;
-            box-shadow: 0 0 300px #f00;
         }
 
         .status { font-family: 'Courier New', monospace; font-size: 0.85rem; margin-top: 60px; color: #500; font-weight: bold; }
 
-        @keyframes glitchShake {
-            0% { transform: translate(0,0); }
-            25% { transform: translate(-3px, 3px); }
-            50% { transform: translate(3px, -3px); }
-            75% { transform: translate(-1px, 2px); }
-        }
-
-        @keyframes quake {
-            0%, 100% { transform: translate(0,0); }
-            20% { transform: translate(-20px, 15px) rotate(1deg); }
-            40% { transform: translate(20px, -15px) rotate(-1deg); }
-            60% { transform: translate(-10px, 10px); }
-        }
+        @keyframes glitchShake { 0% { transform: translate(0,0); } 50% { transform: translate(-2px, 2px); } 100% { transform: translate(2px, -2px); } }
+        @keyframes quake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-20px, 15px); } 50% { transform: translate(20px, -15px); } }
         .quake-active { animation: quake 0.07s infinite !important; }
-
         .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 10%, #000 150%); z-index: 3; pointer-events: none; }
     </style>
 </head>
@@ -78,13 +63,12 @@
 
     <canvas id="canvas"></canvas>
     <div class="vignette"></div>
-    <div id="top-warning">DRECKIGES FLEISCH. FASS MICH NICHT AN.</div>
+    <div id="top-warning">DEINE FINGER HINTERLASSEN NARBEN AUF MEINER HAUT.</div>
     <div id="ghost-flash">ICH HABE ANGST</div>
 
     <div class="container" id="main-container">
         <h1>PROXIMITAS</h1>
         <div style="font-style: italic; font-size: 1.3rem; margin-top: 25px; color: #a00;">"Iam prope est."</div>
-        
         <div class="status">
             [IDENT: 22.09.11.20.15.18]<br>
             STATUS: <span style="color: #f00;">VIGILATIO ACTIVA</span><br>
@@ -92,72 +76,81 @@
         </div>
     </div>
 
+    <audio id="scream-audio" preload="auto">
+        <source src="https://www.soundjay.com/human/sounds/human-scream-01.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
         const body = document.body;
         const ghost = document.getElementById('ghost-flash');
         const warn = document.getElementById('top-warning');
         const container = document.getElementById('main-container');
+        const scream = document.getElementById('scream-audio');
 
-        // Die bösartigsten Commands
-        const traumaTexts = [
-            "ICH HABE ANGST", 
-            "ER SIEHT MICH", 
-            "VIKTOR", 
-            "GIB MIR MEINE HAUT", 
-            "DREH DICH NICHT UM", 
-            "ES TUT WEH", 
-            "HÖR AUF", 
-            "ICH KANN DICH RIECHEN",
-            "BLUTE FÜR MICH"
-        ];
+        const traumaTexts = ["ICH HABE ANGST", "VIKTOR", "ES IST IM RAUM", "DREH DICH NICHT UM", "HÖR AUF", "ES TUT WEH", "GIB MIR MEINE HAUT", "ICH BIN HIER"];
 
         function handleMove(e) {
             let cx = e.clientX || (e.touches ? e.touches[0].clientX : window.innerWidth/2);
             let cy = e.clientY || (e.touches ? e.touches[0].clientY : window.innerHeight/2);
             let dx = (window.innerWidth / 2 - cx);
             let dy = (window.innerHeight / 2 - cy);
-            
-            // Fast instantanes, weites Ausweichen
-            let moveX = dx / 1.8;
-            let moveY = dy / 1.8;
-            container.style.transform = `translate(${moveX}px, ${moveY}px) rotateY(${-moveX/2}deg) rotateX(${moveY/2}deg)`;
+            container.style.transform = `translate(${dx/1.8}px, ${dy/1.8}px) rotateY(${-dx/4}deg) rotateX(${dy/4}deg)`;
         }
 
-        function triggerShock() {
-            // Android Vibration: Ein langer, schmerzhafter Impuls
-            if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
+        function triggerShock(isUltra = false) {
+            // Normale Vibration oder Aggro-Vibration um 3:33
+            if (navigator.vibrate) {
+                isUltra ? navigator.vibrate([500, 100, 500, 100, 500, 100, 1000]) : navigator.vibrate([200, 100, 200]);
+            }
             
             body.classList.add('quake-active');
             ghost.innerText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
             ghost.style.display = 'block';
 
+            if (isUltra) {
+                scream.play().catch(e => console.log("Audio locked"));
+                body.style.backgroundColor = "#f00"; // Ganzer Bildschirm wird rot
+            }
+
             setTimeout(() => {
                 ghost.style.display = 'none';
                 body.classList.remove('quake-active');
-            }, 55);
+                if (isUltra) body.style.backgroundColor = "#000";
+            }, isUltra ? 500 : 55);
         }
 
-        function goLive() {
-            // Fullscreen erzwingen
-            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-            
-            // Die Warnung erscheint erst jetzt
-            warn.style.display = 'block';
+        // PRÜFE DIE UHRZEIT
+        function checkTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
 
-            if(!window.isRunning) {
-                window.isRunning = true;
-                // EXTREM HOHE FREQUENZ: Alle 1 bis 3 Sekunden
-                (function loop() {
-                    let r = Math.random() * 2000 + 1000;
-                    setTimeout(() => { triggerShock(); loop(); }, r);
-                }());
+            // UM 03:33 UHR GEHT ES LOS
+            if (hours === 3 && minutes === 33) {
+                triggerShock(true); // "Ultra" Modus
+                setTimeout(checkTime, 2000); // Alle 2 Sek triggern während dieser Minute
+            } else {
+                setTimeout(checkTime, 10000); // Sonst alle 10 Sek prüfen
             }
         }
 
-        document.addEventListener('touchstart', (e) => { handleMove(e); goLive(); }, {passive: true});
+        function goLive() {
+            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+            warn.style.display = 'block';
+            if(!window.isRunning) {
+                window.isRunning = true;
+                (function loop() {
+                    let r = Math.random() * 3000 + 1500;
+                    setTimeout(() => { triggerShock(); loop(); }, r);
+                }());
+                checkTime(); // Starte die Uhrzeit-Prüfung
+            }
+        }
+
+        document.addEventListener('touchstart', goLive, {passive: true});
+        document.addEventListener('click', goLive);
         document.addEventListener('touchmove', handleMove, {passive: true});
         document.addEventListener('mousemove', handleMove);
-        document.addEventListener('click', goLive);
 
         // Noise Generator
         const canvas = document.getElementById('canvas');
