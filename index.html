@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>‎</title>
     <style>
-        /* DAS VISUELLE GEFÄNGNIS */
         body {
             margin: 0;
             background: #020000;
@@ -18,13 +17,12 @@
             align-items: center;
             cursor: none;
             -webkit-tap-highlight-color: transparent;
-            transition: filter 0.1s ease-out;
         }
 
-        /* Schock-Effekt bei Berührung */
+        /* Kurzer Farb-Schock bei Berührung */
         body.inverted {
-            filter: invert(1) contrast(2) hue-rotate(180deg);
-            background: #ffffff;
+            filter: invert(1) contrast(2);
+            background: #fff;
         }
 
         canvas {
@@ -33,7 +31,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0.25;
+            opacity: 0.2;
             z-index: 1;
             pointer-events: none;
         }
@@ -45,62 +43,56 @@
             width: 90%;
         }
 
+        /* Haupttext: Jetzt kleiner und besser lesbar */
         h1 {
-            font-size: 3.2rem;
-            letter-spacing: 0.2em;
+            font-size: 2.2rem;
+            letter-spacing: 0.15em;
             margin: 0;
             text-transform: uppercase;
             color: #f00;
-            text-shadow: 0 0 25px rgba(255,0,0,0.9);
-            animation: approach 60s linear infinite, jitter 0.15s infinite;
+            text-shadow: 0 0 15px rgba(255,0,0,0.8);
+            animation: approach 40s linear infinite;
         }
 
         .latin {
             font-style: italic;
-            font-size: 1.4rem;
-            margin-top: 30px;
+            font-size: 1.1rem;
+            margin-top: 20px;
             color: #900;
-            opacity: 0.8;
+            opacity: 0.7;
         }
 
-        /* DAS UNTERBEWUSSTE KOMMANDO */
+        /* DER SCHOCK-TEXT: Jetzt für Handys optimiert */
         #ghost-flash {
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(2.5);
-            font-size: 4.5rem;
-            color: #000;
+            transform: translate(-50%, -50%);
+            width: 100%; /* Verhindert Zeilenumbruch */
+            text-align: center;
+            font-size: 2.2rem; /* Deutlich kleiner für Lesbarkeit */
+            color: #fff;
             background: #f00;
-            padding: 40px;
+            padding: 20px 0;
             z-index: 100;
             display: none;
             pointer-events: none;
             font-weight: bold;
-            text-transform: uppercase;
             font-family: sans-serif;
+            box-shadow: 0 0 50px #f00;
         }
 
         .status {
             font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            margin-top: 60px;
+            font-size: 0.7rem;
+            margin-top: 40px;
             color: #400;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
         }
 
-        /* ANIMATIONEN DES WAHNSINNS */
         @keyframes approach {
-            0% { transform: scale(0.85); filter: blur(4px); }
-            100% { transform: scale(1.5); filter: blur(0px); }
-        }
-
-        @keyframes jitter {
-            0% { transform: translate(0,0); }
-            25% { transform: translate(-2px, 2px); }
-            50% { transform: translate(2px, -2px); }
-            75% { transform: translate(-1px, -1px); }
-            100% { transform: translate(1px, 1px); }
+            0% { transform: scale(0.95); opacity: 0.8; }
+            100% { transform: scale(1.2); opacity: 1; }
         }
 
         .vignette {
@@ -109,7 +101,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, transparent 20%, #000 150%);
+            background: radial-gradient(circle, transparent 30%, #000 150%);
             z-index: 3;
             pointer-events: none;
         }
@@ -127,8 +119,8 @@
         
         <div class="status">
             [IDENT_CODE: 22.09.11.20.15.18]<br>
-            STATUS: <span style="color: #f00; animation: blink 0.4s infinite;">WATCHING_YOU</span><br>
-            <span style="font-size: 0.6rem; opacity: 0.5;">MANIFESTATIO: 1%</span>
+            STATUS: <span style="color: #f00;">WATCHING_YOU</span><br>
+            MANIFESTATIO: 1%
         </div>
     </div>
 
@@ -136,54 +128,46 @@
         const body = document.body;
         const ghost = document.getElementById('ghost-flash');
 
-        // Die "Eingepflanzten Befehle"
         const traumaTexts = [
             "ICH HABE ANGST",
             "ER SIEHT MICH",
             "HILF MIR",
             "VIKTOR",
             "ES IST IM RAUM",
-            "ICH KANN NICHT ATMEN",
             "DREH DICH NICHT UM",
-            "TE HABEO"
+            "ICH KANN NICHT ATMEN",
+            "DU BIST NICHT ALLEIN"
         ];
 
-        // Funktion für den physischen Schock
         function triggerTrauma() {
             body.classList.add('inverted');
-            setTimeout(() => {
-                body.classList.remove('inverted');
-            }, 80); 
+            setTimeout(() => body.classList.remove('inverted'), 100);
             
-            if(Math.random() > 0.4) {
-                flashGhost();
-            }
+            // Höhere Chance beim Tippen
+            if(Math.random() > 0.3) { flashGhost(); }
         }
 
-        // Subliminales Aufblitzen
         function randomGhost() {
-            if(Math.random() > 0.85) {
-                flashGhost();
-            }
-            setTimeout(randomGhost, Math.random() * 3000 + 1500);
+            // Blitz alle 3-7 Sekunden auch ohne Tippen
+            if(Math.random() > 0.7) { flashGhost(); }
+            setTimeout(randomGhost, Math.random() * 4000 + 3000);
         }
 
         function flashGhost() {
-            const randomText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
-            ghost.innerText = randomText;
+            ghost.innerText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
             ghost.style.display = 'block';
             
-            // 25 Millisekunden - die Grenze zur Halluzination
+            // 45ms: Sichtbar, aber zu schnell zum "Begreifen"
             setTimeout(() => {
                 ghost.style.display = 'none';
-            }, 25); 
+            }, 45); 
         }
 
-        document.addEventListener('touchstart', triggerTrauma, {passive: true});
         document.addEventListener('click', triggerTrauma);
-        setTimeout(randomGhost, 4000);
+        document.addEventListener('touchstart', triggerTrauma, {passive: true});
+        setTimeout(randomGhost, 3000);
 
-        // Der Rauschen-Generator
+        // Noise Generator
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         function noise() {
@@ -192,7 +176,7 @@
             let idata = ctx.createImageData(canvas.width, canvas.height);
             let buffer32 = new Uint32Array(idata.data.buffer);
             for(let i=0; i<buffer32.length; i++) {
-                if(Math.random() < 0.12) buffer32[i] = 0xff220000; 
+                if(Math.random() < 0.1) buffer32[i] = 0xff110000; 
             }
             ctx.putImageData(idata, 0, 0);
             requestAnimationFrame(noise);
