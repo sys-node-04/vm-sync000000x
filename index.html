@@ -4,215 +4,307 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
-    <title>NUTTE</title> <style>
+    <title>DEPLOYMENT_V.0.9</title>
+    <style>
+        :root { --main: #a00; --dim: #411; --bg: #000; }
         body {
-            margin: 0; background-color: #050000; color: #800;
+            margin: 0; background-color: var(--bg); color: var(--main);
             font-family: 'Courier New', monospace;
-            overflow-x: hidden;
-            overscroll-behavior: none;
+            overflow-x: hidden; width: 100vw; overscroll-behavior: none;
         }
 
-        /* TIEFE UND DRECK */
-        #shaft {
-            height: 12000px; /* Noch länger für mehr Qual */
-            background: linear-gradient(to bottom, #000 0%, #100505 50%, #200 100%);
-            position: relative;
-        }
-
-        /* VISUELLE STÖRUNGEN */
-        .glitch-layer {
+        /* --- GATEKEEPER UI (Das "System") --- */
+        #gate {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 50;
-            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity="0.1"/%3E%3C/svg%3E');
-            opacity: 0.2; mix-blend-mode: overlay;
+            background: #000; z-index: 9999; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 20px;
+            font-size: 0.8rem; letter-spacing: 1px;
         }
+        .loader {
+            width: 60px; height: 60px; border: 2px solid var(--dim); border-top: 2px solid var(--main);
+            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 30px;
+        }
+        .term-text { max-width: 400px; text-align: left; margin-bottom: 20px; color: #888; }
+        .highlight { color: #fff; font-weight: bold; }
+        
+        #btn-init {
+            background: transparent; border: 1px solid var(--main); color: var(--main);
+            padding: 15px 30px; font-family: inherit; font-size: 1rem; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 2px; transition: 0.2s;
+            box-shadow: 0 0 10px var(--dim);
+        }
+        #btn-init:active { background: var(--main); color: #000; }
 
-        /* TEXTE - ZERRISSEN UND AGGRESSIV */
+        /* --- HAUPT INHALT --- */
+        #shaft { display: none; height: 14000px; position: relative; width: 100%; background: linear-gradient(#000, #050000, #200); }
+        
         .msg {
-            position: absolute; width: 100%; text-align: center;
-            font-size: 1.8rem; font-weight: 900; line-height: 1.2;
-            opacity: 0; transition: opacity 0.3s;
-            text-transform: uppercase;
-            text-shadow: 2px 2px 0px #f00, -1px -1px 0 #0f0;
-            color: #ccc;
-            padding: 0 10px; box-sizing: border-box;
+            position: absolute; width: 80%; left: 10%; text-align: center;
+            font-size: clamp(1.5rem, 6vw, 3rem); font-weight: 900;
+            opacity: 0; transition: opacity 0.3s; color: #ccc;
+            text-transform: uppercase; word-wrap: break-word; hyphens: auto;
+            text-shadow: 2px 2px 0 #500; pointer-events: none;
         }
-        .dirty { color: #833; font-family: serif; font-style: italic; letter-spacing: 2px; }
-        .command { color: #f00; font-size: 2.5rem; letter-spacing: -2px; text-shadow: 0 0 20px #f00; }
+        
+        /* METADATEN DISPLAY (GPS ETC) */
+        #telemetry {
+            position: fixed; top: 10px; right: 10px; font-size: 0.6rem; 
+            color: #444; text-align: right; z-index: 50; display: none;
+            font-family: monospace; pointer-events: none;
+        }
 
-        /* DER SPIEGEL (Frontkamera) */
-        #mirror-wrap {
+        /* KAMERA FINALE */
+        #mirror {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 100; display: none; background: #000;
         }
         video {
-            width: 100%; height: 100%; object-fit: cover;
-            transform: scaleX(-1);
-            filter: sepia(100%) saturate(300%) hue-rotate(-50deg) contrast(150%) brightness(0.6);
-            /* Sieht aus wie altes, blutiges VHS Tape */
+            width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);
+            filter: sepia(100%) saturate(400%) contrast(150%) brightness(0.5) hue-rotate(-50deg);
         }
         #final-overlay {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 90%; text-align: center; color: #f00; font-size: 3rem; font-weight: bold;
-            text-shadow: 0 0 30px #f00; mix-blend-mode: color-dodge;
+            width: 90%; text-align: center; color: #f00; font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: 900; text-shadow: 0 0 30px #f00; mix-blend-mode: color-dodge;
         }
 
-        /* BUTTON */
-        #start-gate {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: #000; z-index: 999; display: flex; align-items: center; justify-content: center;
-        }
-        button {
-            background: #100; border: 1px solid #500; color: #a00;
-            padding: 20px; font-size: 1.2rem; text-transform: uppercase;
-            letter-spacing: 3px; cursor: pointer;
-        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .shake { animation: shake 0.1s infinite; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 100% { transform: translate(-1px, -1px); } }
     </style>
 </head>
 <body>
 
-<div id="start-gate"><button onclick="enterHell()">ICH WILL LEIDEN</button></div>
+    <div id="gate">
+        <div class="loader"></div>
+        <div class="term-text">
+            SYSTEM: <span class="highlight">NEURAL_RENDERER_v2</span><br>
+            STATUS: <span class="highlight">KALIBRIERUNG ERFORDERLICH</span><br><br>
+            Um die psychovisuelle Tiefe korrekt zu rendern, benötigt die Engine Zugriff auf:<br>
+            1. <span class="highlight">OPTISCHEN SENSOR</span> (Ambient Light Detection)<br>
+            2. <span class="highlight">GYROSKOP</span> (Spatial Orientation)<br>
+            3. <span class="highlight">GEO-NODE</span> (Server Latenz)<br><br>
+            Alle Daten werden lokal verarbeitet (Client-Side Only).
+        </div>
+        <button id="btn-init" onclick="initializeSystem()">KALIBRIERUNG STARTEN</button>
+        <div id="status-log" style="margin-top:20px; color:#555; font-size:0.7rem;"></div>
+    </div>
 
-<div class="glitch-layer"></div>
-<div id="mirror-wrap">
-    <video id="cam" playsinline autoplay muted></video>
-    <div id="final-overlay"></div>
-</div>
+    <div id="telemetry">
+        LAT: <span id="val-lat">--.----</span><br>
+        LON: <span id="val-lon">--.----</span><br>
+        TILT: <span id="val-tilt">0</span>°<br>
+        EYE: <span id="val-cam" style="color:#0a0">ACTIVE</span>
+    </div>
 
-<div id="shaft">
-    <div class="msg" style="top: 500px">Du geiles Stück Dreck.</div>
-    <div class="msg" style="top: 1500px">Ich rieche deine<br>schwitzigen Finger<br>auf dem Glas.</div>
-    <div class="msg dirty" style="top: 2500px">Reib es.<br>Reib es tiefer.</div>
-    <div class="msg" style="top: 3500px">Du willst sehen,<br>was kaputt ist,<br>oder?</div>
-    <div class="msg dirty" style="top: 4800px">Dein Gehorsam<br>macht mich feucht.</div>
-    <div class="msg" style="top: 6000px">Du kleiner Voyeur.<br>Du ekelhafter Spanner.</div>
-    <div class="msg command" style="top: 7200px">SCHLUCK ES</div>
-    <div class="msg" style="top: 8000px">Ich weiß, dass du<br>dich dabei anfasst.</div>
-    <div class="msg dirty" style="top: 9000px">Komm in meinen Schlund.<br>Ich kaue dich weich.</div>
-    <div class="msg" style="top: 10000px">Gleich spritzt<br>die Wahrheit raus.</div>
-    <div class="msg command" style="top: 11000px">MACH DICH AUF</div>
-    <div class="msg" style="top: 11500px">DU HURE DER NEUGIER</div>
-</div>
+    <div id="mirror">
+        <video id="cam" playsinline autoplay muted></video>
+        <div id="final-overlay"></div>
+    </div>
 
-<script>
-    let audioCtx, noiseNode, osc;
-    const msgs = document.querySelectorAll('.msg');
-    const mirror = document.getElementById('mirror-wrap');
-    const finalTxt = document.getElementById('final-overlay');
-    
-    // --- AUDIO: WET & DIRTY ---
-    // Wir erzeugen ein "schmatzendes" Geräusch und tiefes Dröhnen
-    function initAudio() {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // 1. Tiefes Dröhnen (Der "Druck")
-        osc = audioCtx.createOscillator();
-        osc.type = 'sawtooth';
-        osc.frequency.value = 40;
-        const gain = audioCtx.createGain();
-        gain.gain.value = 0.5;
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
+    <div id="shaft">
+        <div class="msg" style="top: 800px">System kalibriert.</div>
+        <div class="msg" style="top: 1500px">Du glaubst, du bist sicher.</div>
+        <div class="msg" style="top: 2500px">Deine Kamera sieht dich an.<br>Ich sehe dich an.</div>
+        <div class="msg" style="top: 3500px">Ich speichere, wie deine Pupillen zittern.</div>
+        <div class="msg" style="top: 5000px; color:#f00">DU BIST SO FEUCHT VOR ANGST</div>
+        <div class="msg" style="top: 6500px">Scroll tiefer.<br>Fass mich an.</div>
+        <div class="msg" style="top: 8000px">Du geiles Stück Fleisch.</div>
+        <div class="msg" style="top: 9500px">Willst du sehen,<br>wer dich beobachtet?</div>
+        <div class="msg" style="top: 11000px">Gleich passiert es.</div>
+        <div class="msg" style="top: 12000px">NICHT SCHREIEN</div>
+        <div class="msg" style="top: 13500px">SCHAU DICH AN</div>
+    </div>
 
-        // 2. Pink Noise (Das "Rauschen/Blut")
-        const bufferSize = audioCtx.sampleRate * 2;
-        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            data[i] = (Math.random() * 2 - 1) * 0.5;
-        }
-        noiseNode = audioCtx.createBufferSource();
-        noiseNode.buffer = buffer;
-        noiseNode.loop = true;
-        const noiseGain = audioCtx.createGain();
-        noiseGain.gain.value = 0.0; // Startet still
-        noiseNode.connect(noiseGain);
-        noiseGain.connect(audioCtx.destination);
-        noiseNode.start();
-        
-        window.noiseGain = noiseGain;
-        window.osc = osc;
-    }
+    <script>
+        const btn = document.getElementById('btn-init');
+        const log = document.getElementById('status-log');
+        let audioCtx, osc, noise, lfo;
 
-    async function startCam() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-            document.getElementById('cam').srcObject = stream;
-        } catch(e) {}
-    }
+        // --- 1. DAS INITIALISIERUNGS-RITUAL ---
+        async function initializeSystem() {
+            btn.disabled = true;
+            btn.innerText = "WARTE...";
+            
+            // Fullscreen erzwingen (Desorientierung)
+            if(document.documentElement.requestFullscreen) {
+                try { await document.documentElement.requestFullscreen(); } catch(e){}
+            }
 
-    function enterHell() {
-        initAudio();
-        startCam();
-        document.getElementById('start-gate').style.display = 'none';
-    }
+            initAudio(); // Sound sofort starten für Druck
 
-    // --- SCROLL LOGIC ---
-    let climax = false;
-    
-    window.addEventListener('scroll', () => {
-        const max = document.body.scrollHeight - window.innerHeight;
-        const per = window.scrollY / max; // 0.0 bis 1.0
+            try {
+                // SCHRITT A: KAMERA (Der "Lichtsensor")
+                updateLog(">> INITIALISIZING OPTICAL SENSOR...");
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                document.getElementById('cam').srcObject = stream;
+                document.getElementById('val-cam').innerText = "LINKED";
+                updateLog(">> OPTICS: OK");
 
-        // 1. Audio Modulation (Wird "nasser" und lauter)
-        if(window.noiseGain) {
-            window.noiseGain.gain.setTargetAtTime(per * 0.8, audioCtx.currentTime, 0.1);
-            window.osc.frequency.setTargetAtTime(40 + (per * 100), audioCtx.currentTime, 0.1);
-        }
+                // SCHRITT B: GEOLOCATION (Der "Server Node")
+                updateLog(">> TRIANGULATING LOCAL NODE...");
+                await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            document.getElementById('val-lat').innerText = pos.coords.latitude.toFixed(4);
+                            document.getElementById('val-lon').innerText = pos.coords.longitude.toFixed(4);
+                            resolve();
+                        },
+                        (err) => resolve() // Auch bei Fehler weitermachen, Kamera haben wir ja
+                    );
+                });
+                updateLog(">> GEO-SYNC: OK");
 
-        // 2. Text Trigger
-        msgs.forEach(m => {
-            const r = m.getBoundingClientRect();
-            if(r.top < window.innerHeight/1.5 && r.bottom > 0) {
-                m.style.opacity = 1;
-                m.style.transform = `scale(${1 + per}) rotate(${(Math.random()-0.5)*5}deg)`;
+                // SCHRITT C: ORIENTATION (iOS Permission)
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    try { await DeviceOrientationEvent.requestPermission(); } catch(e){}
+                }
                 
-                // Aggressives Vibrieren bei Textkontakt
-                if(navigator.vibrate && Math.random() > 0.7) navigator.vibrate(30);
+                // SCHRITT D: START
+                btn.style.borderColor = "#0f0";
+                btn.style.color = "#0f0";
+                btn.innerText = "ACCESS GRANTED";
+                
+                if(navigator.vibrate) navigator.vibrate([100, 50, 100]); // Haptisches Feedback
+
+                setTimeout(() => {
+                    document.getElementById('gate').style.opacity = 0;
+                    setTimeout(() => {
+                        document.getElementById('gate').style.display = 'none';
+                        document.getElementById('shaft').style.display = 'block';
+                        document.getElementById('telemetry').style.display = 'block';
+                        window.startMonitoring = true;
+                    }, 1000);
+                }, 1000);
+
+            } catch (err) {
+                // FALLBACK WENN ER ABLEHNT: AGGRESSION
+                document.body.style.background = "#fff";
+                setTimeout(() => document.body.style.background = "#000", 50);
+                alert("WARNUNG: DU VERSTECKST DICH. WIR WISSEN TROTZDEM, WO DU WOHNST.");
+                // Trotzdem starten, aber ohne Kamerafeed (Fallback Text)
+                document.getElementById('gate').style.display = 'none';
+                document.getElementById('shaft').style.display = 'block';
+                window.cameraDenied = true;
+                window.startMonitoring = true;
+            }
+        }
+
+        function updateLog(txt) {
+            log.innerHTML += txt + "<br>";
+        }
+
+        // --- 2. AUDIO ENGINE (Shepard + Noise) ---
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Deep Drone
+            osc = audioCtx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.value = 40;
+            const oscGain = audioCtx.createGain();
+            oscGain.gain.value = 0.4;
+            osc.connect(oscGain);
+            oscGain.connect(audioCtx.destination);
+            osc.start();
+
+            // Pink Noise (Blutrauschen)
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.5;
+            }
+            noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+            window.noiseGain = audioCtx.createGain();
+            window.noiseGain.gain.value = 0;
+            noise.connect(window.noiseGain);
+            window.noiseGain.connect(audioCtx.destination);
+            noise.start();
+        }
+
+        // --- 3. GYROSKOP MONITORING ---
+        window.addEventListener("deviceorientation", (event) => {
+            if(!window.startMonitoring) return;
+            const tilt = Math.round(event.beta);
+            document.getElementById('val-tilt').innerText = tilt;
+            
+            // Wenn er das Handy zu stark kippt, verzerren wir den Text
+            if(Math.abs(tilt) > 40) {
+                document.body.style.filter = "hue-rotate(90deg) blur(1px)";
             } else {
-                m.style.opacity = 0;
+                document.body.style.filter = "none";
             }
         });
 
-        // 3. Climax (Das Ende)
-        if(per > 0.99 && !climax) {
-            triggerClimax();
+        // --- 4. SCROLL LOGIC ---
+        let climax = false;
+        window.addEventListener('scroll', () => {
+            if(!window.startMonitoring) return;
+
+            const max = document.body.scrollHeight - window.innerHeight;
+            const per = window.scrollY / max;
+
+            // Audio Modulation
+            if(osc) osc.frequency.setTargetAtTime(40 + (per * 200), audioCtx.currentTime, 0.1);
+            if(window.noiseGain) window.noiseGain.gain.setTargetAtTime(per * 0.8, audioCtx.currentTime, 0.1);
+
+            // Text Engine
+            document.querySelectorAll('.msg').forEach(m => {
+                const r = m.getBoundingClientRect();
+                if(r.top < window.innerHeight/1.5 && r.bottom > 0) {
+                    m.style.opacity = 1;
+                    m.style.transform = `scale(${1 + per}) rotate(${(Math.random()-0.5)*5}deg)`;
+                    // Zufällige Haptik beim Lesen
+                    if(navigator.vibrate && Math.random() > 0.9) navigator.vibrate(20);
+                } else {
+                    m.style.opacity = 0;
+                }
+            });
+
+            // FINALE
+            if(per > 0.99 && !climax) {
+                triggerClimax();
+            }
+        });
+
+        function triggerClimax() {
+            climax = true;
+            document.body.style.overflow = 'hidden';
+            
+            if(navigator.vibrate) navigator.vibrate([1000, 200, 1000]); // Herzschlag
+            
+            // Audio Screech
+            const s = audioCtx.createOscillator();
+            s.type = 'square'; s.frequency.value = 500;
+            s.frequency.exponentialRampToValueAtTime(8000, audioCtx.currentTime + 2);
+            const g = audioCtx.createGain(); g.gain.value = 1;
+            s.connect(g); g.connect(audioCtx.destination);
+            s.start(); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2);
+
+            // Visuals
+            document.getElementById('mirror').style.display = 'block';
+            const txt = document.getElementById('final-overlay');
+            
+            if(window.cameraDenied) {
+                txt.innerText = "ICH WEISS\nDASS DU DA BIST";
+            } else {
+                const insults = ["PERVERSLING", "GEFICKT", "ICH HABE DICH", "DEINE SCHULD"];
+                txt.innerText = insults[Math.floor(Math.random() * insults.length)];
+            }
+            
+            // Stroboskop
+            let active = false;
+            setInterval(() => {
+                active = !active;
+                txt.style.color = active ? "#fff" : "#f00";
+                if(!window.cameraDenied) {
+                    document.getElementById('cam').style.filter = active ? "invert(1)" : "sepia(100%) saturate(400%) contrast(150%) brightness(0.5)";
+                }
+            }, 60);
         }
-    });
-
-    function triggerClimax() {
-        climax = true;
-        document.body.style.overflow = 'hidden'; // Lock User
-        
-        if(navigator.vibrate) navigator.vibrate([200, 50, 200, 50, 1000]);
-        
-        // Screech Sound
-        const s = audioCtx.createOscillator();
-        s.type = 'square';
-        s.frequency.value = 800;
-        s.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 1);
-        const g = audioCtx.createGain();
-        g.gain.value = 1;
-        s.connect(g);
-        g.connect(audioCtx.destination);
-        s.start();
-
-        // Reveal Mirror
-        mirror.style.display = 'block';
-        
-        // Die Beleidigung am Ende
-        const insults = ["PERVERSER DRECK", "DU HAST ES GEWOLLT", "BESUDELT", "ICH HABE DICH"];
-        finalTxt.innerText = insults[Math.floor(Math.random() * insults.length)];
-        
-        // Stroboskop Effekt
-        let flash = false;
-        setInterval(() => {
-            flash = !flash;
-            finalTxt.style.color = flash ? "#fff" : "#f00";
-            mirror.style.filter = flash ? "invert(1)" : "sepia(100%) saturate(300%) hue-rotate(-50deg) contrast(150%) brightness(0.6)";
-        }, 80);
-    }
-</script>
+    </script>
 </body>
 </html>
