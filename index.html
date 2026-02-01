@@ -7,93 +7,74 @@
     <style>
         body {
             margin: 0;
-            background: #020000;
-            color: #7a0000;
+            background: #080000; /* Tiefes Schwarz-Rot */
+            color: #ff0000; /* Aggressives Rot für Lesbarkeit */
             font-family: 'Times New Roman', serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            cursor: none;
         }
 
-        /* Das Rauschen wird "aggressiver" und gröber */
+        /* Subtiles Rauschen, das den Text nicht überlagert */
         body::before {
             content: "";
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 150 150' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.99' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-            opacity: 0.28;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: 0.1;
             pointer-events: none;
             z-index: 1;
-            animation: grain 0.1s steps(2) infinite;
         }
 
         .container {
             position: relative;
             z-index: 2;
             text-align: center;
-            padding: 20px;
-            animation: twitch 6s infinite; /* Unregelmäßiges Zucken */
+            width: 85%;
         }
 
         h1 {
-            font-size: 2.2rem;
-            letter-spacing: 0.4em;
+            font-size: 2.8rem;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
             margin: 0;
-            color: #610000;
-            text-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
-            filter: blur(1px);
-        }
-
-        /* Fast unsichtbarer Text (Psychologische Kriegsführung) */
-        .subliminal {
-            position: absolute;
-            top: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.6rem;
-            color: #0d0000; /* Fast schwarz! */
-            text-transform: uppercase;
-            white-space: nowrap;
-            letter-spacing: 5px;
+            color: #ff0000;
+            /* Scharfer Text mit leichtem Glühen */
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+            animation: twitch 4s infinite;
         }
 
         .latin {
             font-style: italic;
-            font-size: 1.1rem;
-            margin-top: 30px;
-            color: #4a0000;
+            font-size: 1.4rem;
+            margin-top: 20px;
+            color: #cc0000;
+            opacity: 0.9;
         }
 
         .status {
             font-family: 'Courier New', monospace;
-            font-size: 0.6rem;
-            margin-top: 60px;
-            color: #2b0000;
-            line-height: 1.8;
-            text-align: left;
-            display: inline-block;
+            font-size: 0.8rem;
+            margin-top: 50px;
+            color: #660000;
+            letter-spacing: 2px;
+            line-height: 1.5;
         }
 
+        /* Ein unheimliches, unregelmäßiges Zucken statt weichem Atmen */
         @keyframes twitch {
-            0%, 90%, 100% { transform: translate(0,0) scale(1); filter: blur(1px); }
-            92% { transform: translate(2px, -3px) scale(1.01); filter: blur(4px); }
-            94% { transform: translate(-2px, 2px) scale(0.99); filter: blur(0px); }
-            96% { transform: translate(4px, 1px) scale(1.02); filter: blur(5px); }
-        }
-
-        @keyframes grain {
-            0% { transform: translate(0,0); }
-            100% { transform: translate(5px,5px); }
+            0%, 90%, 100% { transform: translate(0,0); filter: brightness(1); }
+            92% { transform: translate(3px, -2px); filter: brightness(1.5); }
+            94% { transform: translate(-3px, 2px); filter: brightness(0.8); }
+            96% { transform: translate(1px, 1px); filter: contrast(2); }
         }
 
         .vignette {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 10%, black 150%);
+            background: radial-gradient(circle, transparent 40%, black 150%);
             z-index: 3;
             pointer-events: none;
         }
@@ -102,16 +83,17 @@
 <body>
     <div class="vignette"></div>
     <div class="container">
-        <div class="subliminal">I AM STANDING RIGHT BEHIND THE SCREEN</div>
+        <h1>SIGNUM<br>VINDOBONAE</h1>
         
-        <h1>INTUS<br>EST</h1>
-        <div class="latin">"Nonne sentis calorem meum?"</div>
+        <div class="latin">
+            "Oculus qui te videt."
+        </div>
         
         <div class="status">
-            [SYS_STATE: PSYCH_SYNC_ESTABLISHED]<br>
-            [PULSE_ESTIMATION: 88 BPM]<br>
-            [EYE_TRACKING: LOCKED_ON_TARGET]<br>
-            <span style="color: #610000;">TU SOLUS NON ES</span>
+            [CONNECTION_STABLE]<br>
+            TARGET_ID: [SEIN NAME]<br>
+            LOCATION: SECTOR_VII<br>
+            <span style="color: #ff0000;">MANIFESTATIO: 1%</span>
         </div>
     </div>
 </body>
