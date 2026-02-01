@@ -6,14 +6,14 @@
     <title>‎</title>
     <style>
         body {
-            margin: 0; background-color: #020000; color: #800;
+            margin: 0; background-color: #000; color: #800;
             font-family: 'Courier New', monospace;
             height: 100vh; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
             cursor: none; user-select: none; -webkit-tap-highlight-color: transparent;
         }
 
-        /* DRECK-LAYER (VISZERAL) */
+        /* DRECK-LAYER */
         .grime-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 50%, transparent 10%, #1a0000 140%),
@@ -21,10 +21,12 @@
             pointer-events: none; z-index: 1; mix-blend-mode: overlay;
         }
 
-        /* HAUPT-CONTAINER */
+        /* KORREKTUR: Container ist sofort da, aber leer */
         #main-container {
             width: 85%; max-width: 500px; text-align: center;
-            z-index: 10; opacity: 0; transition: opacity 2s;
+            z-index: 10; 
+            /* Opacity entfernt, damit er sofort sichtbar ist */
+            display: block;
         }
 
         .text-line {
@@ -50,7 +52,7 @@
             animation: pulse 3s infinite;
         }
 
-        /* FAKE EXTRACTION UI */
+        /* EXTRACTION UI */
         #cam-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #050000; z-index: 5000; display: none;
@@ -94,16 +96,14 @@
     </div>
 
     <script>
-        // --- AUDIO ENGINE (DIRTY & VISCERAL) ---
-        let audioCtx, masterGain, heartOsc, shepardNodes = [];
-
+        let audioCtx, masterGain;
+        
         function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             masterGain = audioCtx.createGain();
             masterGain.connect(audioCtx.destination);
             masterGain.gain.value = 0.6;
 
-            // Dreckiges Hintergrund-Rauschen (Atmung/Flüssigkeit)
             const bufferSize = audioCtx.sampleRate * 2;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
@@ -115,11 +115,10 @@
             noise.loop = true;
             const noiseFilter = audioCtx.createBiquadFilter();
             noiseFilter.type = 'lowpass';
-            noiseFilter.frequency.value = 400; // Dumpf, wie unter Wasser/Haut
+            noiseFilter.frequency.value = 400; 
             
-            // Modulation für "Atmung"
             const lfo = audioCtx.createOscillator();
-            lfo.frequency.value = 0.2; // Langsames Atmen
+            lfo.frequency.value = 0.2; 
             const lfoGain = audioCtx.createGain();
             lfoGain.gain.value = 300;
             
@@ -131,14 +130,16 @@
             noise.start(); lfo.start();
         }
 
-        // HERZSCHLAG (Pulsierend, nass)
-        function playHeartbeat(bpm) {
+        // KORREKTUR: Nutzt immer das aktuellste BPM
+        function playHeartbeat() {
+            if(!window.active) return;
+
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(masterGain);
 
-            osc.type = 'triangle'; // Aggressiver als Sine
+            osc.type = 'triangle';
             osc.frequency.setValueAtTime(50, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.1);
 
@@ -148,28 +149,24 @@
             osc.start(audioCtx.currentTime);
             osc.stop(audioCtx.currentTime + 0.2);
 
-            setTimeout(() => {
-                if(window.active) playHeartbeat(window.currentBPM);
-            }, 60000 / bpm);
+            // Rekursion basierend auf LIVE BPM
+            setTimeout(playHeartbeat, 60000 / window.currentBPM);
         }
 
-        // SHEPARD (Der Wahnsinn)
         function startShepard() {
             for(let i=0; i<3; i++) {
                 let osc = audioCtx.createOscillator();
                 let gain = audioCtx.createGain();
                 osc.connect(gain);
                 gain.connect(masterGain);
-                osc.type = 'sawtooth'; // Sägezahn für "technischen Schmerz"
+                osc.type = 'sawtooth';
                 osc.frequency.value = 110 * (i+1);
                 osc.frequency.exponentialRampToValueAtTime(1000 * (i+1), audioCtx.currentTime + 60);
                 gain.gain.value = 0.04;
                 osc.start();
-                shepardNodes.push(osc);
             }
         }
 
-        // --- ABLAUF ---
         window.active = false;
         window.currentBPM = 60;
         const container = document.getElementById('main-container');
@@ -177,22 +174,30 @@
         function startSequence() {
             initAudio();
             document.getElementById('gate-screen').style.display = 'none';
-            document.documentElement.requestFullscreen();
+            // Versucht Fullscreen, fängt Fehler ab falls vom Browser blockiert
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(e => console.log(e));
+            }
+            
             window.active = true;
-            container.style.opacity = 1;
             
-            playHeartbeat(60);
+            // Herzschlag starten
+            playHeartbeat();
 
-            // TIMELINE (Obszöne Eskalation)
-            
-            // 0s: Personalisierung & Ekel
+            // 0s
             addText(`Ich rieche dein Salz auf dem Display.`, 500);
-            addText(`Es ist 0${new Date().getHours()}:${new Date().getMinutes()}. Zeit zu bluten.`, 3000);
+            
+            // Formatierung der Uhrzeit korrigiert (Führende Nullen)
+            const d = new Date();
+            const h = d.getHours().toString().padStart(2, '0');
+            const m = d.getMinutes().toString().padStart(2, '0');
+            addText(`Es ist ${h}:${m}. Zeit zu bluten.`, 3000);
+            
             addText(`Du hältst mich fest. Deine Hände sind feucht.`, 6000);
             
-            // 15s: Body Horror & Körperkontrolle
+            // 15s
             setTimeout(() => {
-                startShepard(); // Der Ton beginnt zu steigen
+                startShepard(); 
                 addText(`Spürst du deine Zunge?`, 500);
                 addText(`Sie schmeckt nach Eisen und Galle.`, 3000);
                 addText(`Ein Sack voll Fleisch und Dreck.`, 6000);
@@ -200,21 +205,20 @@
                 window.currentBPM = 90;
             }, 12000);
 
-            // 35s: Totale Erniedrigung / Paranoia
+            // 35s
             setTimeout(() => {
                 window.currentBPM = 130;
-                container.classList.add('twitch'); // Text fängt an zu zittern
+                container.classList.add('twitch');
                 addText(`<span class="highlight">DREH DICH NICHT UM.</span>`, 500);
                 addText(`Es steht hinter dir.`, 2000);
                 addText(`Es will in dich hinein.`, 4000);
                 addText(`MACH DICH AUF.`, 6000);
-                // "Schmatzender" Sound Burst
                 if(navigator.vibrate) navigator.vibrate([500]);
             }, 30000);
 
-            // 50s: Die Extraktion (Fake Cam)
+            // 50s
             setTimeout(() => {
-                window.currentBPM = 160; // Herzrasen
+                window.currentBPM = 160;
                 container.style.display = 'none';
                 startFakeExtraction();
             }, 45000);
@@ -227,8 +231,12 @@
                 p.className = 'text-line';
                 p.innerHTML = html;
                 container.appendChild(p);
-                void p.offsetWidth; p.classList.add('visible');
-                window.scrollTo(0, document.body.scrollHeight);
+                // Trigger Reflow
+                void p.offsetWidth; 
+                p.classList.add('visible');
+                
+                // Automatisches Scrollen nach unten
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             }, delay);
         }
 
@@ -243,7 +251,6 @@
                     clearInterval(upInt);
                     finishSequence();
                 } else {
-                    // Ruckartiges, "gewaltsames" Laden
                     width += Math.random() * 8; 
                     bar.style.width = width + '%';
                     if(Math.random()>0.8 && navigator.vibrate) navigator.vibrate(20);
@@ -253,7 +260,7 @@
 
         function finishSequence() {
             window.active = false;
-            masterGain.gain.setValueAtTime(0, audioCtx.currentTime); // Stille
+            masterGain.gain.setValueAtTime(0, audioCtx.currentTime); 
             document.body.innerHTML = '';
             document.body.style.background = '#000';
             
@@ -266,7 +273,6 @@
                 end.style.textAlign = "center";
                 document.body.appendChild(end);
                 
-                // Einzelner, extrem lauter Herzschlag am Ende
                 if(navigator.vibrate) navigator.vibrate([1000]);
             }, 2000);
         }
