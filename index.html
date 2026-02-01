@@ -1,101 +1,120 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="la">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>‎</title>
-    <style>
+    <title>‎</title> <style>
+        /* Das "kranke" Fundament */
         body {
-            background-color: #000000;
-            color: #b0b0b0; /* Helles, klinisches Grau */
-            font-family: 'Courier New', Courier, monospace; /* Schreibmaschinen-Stil */
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background-color: #020000; /* Fast Schwarz */
             height: 100vh;
-            box-sizing: border-box;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Times New Roman', serif; /* Alte Schrift */
+            perspective: 1000px;
         }
 
-        #log-container {
-            border-left: 1px solid #333;
-            padding-left: 15px;
-            height: 80%;
-            overflow-y: auto;
+        /* Der Hintergrund: Pulsierendes Rauschen */
+        .curse-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at center, transparent, #0a0000 90%),
+                repeating-linear-gradient(0deg, rgba(50,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 3px);
+            z-index: -1;
+            animation: pulseBg 10s infinite alternate;
+        }
+        
+        /* Scanlines für den "kaputten Monitor" Effekt */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0.3;
         }
 
-        .entry {
-            margin-bottom: 15px;
-            opacity: 0;
-            animation: fadeIn 2s forwards;
+        /* Der Container für den Inhalt */
+        .containment-field {
+            text-align: center;
+            color: #660000; /* Farbe von getrocknetem Blut */
+            border: 1px solid #330000;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(50,0,0,0.5) inset;
+            position: relative;
+        }
+        
+        /* Die Hauptüberschrift - Latein */
+        h1.occult {
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 10px;
+            color: #800000;
+            /* Der "blutende" Texteffekt */
+            text-shadow: 0 0 10px rgba(255,0,0,0.5), 0 0 20px rgba(100,0,0,0.8);
+            animation: textBreathe 5s infinite alternate;
         }
 
-        .timestamp {
-            color: #555;
-            font-size: 0.8rem;
+        /* Der technische Subtext */
+        .tech-glitch {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #ff0000;
+            opacity: 0.7;
+            margin-top: 30px;
+            letter-spacing: 0.1em;
+        }
+        
+        /* Die "Siegel" Linie */
+        .sigil-line {
+            margin: 20px auto;
+            width: 50px;
+            height: 2px;
+            background-color: #800000;
+            box-shadow: 0 0 10px red;
         }
 
-        .data-point {
-            color: #ffffff;
-            font-weight: bold;
+        /* Animationen */
+        @keyframes pulseBg {
+            0% { opacity: 0.8; filter: hue-rotate(0deg); }
+            100% { opacity: 1; filter: hue-rotate(-10deg) brightness(1.2); }
         }
-
-        .warning {
-            color: #ff3333;
+        @keyframes textBreathe {
+            0% { opacity: 0.9; text-shadow: 0 0 10px rgba(255,0,0,0.3); }
+            100% { opacity: 1; text-shadow: 0 0 20px rgba(255,0,0,0.7), 0 0 30px rgba(100,0,0,0.5); }
         }
-
-        #status-bar {
-            margin-top: auto;
-            border-top: 1px solid #333;
-            padding-top: 10px;
-            font-size: 0.8rem;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-        @keyframes fadeIn { to { opacity: 1; } }
 
     </style>
 </head>
 <body>
+    <div class="curse-bg"></div>
+    <div class="scanlines"></div>
 
-    <div id="log-container">
-        <div class="entry" style="animation-delay: 0.5s;">
-            <span class="timestamp">[LOG START]</span><br>
-            Initialisiere Überwachungsprotokoll für Subjekt-ID: <span class="data-point">WIEN_TARGET_ALPHA</span>
+    <div class="containment-field">
+        <h1 class="occult">
+            SIGNUM<br>
+            VINDOBONAE
+        </h1>
+        
+        <div class="sigil-line"></div>
+
+        <p style="font-size: 1.2rem; margin-top: 20px; font-style: italic;">
+            "Quod latet, apparebit."
+        </p>
+        
+        <div class="tech-glitch">
+            [SYSTEM_FAILURE]<br>
+            UNABLE TO CONTAIN ANOMALY AT LOCALHOST.
         </div>
-
-        <div class="entry" style="animation-delay: 1.5s;">
-            <span class="timestamp">[SYS_INFO]</span><br>
-            Verbindung hergestellt. Standort triangulation...
+        
         </div>
-
-        <div class="entry" style="animation-delay: 3s;">
-            <span class="timestamp">[DATA_CAPTURE]</span><br>
-            Standort bestätigt: <span class="data-point">WIEN (Vindobona)</span>. 
-            <br>Genauigkeit: <span class="warning">HOCH</span>.
-        </div>
-
-        <div class="entry" style="animation-delay: 4.5s;">
-            <span class="timestamp">[STATUS]</span><br>
-            Beobachtung aktiv. Warte auf Bewegungsmuster.
-        </div>
-
-    </div>
-
-    <div id="status-bar">
-        <span>OP_MODE: SILENT_WATCH</span>
-        <span class="blink">REC ●</span>
-    </div>
-
-    <script>
-        // Ein kleines Script, das das aktuelle Datum anzeigt, um es realer zu machen
-        const now = new Date();
-        const dateStr = now.toISOString().split('T')[0];
-        document.querySelector('.timestamp').innerText = `[LOG START - ${dateStr}]`;
-    </script>
 
 </body>
 </html>
