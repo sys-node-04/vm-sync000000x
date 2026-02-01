@@ -2,99 +2,116 @@
 <html lang="la">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>‎</title>
     <style>
         body {
-            margin: 0;
-            background: #080000; /* Tiefes Schwarz-Rot */
-            color: #ff0000; /* Aggressives Rot für Lesbarkeit */
+            margin: 0; background: #000; color: #f00;
             font-family: 'Times New Roman', serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            height: 100vh; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            cursor: none; touch-action: none;
         }
 
-        /* Subtiles Rauschen, das den Text nicht überlagert */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-            opacity: 0.1;
-            pointer-events: none;
-            z-index: 1;
+        /* Dynamisches Rauschen, das auf Bewegung reagiert */
+        #canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.15; z-index: 1; pointer-events: none;
         }
 
         .container {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            width: 85%;
+            position: relative; z-index: 2; text-align: center; width: 90%;
+            filter: drop-shadow(0 0 10px #f00);
         }
 
         h1 {
-            font-size: 2.8rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin: 0;
-            color: #ff0000;
-            /* Scharfer Text mit leichtem Glühen */
-            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-            animation: twitch 4s infinite;
+            font-size: 2.2rem; letter-spacing: 0.2em; margin: 0;
+            animation: jitter 0.1s infinite;
         }
 
-        .latin {
-            font-style: italic;
-            font-size: 1.4rem;
-            margin-top: 20px;
-            color: #cc0000;
-            opacity: 0.9;
+        .checksum {
+            font-family: 'Courier New', monospace; font-size: 1.1rem;
+            margin-top: 40px; color: #ff0000; font-weight: bold;
+            display: block; letter-spacing: 2px;
+            text-shadow: 0 0 5px #000;
         }
 
-        .status {
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            margin-top: 50px;
-            color: #660000;
-            letter-spacing: 2px;
-            line-height: 1.5;
+        .latin-whisper {
+            font-style: italic; font-size: 1rem; margin-top: 20px;
+            color: #440000; animation: fade 4s infinite;
         }
 
-        /* Ein unheimliches, unregelmäßiges Zucken statt weichem Atmen */
-        @keyframes twitch {
-            0%, 90%, 100% { transform: translate(0,0); filter: brightness(1); }
-            92% { transform: translate(3px, -2px); filter: brightness(1.5); }
-            94% { transform: translate(-3px, 2px); filter: brightness(0.8); }
-            96% { transform: translate(1px, 1px); filter: contrast(2); }
+        /* Animationen für den Wahnsinn */
+        @keyframes jitter {
+            0% { transform: translate(0,0); }
+            10% { transform: translate(-1px, 1px); }
+            90% { transform: translate(1px, -1px); }
+            91% { transform: translate(10px, -5px) skewX(20deg); filter: blur(10px); } /* Seltener heftiger Glitch */
+        }
+
+        @keyframes fade {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.8; filter: blur(2px); }
         }
 
         .vignette {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 40%, black 150%);
-            z-index: 3;
-            pointer-events: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 20%, #000 150%);
+            z-index: 3; pointer-events: none;
         }
     </style>
 </head>
-<body>
+<body onclick="playPain()" ontouchstart="playPain()">
+    <canvas id="canvas"></canvas>
     <div class="vignette"></div>
+    
     <div class="container">
-        <h1>SIGNUM<br>VINDOBONAE</h1>
+        <h1 id="main-title">SIGNUM<br>VIKTORIS</h1>
         
-        <div class="latin">
-            "Oculus qui te videt."
-        </div>
+        <div class="latin-whisper">"Num numeras spiritus?"</div>
         
-        <div class="status">
-            [CONNECTION_STABLE]<br>
-            TARGET_ID: [SEIN NAME]<br>
-            LOCATION: SECTOR_VII<br>
-            <span style="color: #ff0000;">MANIFESTATIO: 1%</span>
+        <div class="status" style="font-family: monospace; font-size: 0.7rem; color: #300; margin-top: 30px;">
+            [SEARCHING_FOR_FLESH]<br>
+            TARGET_FOUND: <br>
+            <span class="checksum">22.09.11.20.15.18 | 13.21.20.09.03</span>
         </div>
     </div>
+
+    <audio id="whisper" loop>
+        <source src="https://www.soundjay.com/misc/sounds/heartbeat-01.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Akustisches Unbehagen triggern bei Interaktion
+        function playPain() {
+            let audio = document.getElementById('whisper');
+            audio.volume = 0.1; // Ganz leise, fast unhörbar
+            audio.play();
+            
+            // Visueller Schockeffekt bei Berührung
+            document.getElementById('main-title').style.color = "#fff";
+            document.body.style.backgroundColor = "#ff0000";
+            setTimeout(() => {
+                document.getElementById('main-title').style.color = "#f00";
+                document.body.style.backgroundColor = "#000";
+            }, 50);
+        }
+
+        // Rauschen-Generator
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        function noise() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let idata = ctx.createImageData(canvas.width, canvas.height);
+            let buffer32 = new Uint32Array(idata.data.buffer);
+            for(let i=0; i<buffer32.length; i++) {
+                if(Math.random() < 0.1) buffer32[i] = 0xff000000;
+            }
+            ctx.putImageData(idata, 0, 0);
+            requestAnimationFrame(noise);
+        }
+        noise();
+    </script>
 </body>
 </html>
