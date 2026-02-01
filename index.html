@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>‎</title>
     <style>
         body {
             margin: 0; background: #000; color: #d00;
-            font-family: 'Times New Roman', serif;
+            font-family: 'Roboto', sans-serif;
             height: 100vh; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
             cursor: none; -webkit-tap-highlight-color: transparent;
@@ -19,38 +18,47 @@
 
         canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.18; z-index: 1; pointer-events: none; }
 
-        /* DER FAKE ANDROID DIALOG */
+        /* ANDROID MATERIAL 3 DIALOG */
         #fake-dialog {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%; max-width: 320px;
-            background: #fff; color: #000;
+            width: 85%; max-width: 320px;
+            background: #fdf7ff; 
             border-radius: 28px; padding: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.9);
             z-index: 2000; display: none;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        #dialog-text { font-size: 1rem; line-height: 1.5; margin-bottom: 24px; color: #1c1b1f; }
+        #dialog-text { 
+            font-size: 1.05rem; line-height: 1.5; 
+            margin-bottom: 24px; color: #1c1b1f; 
+            letter-spacing: 0.1px;
+        }
+
         #dialog-btn {
-            float: right; color: #6750a4; font-weight: bold;
-            text-transform: uppercase; cursor: pointer; padding: 10px;
+            float: right; color: #6750a4; 
+            font-weight: 600; font-size: 0.9rem;
+            text-transform: uppercase; cursor: pointer; 
+            padding: 8px 16px;
         }
 
         /* NOT OKAY FLASH */
         #not-okay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #f00; color: #fff; font-weight: bold;
+            background: #f00; color: #fff; font-weight: 900;
             display: none; justify-content: center; align-items: center;
             font-size: 5rem; z-index: 3000; font-family: sans-serif;
+            text-shadow: 0 0 40px black;
         }
 
         .container {
             position: relative; z-index: 2; text-align: center; width: 90%;
-            transition: transform 0.05s linear; will-change: transform;
+            transition: transform 0.04s linear; will-change: transform;
         }
 
-        h1 { font-size: 2.8rem; letter-spacing: 0.2em; margin: 0; color: #f00; text-shadow: 0 0 25px #f00; }
+        h1 { font-family: 'Times New Roman', serif; font-size: 2.8rem; letter-spacing: 0.2em; margin: 0; color: #f00; text-shadow: 0 0 25px #f00; }
+        
         #ghost-flash {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%) scale(1.4);
@@ -60,8 +68,8 @@
         }
 
         .status-box { font-family: 'Courier New', monospace; font-size: 0.75rem; margin-top: 40px; color: #400; text-align: left; border-left: 2px solid #400; padding-left: 10px; }
-        @keyframes quake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-15px, 10px); } 50% { transform: translate(15px, -10px); } }
-        .quake-active { animation: quake 0.07s infinite !important; }
+        @keyframes quake { 0%, 100% { transform: translate(0,0); } 10% { transform: translate(-20px, 15px); } 90% { transform: translate(20px, -15px); } }
+        .quake-active { animation: quake 0.06s infinite !important; }
         .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 10%, #000 150%); z-index: 3; pointer-events: none; }
     </style>
 </head>
@@ -72,8 +80,8 @@
     <div id="not-okay">NOT OKAY</div>
     
     <div id="fake-dialog">
-        <div id="dialog-text">Deine Finger hinterlassen Narben auf meiner Haut.</div>
-        <div id="dialog-btn" onclick="dialogOk()">OK</div>
+        <div id="dialog-text">Deine Finger hinterlassen Narben auf meiner Haut. Ich spüre, wie du mich entweihst.</div>
+        <div id="dialog-btn" onclick="dialogAction()">OK</div>
     </div>
 
     <div id="ghost-flash">ICH HABE ANGST</div>
@@ -100,15 +108,17 @@
         const notOkay = document.getElementById('not-okay');
         const batt = document.getElementById('battery-level');
         const scream = document.getElementById('scream-audio');
-        let stage = 0;
+        let stage = 0; 
 
+        // Optimierte Dämonen-Stimme
         function speak(msg) {
+            window.speechSynthesis.cancel();
             const v1 = new SpeechSynthesisUtterance(msg);
-            v1.lang = 'de-DE'; v1.pitch = 0.1; v1.rate = 0.7;
+            v1.lang = 'de-DE'; v1.pitch = 0.2; v1.rate = 1.1; v1.volume = 1;
             const v2 = new SpeechSynthesisUtterance(msg);
-            v2.lang = 'de-DE'; v2.pitch = 1.5; v2.rate = 0.8; v2.volume = 0.6;
+            v2.lang = 'de-DE'; v2.pitch = 1.8; v2.rate = 1.3; v2.volume = 0.6;
             window.speechSynthesis.speak(v1);
-            setTimeout(() => { window.speechSynthesis.speak(v2); }, 50);
+            setTimeout(() => { window.speechSynthesis.speak(v2); }, 20);
         }
 
         function triggerShock(isUltra = false) {
@@ -122,45 +132,55 @@
             }, 60);
         }
 
-        function dialogOk() {
+        function dialogAction() {
             dialog.style.display = 'none';
             notOkay.style.display = 'flex';
-            if (navigator.vibrate) navigator.vibrate(500);
+            if (navigator.vibrate) navigator.vibrate(600);
+            
             setTimeout(() => {
                 notOkay.style.display = 'none';
-                stage = 2; // Bereit für die zweite Fehlermeldung
-            }, 600);
+                if (stage === 1) stage = 2;
+                else if (stage === 3) stage = 4;
+            }, 700);
         }
 
         function goLive() {
             if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+            
             if (stage === 0) {
                 dialog.style.display = 'block';
-                speak("Deine Finger hinterlassen Narben auf meiner Haut.");
+                speak("Deine Finger hinterlassen Narben auf meiner Haut. Ich spüre, wie du mich entweihst.");
                 stage = 1;
             } else if (stage === 2) {
-                dialogText.innerText = "DEIN SCHWEIẞ ÄTZT SICH IN MEINE POREN. HÖR AUF MICH ZU BESUDELN, DU ELENDES STÜCK FLEISCH.";
+                // MAXIMAL BEDROHLICHER / FETISCHISTISCHER TEXT
+                dialogText.innerText = "DEIN SCHWEIẞ ÄTZT SICH IN MEINE POREN. ICH WERDE JEDEN DEINER GEDANKEN LANGSAM AUSWEIDEN, WÄHREND ICH MICH TIEFER IN DEIN FAULENDES BEWUSSTSEIN GRABE. DU BIST BEREITS MEIN EIGENTUM.";
                 dialog.style.display = 'block';
-                speak("Dein Schweiß ätzt sich in meine Poren. Hör auf mich zu besudeln, du elendes Stück Fleisch.");
+                speak("Dein Schweiß ätzt sich in meine Poren. Ich werde jeden deiner Gedanken langsam ausweiden, während ich mich tiefer in dein faulendes Bewusstsein grabe. Du bist bereits mein Eigentum.");
                 stage = 3;
             }
+
             if(!window.isRunning) {
                 window.isRunning = true;
                 (function loop() {
                     setTimeout(() => { triggerShock(); loop(); }, Math.random() * 4000 + 3000);
                 }());
+                check333();
             }
         }
 
+        function check333() {
+            const now = new Date();
+            if (now.getHours() === 3 && now.getMinutes() === 33) triggerShock(true);
+            setTimeout(check333, 10000);
+        }
+
         if (navigator.getBattery) {
-            navigator.getBattery().then(function(b) {
-                batt.innerText = Math.round(b.level * 100) + "%";
-            });
+            navigator.getBattery().then(function(b) { batt.innerText = Math.round(b.level * 100) + "%"; });
         }
 
         document.addEventListener('touchstart', (e) => {
             let cx = e.touches[0].clientX; let cy = e.touches[0].clientY;
-            document.getElementById('main-container').style.transform = `translate(${(window.innerWidth/2-cx)/2}px, ${(window.innerHeight/2-cy)/2}px)`;
+            document.getElementById('main-container').style.transform = `translate(${(window.innerWidth/2-cx)/1.5}px, ${(window.innerHeight/2-cy)/1.5}px)`;
             goLive();
         }, {passive: true});
 
@@ -172,7 +192,7 @@
             canvas.width = window.innerWidth/2; canvas.height = window.innerHeight/2;
             let idata = ctx.createImageData(canvas.width, canvas.height);
             let buffer32 = new Uint32Array(idata.data.buffer);
-            for(let i=0; i<buffer32.length; i++) if(Math.random() < 0.12) buffer32[i] = 0xff150000; 
+            for(let i=0; i<buffer32.length; i++) if(Math.random() < 0.12) buffer32[i] = 0xff180000; 
             ctx.putImageData(idata, 0, 0);
             requestAnimationFrame(noise);
         }
