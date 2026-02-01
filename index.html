@@ -6,107 +6,152 @@
     <title>‎</title>
     <style>
         body {
-            margin: 0; background: #000; color: #f00;
+            margin: 0; background: #020000; color: #d00;
             font-family: 'Times New Roman', serif;
             height: 100vh; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
-            cursor: none; touch-action: none;
+            cursor: none; -webkit-tap-highlight-color: transparent;
+            transition: filter 0.1s ease-out;
         }
 
-        /* Dynamisches Rauschen, das auf Bewegung reagiert */
+        /* Wenn diese Klasse aktiv ist, invertieren die Farben (Schockeffekt) */
+        body.inverted {
+            filter: invert(1) contrast(1.5);
+            background: #ffffff;
+        }
+
         #canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.15; z-index: 1; pointer-events: none;
+            opacity: 0.2; z-index: 1; pointer-events: none;
+            mix-blend-mode: overlay;
         }
 
         .container {
             position: relative; z-index: 2; text-align: center; width: 90%;
-            filter: drop-shadow(0 0 10px #f00);
         }
 
-        h1 {
-            font-size: 2.2rem; letter-spacing: 0.2em; margin: 0;
-            animation: jitter 0.1s infinite;
+        /* DER "NÄHERKOMMEN" EFFEKT */
+        h1#main-title {
+            font-size: 3rem; letter-spacing: 0.15em; margin: 0;
+            text-transform: uppercase; color: #f00;
+            text-shadow: 0 0 20px rgba(255,0,0,0.8);
+            /* Zoomt über 60 Sekunden ganz langsam auf ihn zu */
+            animation: approach 60s linear infinite forwards, flicker 0.2s infinite;
         }
 
-        .checksum {
-            font-family: 'Courier New', monospace; font-size: 1.1rem;
-            margin-top: 40px; color: #ff0000; font-weight: bold;
-            display: block; letter-spacing: 2px;
-            text-shadow: 0 0 5px #000;
+        .latin {
+            font-style: italic; font-size: 1.3rem; margin-top: 30px;
+            color: #900; opacity: 0.8;
+            animation: breathe 4s infinite ease-in-out;
         }
 
-        .latin-whisper {
-            font-style: italic; font-size: 1rem; margin-top: 20px;
-            color: #440000; animation: fade 4s infinite;
+        .status {
+            font-family: 'Courier New', monospace; font-size: 0.8rem;
+            margin-top: 50px; color: #500; letter-spacing: 2px;
         }
 
-        /* Animationen für den Wahnsinn */
-        @keyframes jitter {
-            0% { transform: translate(0,0); }
-            10% { transform: translate(-1px, 1px); }
-            90% { transform: translate(1px, -1px); }
-            91% { transform: translate(10px, -5px) skewX(20deg); filter: blur(10px); } /* Seltener heftiger Glitch */
+        /* DER SUBLIMINALE GEIST (Versteckt) */
+        #ghost-flash {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(2);
+            font-size: 4rem; color: #000; background: #f00;
+            padding: 20px; z-index: 100;
+            display: none; /* Standardmäßig unsichtbar */
+            pointer-events: none; font-weight: bold;
+            text-transform: uppercase; white-space: nowrap;
         }
 
-        @keyframes fade {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 0.8; filter: blur(2px); }
+        @keyframes approach {
+            0% { transform: scale(0.9); filter: blur(3px); opacity: 0.7; }
+            100% { transform: scale(1.4); filter: blur(0px); opacity: 1; }
+        }
+        @keyframes flicker {
+            0% { opacity: 1; } 98% { opacity: 0.8; } 100% { opacity: 1; }
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.5; } 50% { opacity: 1; }
         }
 
         .vignette {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 20%, #000 150%);
+            background: radial-gradient(circle, transparent 30%, #000 140%);
             z-index: 3; pointer-events: none;
         }
     </style>
 </head>
-<body onclick="playPain()" ontouchstart="playPain()">
+<body>
     <canvas id="canvas"></canvas>
     <div class="vignette"></div>
     
+    <div id="ghost-flash">ES IST HINTER DIR</div>
+
     <div class="container">
-        <h1 id="main-title">SIGNUM<br>VIKTORIS</h1>
+        <h1 id="main-title">PROXIMITAS</h1>
         
-        <div class="latin-whisper">"Num numeras spiritus?"</div>
+        <div class="latin">
+            "Nonne vides? Iam prope est."
+        </div>
         
-        <div class="status" style="font-family: monospace; font-size: 0.7rem; color: #300; margin-top: 30px;">
-            [SEARCHING_FOR_FLESH]<br>
-            TARGET_FOUND: <br>
-            <span class="checksum">22.09.11.20.15.18 | 13.21.20.09.03</span>
+        <div class="status">
+            [ALERT_LEVEL: CRITICAL]<br>
+            DISTANCE_TO_TARGET: <span style="color: #f00; font-weight: bold; animation: blink 0.5s infinite;">CLOSING...</span><br>
+            SECTOR_VII_BREACH_CONFIRMED
         </div>
     </div>
 
-    <audio id="whisper" loop>
-        <source src="https://www.soundjay.com/misc/sounds/heartbeat-01.mp3" type="audio/mpeg">
-    </audio>
-
     <script>
-        // Akustisches Unbehagen triggern bei Interaktion
-        function playPain() {
-            let audio = document.getElementById('whisper');
-            audio.volume = 0.1; // Ganz leise, fast unhörbar
-            audio.play();
-            
-            // Visueller Schockeffekt bei Berührung
-            document.getElementById('main-title').style.color = "#fff";
-            document.body.style.backgroundColor = "#ff0000";
+        const body = document.body;
+        const ghost = document.getElementById('ghost-flash');
+
+        // Aggressive Reaktion auf Berührung (Inversion)
+        function triggerTrauma() {
+            // Kurzes Invertieren der Farben
+            body.classList.add('inverted');
             setTimeout(() => {
-                document.getElementById('main-title').style.color = "#f00";
-                document.body.style.backgroundColor = "#000";
-            }, 50);
+                body.classList.remove('inverted');
+            }, 150); // Nur für 150ms
+            
+            // Manchmal (20% Chance) blitzt der Geist bei Berührung auf
+            if(Math.random() > 0.8) {
+                flashGhost();
+            }
         }
+        
+        // Subliminaler Flash (zufällig ohne Berührung)
+        function randomGhost() {
+            // Versucht es alle paar Sekunden, aber nur mit 10% Wahrscheinlichkeit
+            if(Math.random() > 0.9) {
+                flashGhost();
+            }
+            // Nächster Versuch in 3-8 Sekunden
+            setTimeout(randomGhost, Math.random() * 5000 + 3000);
+        }
+
+        // Funktion um den Geist für 50ms zu zeigen
+        function flashGhost() {
+            ghost.style.display = 'block';
+            setTimeout(() => {
+                ghost.style.display = 'none';
+            }, 50); // 50ms ist gerade an der Wahrnehmungsgrenze
+        }
+
+        // Event Listener für Touch und Klick
+        document.addEventListener('touchstart', triggerTrauma, {passive: true});
+        document.addEventListener('click', triggerTrauma);
+        
+        // Starte den Zufalls-Geist
+        setTimeout(randomGhost, 5000);
 
         // Rauschen-Generator
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         function noise() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth / 2; // Performance optimiert
+            canvas.height = window.innerHeight / 2;
             let idata = ctx.createImageData(canvas.width, canvas.height);
             let buffer32 = new Uint32Array(idata.data.buffer);
             for(let i=0; i<buffer32.length; i++) {
-                if(Math.random() < 0.1) buffer32[i] = 0xff000000;
+                if(Math.random() < 0.2) buffer32[i] = 0xff330000; // Rötliches Rauschen
             }
             ctx.putImageData(idata, 0, 0);
             requestAnimationFrame(noise);
