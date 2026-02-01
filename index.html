@@ -8,287 +8,302 @@
     <title>‎</title>
     <style>
         body {
-            margin: 0; background-color: #020000; color: #800;
-            font-family: 'Times New Roman', serif;
+            margin: 0; background-color: #020000; color: #a00;
+            font-family: 'Courier New', monospace;
             height: 100vh; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
             cursor: none; -webkit-tap-highlight-color: transparent;
             touch-action: none;
+            user-select: none;
         }
 
-        /* TEXTUREN DES VERFALLS */
-        .flesh-overlay {
+        /* TEXTUREN & ATMOSPHÄRE */
+        .grime-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 0%, #1a0000 120%),
-                        url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.15"/%3E%3C/svg%3E');
-            pointer-events: none; z-index: 1; mix-blend-mode: overlay;
+            background: radial-gradient(circle at 50% 50%, transparent 20%, #080000 130%);
+            pointer-events: none; z-index: 10; mix-blend-mode: multiply;
         }
-
-        /* VIGNETTE MIT "PULSIEREN" */
-        .vignette {
+        .scanlines {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 40%, #000 150%);
-            z-index: 2; pointer-events: none;
-            animation: pulseVignette 4s infinite ease-in-out;
+            background: linear-gradient(to bottom, rgba(255,0,0,0.03) 50%, rgba(0,0,0,0.1) 50%);
+            background-size: 100% 3px; pointer-events: none; z-index: 9;
         }
 
-        /* DAS "FLEISCHLICHE" FENSTER */
+        /* DER GATEKEEPER (Start-Button) */
+        #gate-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+        }
+        #gate-btn {
+            border: 1px solid #300; color: #500; padding: 20px 40px;
+            font-family: 'Courier New', monospace; letter-spacing: 3px;
+            cursor: pointer; text-transform: uppercase; font-size: 0.9rem;
+            animation: pulseBtn 2s infinite; background: transparent;
+        }
+
+        /* DIALOG FENSTER */
         #fake-dialog {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 85%; max-width: 340px;
-            /* Sieht aus wie getrocknetes Blut/Haut */
-            background: #110303; 
-            border: 1px solid #411;
-            box-shadow: 0 0 80px rgba(50, 0, 0, 0.8), inset 0 0 40px rgba(0,0,0,0.9);
+            width: 85%; max-width: 320px;
+            background: #0f0202; 
+            border: 1px solid #500;
+            box-shadow: 0 0 100px rgba(80, 0, 0, 0.5);
             z-index: 2000; display: none; padding: 30px;
             text-align: center;
         }
 
-        #dialog-title {
-            font-size: 0.9rem; font-weight: bold; margin-bottom: 20px; 
-            color: #600; letter-spacing: 4px; border-bottom: 1px solid #300; padding-bottom: 10px;
-            text-transform: uppercase;
-        }
-
         #dialog-text { 
-            font-size: 1.2rem; line-height: 1.3; margin-bottom: 30px; 
-            color: #c99; font-style: italic;
-            text-shadow: 0 0 10px rgba(255,0,0,0.4);
+            font-size: 1.1rem; line-height: 1.4; margin-bottom: 30px; 
+            color: #c99; font-weight: normal; font-style: italic;
         }
 
-        /* DER KNOPF DES LEIDENS */
         .dialog-btn {
-            background: #200; color: #800;
+            background: #311; color: #a55; width: 100%;
             font-weight: 700; font-size: 0.9rem;
             text-transform: uppercase; cursor: pointer; 
-            padding: 15px 0; width: 100%; border: 1px solid #400;
-            letter-spacing: 2px; transition: all 0.2s;
+            padding: 15px 0; border: 1px solid #522; 
         }
-        .dialog-btn:active { background: #500; color: #000; }
 
         /* HAUPT CONTAINER */
         .container {
-            position: relative; z-index: 3; text-align: center; width: 90%;
-            will-change: transform;
+            position: relative; z-index: 2; text-align: center; width: 95%;
+            will-change: transform; opacity: 0; transition: opacity 2s;
         }
 
         h1 { 
-            font-size: 3rem; letter-spacing: 0.1em; margin: 0; color: #700; 
-            text-shadow: 0 0 30px #200; opacity: 0.8;
-            animation: breathe 6s infinite;
+            font-family: 'Times New Roman', serif; font-size: 2.8rem; 
+            letter-spacing: 0.25em; margin: 0; color: #b00; 
+            text-shadow: 0 0 30px #400;
         }
         
-        /* SUBLIMINALE NACHRICHTEN */
         #ghost-flash {
             position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%; text-align: center; font-size: 3rem;
-            color: #a00; background: #000; padding: 100vh 0;
-            z-index: 5000; display: none; pointer-events: none;
-            font-weight: bold; mix-blend-mode: normal;
-            font-family: 'Courier New', monospace;
+            transform: translate(-50%, -50%) scale(1.4);
+            width: 100%; text-align: center; font-size: 2.8rem;
+            color: #fff; background: #900; padding: 60px 0;
+            z-index: 1001; display: none; pointer-events: none;
+            font-weight: bold; mix-blend-mode: hard-light;
         }
 
-        /* STATUS UND BELEIDIGUNGEN */
         .status-box { 
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem; margin-top: 60px; color: #522; 
-            text-align: center; letter-spacing: 1px; line-height: 2;
-            opacity: 0.6; border-top: 1px solid #311; padding-top: 15px;
+            font-size: 0.7rem; margin-top: 60px; color: #422; 
+            text-align: center; letter-spacing: 2px; line-height: 1.8;
+            border-top: 1px solid #211; padding-top: 15px; opacity: 0.7;
         }
         .val { color: #800; font-weight: bold; }
 
-        @keyframes pulseVignette { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; background: radial-gradient(circle, transparent 30%, #200 150%); } }
-        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; color: #a00; } }
+        @keyframes pulseBtn { 0% { opacity: 0.5; border-color: #300; } 50% { opacity: 1; border-color: #800; box-shadow: 0 0 20px #300; } 100% { opacity: 0.5; border-color: #300; } }
         @keyframes quake { 0% { transform: translate(1px, 1px); } 25% { transform: translate(-2px, -2px); } 50% { transform: translate(-4px, 2px); } 75% { transform: translate(4px, -2px); } 100% { transform: translate(0, 0); } }
-        .quake-active { animation: quake 0.05s infinite !important; }
-
+        .quake-active { animation: quake 0.08s infinite !important; }
+        .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, #000 160%); z-index: 8; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <div class="flesh-overlay"></div>
+    <div class="grime-overlay"></div>
+    <div class="scanlines"></div>
     <div class="vignette"></div>
+
+    <div id="gate-screen">
+        <div id="gate-btn" onclick="enterSite()">[ VERBINDUNG HERSTELLEN ]</div>
+    </div>
     
     <div id="fake-dialog">
-        <div id="dialog-title">CONTACTUS. EST.</div> 
-        <div id="dialog-text">Ich kann dich riechen.</div>
-        <div class="dialog-btn" id="btn-action" onclick="handleInteraction()">AKZEPTIEREN</div>
+        <div id="dialog-text"></div>
+        <div class="dialog-btn" id="btn-action" onclick="handleDialog()"></div>
     </div>
 
-    <div id="ghost-flash">SCHLUCK ES</div>
+    <div id="ghost-flash">ICH HABE ANGST</div>
 
     <div class="container" id="main-container">
         <h1>PROXIMITAS</h1>
-        <div style="font-style: italic; font-size: 1.1rem; margin-top: 25px; color: #511;">"Ego te intus sentio."</div>
+        <div style="font-style: italic; font-size: 1.1rem; margin-top: 25px; color: #611;">"Nonne vides?"</div>
         
         <div class="status-box">
             SUBJEKT: <span class="val">VIKTOR</span><br>
-            ZYKLUS: <span id="visit-count" class="val">1</span><br>
-            STATUS: <span id="status-text" class="val">UNREIN</span>
+            CORPUS: <span id="battery-level" class="val">--%</span><br>
+            ZYKLUS: <span id="cycle-count" class="val">1</span>
         </div>
     </div>
 
     <script>
-        const ghost = document.getElementById('ghost-flash');
+        const gateScreen = document.getElementById('gate-screen');
+        const container = document.getElementById('main-container');
         const dialog = document.getElementById('fake-dialog');
         const dialogText = document.getElementById('dialog-text');
-        const dialogTitle = document.getElementById('dialog-title');
         const dialogBtn = document.getElementById('btn-action');
-        const container = document.getElementById('main-container');
-        const statusText = document.getElementById('status-text');
-        const visitLabel = document.getElementById('visit-count');
-        
-        // --- 1. PERSISTENZ (DAS GEDÄCHTNIS) ---
-        // Wir zählen, wie oft er die Seite öffnet. Das macht ihm Angst.
-        let visits = localStorage.getItem('vindobona_visits') || 0;
+        const ghost = document.getElementById('ghost-flash');
+        const cycleLabel = document.getElementById('cycle-count');
+
+        // GEDÄCHTNIS: Wie oft war er hier?
+        let visits = localStorage.getItem('vindobona_v2_visits') || 0;
         visits = parseInt(visits) + 1;
-        localStorage.setItem('vindobona_visits', visits);
-        visitLabel.innerText = visits;
+        localStorage.setItem('vindobona_v2_visits', visits);
+        cycleLabel.innerText = visits;
 
-        // Texte basierend auf Besuchszahl (Eskalation)
-        let welcomeText = "Ich rieche dein feuchtes Mark.";
-        if(visits > 1) welcomeText = "Du bist zurückgekrochen. Du brauchst den Ekel.";
-        if(visits > 3) welcomeText = "Gefäß. Loch. Stück Fleisch. Willkommen daheim.";
-        
-        let stage = 0; 
+        let stage = 0;
+        let audioCtx;
 
-        // --- 2. DIE STIMMEN DES EKELS ---
-        function speak(msg) {
-            window.speechSynthesis.cancel();
-            
-            // Stimme 1: Tief, verächtlich
-            const v1 = new SpeechSynthesisUtterance(msg);
-            v1.lang = 'de-DE'; v1.pitch = 0.2; v1.rate = 1.1; v1.volume = 1;
-
-            // Stimme 2: Hysterisch, flüsternd
-            const v2 = new SpeechSynthesisUtterance(msg);
-            v2.lang = 'de-DE'; v2.pitch = 1.6; v2.rate = 1.5; v2.volume = 0.5;
-
-            window.speechSynthesis.speak(v1);
-            setTimeout(() => { window.speechSynthesis.speak(v2); }, 30);
+        // --- 1. AUDIO ENGINE (KEINE STIMMEN, NUR HORROR) ---
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
 
-        // --- 3. INTERAKTIONS LOGIK ---
-        function handleInteraction() {
-            if(navigator.vibrate) navigator.vibrate(200);
-            
-            if(stage === 0) {
-                // ERSTE REAKTION
-                stage = 1;
-                dialogTitle.innerText = "INTROITUS";
-                dialogText.innerHTML = "DEIN WIDERSTAND SCHMECKT NACH GALLE.<br>LASS MICH TIEF IN DICH HINEIN.";
-                dialogBtn.innerText = "ICH GEHORCHE";
-                speak("Dein Widerstand schmeckt nach Galle. Lass mich tief in dich hinein.");
-                
-            } else if (stage === 1) {
-                // ZWEITE REAKTION (EKELHAFT)
-                stage = 2;
-                dialogTitle.innerText = "CARO. TUA. PUTIDA."; // Dein fauliges Fleisch
-                dialogText.innerHTML = "DU BIST NUR EIN SACK VOLLER DRECKIGEM BLUT.<br>PLATZ ENDLICH AUF.<br>ICH WILL IN DEINEN GEDÄRMEN WÜHLEN.";
-                dialogBtn.innerText = "NIMM ES";
-                dialogText.style.color = "#f55";
-                speak("Du bist nur ein Sack voller dreckigem Blut. Platz endlich auf. Ich will in deinen Gedärmen wühlen.");
+        function playDissonance() {
+            if(!audioCtx) return;
+            if(audioCtx.state === 'suspended') audioCtx.resume();
 
-            } else if (stage === 2) {
-                // FINALE: Der Dialog verschwindet nicht, er wird zur Anweisung
-                dialog.style.display = "none";
-                triggerFlash("GEHORCHE");
-                statusText.innerText = "INFILTRIERT";
-                // Startet den Loop
-                goLive();
-            }
+            // Oszillator 1: Tiefes Wummern (Unbehagen)
+            const osc1 = audioCtx.createOscillator();
+            const gain1 = audioCtx.createGain();
+            osc1.type = 'sawtooth';
+            osc1.frequency.setValueAtTime(40, audioCtx.currentTime); // 40Hz
+            osc1.frequency.linearRampToValueAtTime(30, audioCtx.currentTime + 2);
+            gain1.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2);
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+            osc1.start();
+
+            // Oszillator 2: Hohes "Falsches" Fiepen
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(600, audioCtx.currentTime); // Dissonanz
+            osc2.frequency.linearRampToValueAtTime(580, audioCtx.currentTime + 1.5);
+            gain2.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.start();
         }
 
-        // --- 4. STARTUP ---
-        function init() {
-            dialogText.innerText = welcomeText;
-            dialog.style.display = 'block';
-            
-            // Wenn er zurückkommt, ist die Begrüßung anders
-            if(visits > 1) {
-                speak("Du bist zurückgekrochen.");
-            } else {
-                speak("Ich rieche dein feuchtes Mark.");
-            }
-        }
-
-        // --- 5. PHYSICS (WIE VORHER, ABER TRÄGER/SCHWERER) ---
-        let targetX = 0, targetY = 0;
-        let currentX = 0, currentY = 0;
-
-        function updateMovement() {
-            currentX += (targetX - currentX) * 0.05; // Sehr zäh (0.05)
-            currentY += (targetY - currentY) * 0.05;
-            container.style.transform = `translate(${currentX}px, ${currentY}px) rotateY(${-currentX/20}deg) rotateX(${currentY/20}deg)`;
-            requestAnimationFrame(updateMovement);
-        }
-        updateMovement();
-
-        function handleInput(clientX, clientY) {
-            let dx = (window.innerWidth / 2) - clientX;
-            let dy = (window.innerHeight / 2) - clientY;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            
-            if(dist < 300) {
-                let force = (300 - dist) / 300; 
-                let limit = 120;
-                targetX = Math.max(-limit, Math.min((dx/dist)*force*150, limit));
-                targetY = Math.max(-limit, Math.min((dy/dist)*force*150, limit));
-            } else {
-                targetX = 0; targetY = 0;
-            }
-            // Audio-Loop triggern, falls noch nicht aktiv
-            if(stage === 2 && !window.isRunning) goLive();
-        }
-
-        // --- 6. SHOCK LOOP ---
-        const traumaWords = ["SCHLUCK ES", "OFFENE WUNDE", "DRECKIG", "MEIN FLEISCH", "NICHT WEHREN", "HÖR AUF ZU ATMEN", "VIKTOR"];
-
-        function goLive() {
-            window.isRunning = true;
+        // --- 2. START PROZESS ---
+        function enterSite() {
+            initAudio(); // Audio Unlock
+            playDissonance(); // Erster Sound
             if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+            if (navigator.vibrate) navigator.vibrate(200);
+
+            gateScreen.style.display = 'none';
+            container.style.opacity = '1';
+
+            // ENTSCHEIDUNG: NEULING ODER RÜCKKEHRER?
+            if (visits > 1) {
+                // Er war schon mal da -> SOFORT AGGRESSIV
+                jumpToHardcore();
+            } else {
+                // Erstes Mal -> Story Modus
+                setTimeout(startStory, 1000);
+            }
+        }
+
+        // --- 3. STORY MODUS (Erstbesucher) ---
+        function startStory() {
+            stage = 1;
+            dialogText.innerText = "Deine Berührung hinterlässt Narben auf meiner Haut.";
+            dialogBtn.innerText = "ICH VERSTEHE";
+            dialog.style.display = 'block';
+        }
+
+        // --- 4. HARDCORE MODUS (Rückkehrer) ---
+        function jumpToHardcore() {
+            stage = 3;
+            // Sofortiger Flash
+            triggerFlash("DU BIST SÜCHTIG");
             
+            setTimeout(() => {
+                dialogText.innerHTML = "DU BIST ZURÜCKGEKROCHEN.<br>DU BRAUCHST DEN EKEL.<br>DU WIDERLICHES TIER.";
+                dialogBtn.innerText = "BESTRAFE MICH";
+                dialog.style.display = 'block';
+                dialog.style.borderColor = "#f00";
+            }, 1000);
+            
+            startHorrorLoop();
+        }
+
+        // --- 5. INTERAKTIONEN ---
+        function handleDialog() {
+            playDissonance();
+            if (navigator.vibrate) navigator.vibrate(100);
+
+            if (stage === 1) {
+                // Phase 2: Fetisch / Blut
+                stage = 2;
+                dialogText.innerHTML = "LASS MICH REIN. SCHNEID DICH AUF.<br><br><strong style='color:#a00'>ICH WILL DEIN WARMES BLUT FÜHLEN.</strong>";
+                dialogBtn.innerText = "HINGABE";
+            } else if (stage === 2) {
+                // Akzeptiert -> Start Horror
+                dialog.style.display = 'none';
+                triggerFlash("GEHORCHE");
+                startHorrorLoop();
+            } else if (stage === 3) {
+                // Rückkehrer Akzeptanz
+                dialog.style.display = 'none';
+                triggerFlash("FÜR IMMER");
+                startHorrorLoop();
+            }
+        }
+
+        // --- 6. DER HORROR LOOP ---
+        const words = ["DRECKIG", "OFFENE WUNDE", "SCHLUCK ES", "MEIN FLEISCH", "NICHT WEHREN", "TIEF HINEIN", "VIKTOR"];
+        
+        function startHorrorLoop() {
+            window.isRunning = true;
             (function loop() {
-                let rand = Math.random() * 4000 + 2000;
+                let rand = Math.random() * 3000 + 2000; // Alle 2-5 Sek
                 setTimeout(() => { 
-                    let word = traumaWords[Math.floor(Math.random() * traumaWords.length)];
-                    triggerFlash(word); 
+                    let w = words[Math.floor(Math.random() * words.length)];
+                    triggerFlash(w);
+                    playDissonance(); // Immer Sound bei Flash
                     loop(); 
                 }, rand);
             }());
         }
 
-        function triggerFlash(text) {
-            if (navigator.vibrate) navigator.vibrate([50, 20, 50]);
-            ghost.innerText = text;
+        function triggerFlash(txt) {
+            if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+            ghost.innerText = txt;
             ghost.style.display = 'block';
             document.body.classList.add('quake-active');
-            
-            // Kurze, aggressive Sprachfetzen beim Flash
-            let v = new SpeechSynthesisUtterance(text);
-            v.rate = 1.5; v.pitch = 0.1;
-            window.speechSynthesis.speak(v);
-
             setTimeout(() => {
                 ghost.style.display = 'none';
                 document.body.classList.remove('quake-active');
             }, 100);
         }
 
-        // Event Listeners
-        document.addEventListener('touchmove', (e) => { handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
-        document.addEventListener('mousemove', (e) => { handleInput(e.clientX, e.clientY); });
-        document.addEventListener('touchstart', (e) => { handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
-        
-        // Start beim ersten Klick irgendwo, falls Dialog nicht trifft
-        document.addEventListener('click', () => { 
-            if(stage === 0) init(); 
-        });
+        // --- 7. BEWEGUNG & BATTERIE ---
+        let currentX=0, currentY=0, targetX=0, targetY=0;
+        function updateMovement() {
+            currentX += (targetX - currentX) * 0.08; 
+            currentY += (targetY - currentY) * 0.08;
+            container.style.transform = `translate(${currentX}px, ${currentY}px) rotateY(${-currentX/15}deg) rotateX(${currentY/15}deg)`;
+            requestAnimationFrame(updateMovement);
+        }
+        updateMovement();
 
-        // Start sofort anzeigen
-        setTimeout(init, 500);
+        function handleInput(clientX, clientY) {
+            let dx = (window.innerWidth/2) - clientX;
+            let dy = (window.innerHeight/2) - clientY;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            if(dist < 300) {
+                let force = (300-dist)/300;
+                let limit = 120;
+                targetX = Math.max(-limit, Math.min((dx/dist)*force*160, limit));
+                targetY = Math.max(-limit, Math.min((dy/dist)*force*160, limit));
+            } else { targetX=0; targetY=0; }
+        }
+
+        if (navigator.getBattery) {
+            navigator.getBattery().then(function(b) { 
+                document.getElementById('battery-level').innerText = Math.round(b.level * 100) + "%"; 
+            });
+        }
+
+        document.addEventListener('touchmove', (e) => { handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
+        document.addEventListener('touchstart', (e) => { handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
 
     </script>
 </body>
