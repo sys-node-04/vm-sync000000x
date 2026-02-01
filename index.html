@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>‎</title> <style>
+    <title>‎</title>
+    <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #000;
-            color: #b30000; /* Blutroter Text */
+            background-color: #050000;
+            color: #8a0000; /* Dunkleres, geronnenes Rot */
             font-family: 'Courier New', Courier, monospace;
             height: 100vh;
             display: flex;
@@ -19,97 +20,112 @@
             perspective: 1000px;
         }
 
-        /* Der Hintergrund-Effekt (Statisches Rauschen & Scanlines) */
+        /* Hintergrund-Rauschen */
         .noise {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: repeating-linear-gradient(0deg, rgba(0,0,0,0.5), rgba(0,0,0,0.5) 1px, transparent 1px, transparent 2px);
             pointer-events: none;
             z-index: -1;
-            opacity: 0.7;
+            opacity: 0.6;
         }
-        .overlay {
+        .vignette {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 50%, black 150%);
+            background: radial-gradient(circle, transparent 40%, black 140%);
             z-index: -2;
         }
 
-        /* Der Text-Glitch-Effekt */
-        .glitch-container {
+        /* Glitch Text Container */
+        .container {
             text-align: center;
             position: relative;
-            animation: shake 2s infinite;
-        }
-        h1 {
-            font-size: 2rem;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            text-shadow: 2px 0 0 red, -2px 0 0 blue;
-            animation: glitch 1s infinite reverse;
-        }
-        p {
-            font-size: 1.2rem;
-            opacity: 0.8;
+            z-index: 10;
         }
 
-        /* Der Fortschrittsbalken */
-        .progress-container {
-            width: 80%;
-            max-width: 300px;
-            border: 2px solid #550000;
-            padding: 3px;
-            margin-top: 30px;
-            box-shadow: 0 0 20px #550000;
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 6px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 3px 0 0 rgba(255,0,0,0.5), -2px 0 0 rgba(0,0,255,0.3);
+            animation: textGlitch 2.5s infinite;
         }
-        .progress-bar {
-            height: 20px;
-            width: 1%; /* STARTWERT TAG 1 */
-            background-color: #b30000;
-            animation: flickerBar 0.1s infinite;
+
+        .subtext {
+            font-size: 1rem;
+            color: #ff3333;
+            opacity: 0.7;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        .latin {
+            font-style: italic;
+            font-family: 'Times New Roman', serif; /* Kontrast zur Technik-Schrift */
+            letter-spacing: 2px;
+        }
+
+        /* Fortschrittsbalken */
+        .progress-box {
+            width: 80vw;
+            max-width: 350px;
+            height: 4px;
+            background: #220000;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 10px #550000;
+        }
+
+        .bar {
+            height: 100%;
+            width: 1%; /* HIER ÄNDERN */
+            background-color: #ff0000;
+            box-shadow: 0 0 15px #ff0000;
+            animation: flicker 0.2s infinite;
+        }
+
+        .status-text {
+            margin-top: 15px;
+            font-size: 0.7rem;
+            color: #cc0000;
+            letter-spacing: 3px;
         }
 
         /* Animationen */
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        @keyframes textGlitch {
+            0% { opacity: 1; transform: skew(0deg); }
+            20% { opacity: 0.8; transform: skew(-20deg); }
+            21% { opacity: 1; transform: skew(0deg); }
+            60% { opacity: 1; transform: skew(0deg); }
+            61% { opacity: 0.5; transform: skew(20deg); }
+            62% { opacity: 1; transform: skew(0deg); }
+            100% { opacity: 1; transform: skew(0deg); }
         }
-        @keyframes glitch {
-            0% { clip-path: inset(10% 0 30% 0); transform: translate(-5px, 5px); }
-            20% { clip-path: inset(60% 0 10% 0); transform: translate(5px, -5px); }
-            40% { clip-path: inset(40% 0 50% 0); transform: translate(-5px, 5px); }
-            60% { clip-path: inset(80% 0 5% 0); transform: translate(5px, -5px); }
-            80% { clip-path: inset(10% 0 70% 0); transform: translate(-5px, 5px); }
-            100% { clip-path: inset(30% 0 20% 0); transform: translate(5px, -5px); }
-        }
-        @keyframes flickerBar {
-            0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; }
+        @keyframes flicker {
+            0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.8; }
         }
     </style>
 </head>
 <body>
     <div class="noise"></div>
-    <div class="overlay"></div>
+    <div class="vignette"></div>
 
-    <div class="glitch-container">
-        <h1>ES SIEHT DICH.</h1>
-        <p>Standort: Wien<br>Subjekt wird fixiert.</p>
+    <div class="container">
+        <h1>OCULUS <br><span style="font-size: 1.5rem">NON DORMIT</span></h1>
+        
+        <p class="subtext">
+            TARGET: <span class="latin">VINDOBONA</span><br>
+            SECTOR: VII
+        </p>
 
-        <div class="progress-container">
-            <div class="progress-bar" style="width: 1%;"></div>
+        <div class="progress-box">
+            <div class="bar" style="width: 1%;"></div>
         </div>
-        <p style="font-size: 0.8rem; margin-top: 10px;">Manifestation: 1%</p>
-    </div>
 
+        <p class="status-text">
+            ADVENTUS: 1%
+        </p>
+    </div>
 </body>
 </html>
