@@ -8,336 +8,288 @@
     <title>‎</title>
     <style>
         body {
-            margin: 0; 
-            background-color: #050000;
-            color: #d00;
-            font-family: 'Courier New', monospace; /* Wechsel zu Monospace für "kaputten" Look */
+            margin: 0; background-color: #020000; color: #800;
+            font-family: 'Times New Roman', serif;
             height: 100vh; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
             cursor: none; -webkit-tap-highlight-color: transparent;
             touch-action: none;
         }
 
-        /* DRECK-LAYER: Simuliert beschlagenes Glas / Schimmel */
-        .grime-overlay {
+        /* TEXTUREN DES VERFALLS */
+        .flesh-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: 
-                radial-gradient(circle at 50% 50%, transparent 50%, rgba(20, 0, 0, 0.8) 120%),
-                url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.08"/%3E%3C/svg%3E');
-            pointer-events: none; z-index: 10;
-            mix-blend-mode: overlay;
+            background: radial-gradient(circle, transparent 0%, #1a0000 120%),
+                        url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.15"/%3E%3C/svg%3E');
+            pointer-events: none; z-index: 1; mix-blend-mode: overlay;
         }
 
-        /* SCANLINES für kaputten Screen-Look */
-        .scanlines {
+        /* VIGNETTE MIT "PULSIEREN" */
+        .vignette {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(255,0,0,0.03) 50%, rgba(0,0,0,0.1) 50%);
-            background-size: 100% 4px;
-            pointer-events: none; z-index: 9;
+            background: radial-gradient(circle, transparent 40%, #000 150%);
+            z-index: 2; pointer-events: none;
+            animation: pulseVignette 4s infinite ease-in-out;
         }
 
-        /* DAS "BESESSENE" DIALOG FENSTER */
+        /* DAS "FLEISCHLICHE" FENSTER */
         #fake-dialog {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%; max-width: 300px;
-            /* Dreckiger Hintergrund */
-            background: #0f0505; 
-            border: 1px solid #400;
-            box-shadow: 0 0 60px rgba(100, 0, 0, 0.4), inset 0 0 20px rgba(0,0,0,0.8);
-            z-index: 2000; display: none;
-            text-align: left;
-            padding: 20px;
-            /* "Glitch" Rand */
-            clip-path: polygon(0 2%, 100% 0, 98% 100%, 2% 98%);
+            width: 85%; max-width: 340px;
+            /* Sieht aus wie getrocknetes Blut/Haut */
+            background: #110303; 
+            border: 1px solid #411;
+            box-shadow: 0 0 80px rgba(50, 0, 0, 0.8), inset 0 0 40px rgba(0,0,0,0.9);
+            z-index: 2000; display: none; padding: 30px;
+            text-align: center;
         }
 
         #dialog-title {
-            font-size: 0.8rem; font-weight: bold; margin-bottom: 15px; 
-            color: #800; letter-spacing: 2px; 
-            border-bottom: 1px dashed #400; padding-bottom: 8px;
-            font-family: 'Times New Roman', serif;
+            font-size: 0.9rem; font-weight: bold; margin-bottom: 20px; 
+            color: #600; letter-spacing: 4px; border-bottom: 1px solid #300; padding-bottom: 10px;
+            text-transform: uppercase;
         }
 
         #dialog-text { 
-            font-size: 1rem; line-height: 1.3; 
-            margin-bottom: 30px; color: #a88; 
-            text-shadow: 0 0 2px rgba(255,0,0,0.3);
+            font-size: 1.2rem; line-height: 1.3; margin-bottom: 30px; 
+            color: #c99; font-style: italic;
+            text-shadow: 0 0 10px rgba(255,0,0,0.4);
         }
 
-        /* Der glitchy Button */
+        /* DER KNOPF DES LEIDENS */
         .dialog-btn {
-            float: right; color: #000; background: #900;
-            font-weight: 700; font-size: 0.8rem;
+            background: #200; color: #800;
+            font-weight: 700; font-size: 0.9rem;
             text-transform: uppercase; cursor: pointer; 
-            padding: 10px 18px; border: none;
-            position: relative; transition: transform 0.1s;
+            padding: 15px 0; width: 100%; border: 1px solid #400;
+            letter-spacing: 2px; transition: all 0.2s;
         }
+        .dialog-btn:active { background: #500; color: #000; }
 
-        /* NOT OKAY FLASH */
-        #not-okay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #a00; color: #000; font-weight: 900;
-            display: none; justify-content: center; align-items: center;
-            font-size: 3.5rem; z-index: 3000; font-family: sans-serif;
-            text-align: center; text-transform: uppercase;
-            letter-spacing: -2px;
-        }
-
-        /* CONTAINER MIT FLÜSSIGER BEWEGUNG */
+        /* HAUPT CONTAINER */
         .container {
-            position: relative; z-index: 2; text-align: center; width: 90%;
-            /* WICHTIG: Keine CSS Transition mehr, das macht jetzt JS flüssiger */
-            will-change: transform; 
+            position: relative; z-index: 3; text-align: center; width: 90%;
+            will-change: transform;
         }
 
         h1 { 
-            font-family: 'Times New Roman', serif; 
-            font-size: 2.8rem; letter-spacing: 0.2em; margin: 0; 
-            color: #c00; 
-            text-shadow: 2px 2px 0px #200, -1px -1px 4px rgba(0,0,0,0.8);
-            opacity: 0.9;
+            font-size: 3rem; letter-spacing: 0.1em; margin: 0; color: #700; 
+            text-shadow: 0 0 30px #200; opacity: 0.8;
+            animation: breathe 6s infinite;
         }
         
+        /* SUBLIMINALE NACHRICHTEN */
         #ghost-flash {
             position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(1.4);
-            width: 100%; text-align: center; font-size: 2.5rem;
-            color: #fff; background: #800; padding: 60px 0;
-            z-index: 1001; display: none; pointer-events: none;
-            font-weight: bold; box-shadow: 0 0 80px #f00; mix-blend-mode: hard-light;
+            transform: translate(-50%, -50%);
+            width: 100%; text-align: center; font-size: 3rem;
+            color: #a00; background: #000; padding: 100vh 0;
+            z-index: 5000; display: none; pointer-events: none;
+            font-weight: bold; mix-blend-mode: normal;
+            font-family: 'Courier New', monospace;
         }
 
+        /* STATUS UND BELEIDIGUNGEN */
         .status-box { 
-            font-size: 0.65rem; margin-top: 40px; color: #533; 
-            text-align: center; letter-spacing: 1px;
-            border-top: 1px solid #311; padding-top: 10px;
-            opacity: 0.7;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem; margin-top: 60px; color: #522; 
+            text-align: center; letter-spacing: 1px; line-height: 2;
+            opacity: 0.6; border-top: 1px solid #311; padding-top: 15px;
         }
+        .val { color: #800; font-weight: bold; }
 
-        @keyframes quake { 0% { transform: translate(1px, 1px) rotate(0deg); } 25% { transform: translate(-1px, -2px) rotate(-1deg); } 50% { transform: translate(-3px, 0px) rotate(1deg); } 75% { transform: translate(3px, 2px) rotate(0deg); } 100% { transform: translate(1px, -1px) rotate(0deg); } }
-        .quake-active { animation: quake 0.1s infinite !important; }
-        .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 30%, #000 160%); z-index: 8; pointer-events: none; }
+        @keyframes pulseVignette { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; background: radial-gradient(circle, transparent 30%, #200 150%); } }
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; color: #a00; } }
+        @keyframes quake { 0% { transform: translate(1px, 1px); } 25% { transform: translate(-2px, -2px); } 50% { transform: translate(-4px, 2px); } 75% { transform: translate(4px, -2px); } 100% { transform: translate(0, 0); } }
+        .quake-active { animation: quake 0.05s infinite !important; }
+
     </style>
 </head>
 <body>
 
-    <div class="grime-overlay"></div>
-    <div class="scanlines"></div>
+    <div class="flesh-overlay"></div>
     <div class="vignette"></div>
     
-    <div id="not-okay">LÜGNER</div>
-    
     <div id="fake-dialog">
-        <div id="dialog-title">SIGMUM INTERDICTUM</div> 
-        <div id="dialog-text">Deine Berührung hinterlässt Narben auf meiner Haut.</div>
-        <div class="dialog-btn" id="btn-1" ontouchstart="handleBtnTouch()" onclick="handleBtnClick()">ICH VERSTEHE</div>
+        <div id="dialog-title">CONTACTUS. EST.</div> 
+        <div id="dialog-text">Ich kann dich riechen.</div>
+        <div class="dialog-btn" id="btn-action" onclick="handleInteraction()">AKZEPTIEREN</div>
     </div>
 
-    <div id="ghost-flash">ICH HABE ANGST</div>
+    <div id="ghost-flash">SCHLUCK ES</div>
 
     <div class="container" id="main-container">
         <h1>PROXIMITAS</h1>
-        <div style="font-style: italic; font-size: 1.1rem; margin-top: 20px; color: #722;">"Nonne vides?"</div>
+        <div style="font-style: italic; font-size: 1.1rem; margin-top: 25px; color: #511;">"Ego te intus sentio."</div>
         
         <div class="status-box">
-            [ ID: VIKTOR_V7 ]<br>
-            CORPUS: <span id="battery-level">--%</span><br>
-            <span style="color: #800;">● CONNEXIO STABILIS</span>
+            SUBJEKT: <span class="val">VIKTOR</span><br>
+            ZYKLUS: <span id="visit-count" class="val">1</span><br>
+            STATUS: <span id="status-text" class="val">UNREIN</span>
         </div>
     </div>
-
-    <audio id="scream-audio" preload="auto">
-        <source src="https://www.soundjay.com/human/sounds/human-scream-01.mp3" type="audio/mpeg">
-    </audio>
 
     <script>
         const ghost = document.getElementById('ghost-flash');
         const dialog = document.getElementById('fake-dialog');
         const dialogText = document.getElementById('dialog-text');
         const dialogTitle = document.getElementById('dialog-title');
-        const dialogBtn = document.getElementById('btn-1');
-        const notOkay = document.getElementById('not-okay');
-        const batt = document.getElementById('battery-level');
+        const dialogBtn = document.getElementById('btn-action');
         const container = document.getElementById('main-container');
-        const scream = document.getElementById('scream-audio');
+        const statusText = document.getElementById('status-text');
+        const visitLabel = document.getElementById('visit-count');
+        
+        // --- 1. PERSISTENZ (DAS GEDÄCHTNIS) ---
+        // Wir zählen, wie oft er die Seite öffnet. Das macht ihm Angst.
+        let visits = localStorage.getItem('vindobona_visits') || 0;
+        visits = parseInt(visits) + 1;
+        localStorage.setItem('vindobona_visits', visits);
+        visitLabel.innerText = visits;
+
+        // Texte basierend auf Besuchszahl (Eskalation)
+        let welcomeText = "Ich rieche dein feuchtes Mark.";
+        if(visits > 1) welcomeText = "Du bist zurückgekrochen. Du brauchst den Ekel.";
+        if(visits > 3) welcomeText = "Gefäß. Loch. Stück Fleisch. Willkommen daheim.";
         
         let stage = 0; 
-        let btnEvades = 0;
 
-        // --- 1. NEUE BEWEGUNGS-LOGIK (FLÜSSIG & BEGRENZT) ---
-        // Ziel-Koordinaten
+        // --- 2. DIE STIMMEN DES EKELS ---
+        function speak(msg) {
+            window.speechSynthesis.cancel();
+            
+            // Stimme 1: Tief, verächtlich
+            const v1 = new SpeechSynthesisUtterance(msg);
+            v1.lang = 'de-DE'; v1.pitch = 0.2; v1.rate = 1.1; v1.volume = 1;
+
+            // Stimme 2: Hysterisch, flüsternd
+            const v2 = new SpeechSynthesisUtterance(msg);
+            v2.lang = 'de-DE'; v2.pitch = 1.6; v2.rate = 1.5; v2.volume = 0.5;
+
+            window.speechSynthesis.speak(v1);
+            setTimeout(() => { window.speechSynthesis.speak(v2); }, 30);
+        }
+
+        // --- 3. INTERAKTIONS LOGIK ---
+        function handleInteraction() {
+            if(navigator.vibrate) navigator.vibrate(200);
+            
+            if(stage === 0) {
+                // ERSTE REAKTION
+                stage = 1;
+                dialogTitle.innerText = "INTROITUS";
+                dialogText.innerHTML = "DEIN WIDERSTAND SCHMECKT NACH GALLE.<br>LASS MICH TIEF IN DICH HINEIN.";
+                dialogBtn.innerText = "ICH GEHORCHE";
+                speak("Dein Widerstand schmeckt nach Galle. Lass mich tief in dich hinein.");
+                
+            } else if (stage === 1) {
+                // ZWEITE REAKTION (EKELHAFT)
+                stage = 2;
+                dialogTitle.innerText = "CARO. TUA. PUTIDA."; // Dein fauliges Fleisch
+                dialogText.innerHTML = "DU BIST NUR EIN SACK VOLLER DRECKIGEM BLUT.<br>PLATZ ENDLICH AUF.<br>ICH WILL IN DEINEN GEDÄRMEN WÜHLEN.";
+                dialogBtn.innerText = "NIMM ES";
+                dialogText.style.color = "#f55";
+                speak("Du bist nur ein Sack voller dreckigem Blut. Platz endlich auf. Ich will in deinen Gedärmen wühlen.");
+
+            } else if (stage === 2) {
+                // FINALE: Der Dialog verschwindet nicht, er wird zur Anweisung
+                dialog.style.display = "none";
+                triggerFlash("GEHORCHE");
+                statusText.innerText = "INFILTRIERT";
+                // Startet den Loop
+                goLive();
+            }
+        }
+
+        // --- 4. STARTUP ---
+        function init() {
+            dialogText.innerText = welcomeText;
+            dialog.style.display = 'block';
+            
+            // Wenn er zurückkommt, ist die Begrüßung anders
+            if(visits > 1) {
+                speak("Du bist zurückgekrochen.");
+            } else {
+                speak("Ich rieche dein feuchtes Mark.");
+            }
+        }
+
+        // --- 5. PHYSICS (WIE VORHER, ABER TRÄGER/SCHWERER) ---
         let targetX = 0, targetY = 0;
-        // Aktuelle Koordinaten (für sanftes Nachziehen)
         let currentX = 0, currentY = 0;
 
         function updateMovement() {
-            // Lerp (Linear Interpolation) für weiche Bewegung: 
-            // Bewegt sich 10% der Distanz pro Frame -> wirkt organisch/zäh
-            currentX += (targetX - currentX) * 0.1; 
-            currentY += (targetY - currentY) * 0.1;
-
-            container.style.transform = `translate(${currentX}px, ${currentY}px) rotateY(${-currentX/10}deg) rotateX(${currentY/10}deg)`;
-            
+            currentX += (targetX - currentX) * 0.05; // Sehr zäh (0.05)
+            currentY += (targetY - currentY) * 0.05;
+            container.style.transform = `translate(${currentX}px, ${currentY}px) rotateY(${-currentX/20}deg) rotateX(${currentY/20}deg)`;
             requestAnimationFrame(updateMovement);
         }
-        updateMovement(); // Loop starten
+        updateMovement();
 
         function handleInput(clientX, clientY) {
-            // Berechne Distanz vom Zentrum
             let dx = (window.innerWidth / 2) - clientX;
             let dy = (window.innerHeight / 2) - clientY;
-
-            // "Magnetische" Abstoßung: Je näher, desto stärker
-            // Teiler 1.5 für starke Reaktion
-            let forceX = dx / 1.5; 
-            let forceY = dy / 1.5;
-
-            // GRENZEN SETZEN (Clamp)
-            // Der Text darf nicht weiter als 40% der Bildschirmbreite wandern
-            let maxDistX = window.innerWidth * 0.35;
-            let maxDistY = window.innerHeight * 0.35;
-
-            // Math.max/min hält den Wert im Rahmen
-            targetX = Math.max(-maxDistX, Math.min(forceX, maxDistX));
-            targetY = Math.max(-maxDistY, Math.min(forceY, maxDistY));
-
-            goLive(); // Startet den Horror bei Bewegung
-        }
-
-        // --- 2. AUDIO (DRECKIG & SCHNELL) ---
-        function speak(msg) {
-            window.speechSynthesis.cancel();
-            const v1 = new SpeechSynthesisUtterance(msg);
-            v1.lang = 'de-DE'; v1.pitch = 0.2; v1.rate = 1.3; v1.volume = 1; 
-            const v2 = new SpeechSynthesisUtterance(msg);
-            v2.lang = 'de-DE'; v2.pitch = 1.8; v2.rate = 1.4; v2.volume = 0.5;
-            window.speechSynthesis.speak(v1);
-            setTimeout(() => { window.speechSynthesis.speak(v2); }, 25);
-        }
-
-        // --- 3. DER GLITCH-BUTTON ---
-        function handleBtnTouch() {
-            // Reagiert sofort bei Berührung (vor dem Klick)
-            if (btnEvades < 1) {
-                btnEvades++;
-                // Button springt visuell weg
-                let jumpX = (Math.random() < 0.5 ? -1 : 1) * 30;
-                let jumpY = (Math.random() < 0.5 ? -1 : 1) * 20;
-                dialogBtn.style.transform = `translate(${jumpX}px, ${jumpY}px)`;
-                dialogBtn.style.background = "#500"; // Farbe ändert sich kurz
-                if (navigator.vibrate) navigator.vibrate(50);
-                
-                // Reset nach kurzer Zeit
-                setTimeout(() => {
-                    dialogBtn.style.transform = "translate(0,0)";
-                    dialogBtn.style.background = "#900";
-                }, 400);
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            
+            if(dist < 300) {
+                let force = (300 - dist) / 300; 
+                let limit = 120;
+                targetX = Math.max(-limit, Math.min((dx/dist)*force*150, limit));
+                targetY = Math.max(-limit, Math.min((dy/dist)*force*150, limit));
+            } else {
+                targetX = 0; targetY = 0;
             }
+            // Audio-Loop triggern, falls noch nicht aktiv
+            if(stage === 2 && !window.isRunning) goLive();
         }
 
-        function handleBtnClick() {
-            // Erst beim zweiten Versuch (wenn btnEvades > 0) erlauben wir den Klick
-            // Oder wir lassen ihn durch, wenn er den Button "erwischt" hat
-            if (btnEvades > 0) {
-                dialog.style.display = 'none';
-                notOkay.style.display = 'flex';
-                if (navigator.vibrate) navigator.vibrate(800);
-                setTimeout(() => {
-                    notOkay.style.display = 'none';
-                    stage = 2; 
-                }, 500);
-            }
-        }
+        // --- 6. SHOCK LOOP ---
+        const traumaWords = ["SCHLUCK ES", "OFFENE WUNDE", "DRECKIG", "MEIN FLEISCH", "NICHT WEHREN", "HÖR AUF ZU ATMEN", "VIKTOR"];
 
-        // --- 4. STARTUP & ESKALATION ---
         function goLive() {
+            window.isRunning = true;
             if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
             
-            if (stage === 0) {
-                dialog.style.display = 'block';
-                speak("Deine Berührung hinterlässt Narben auf meiner Haut.");
-                stage = 1;
-            } else if (stage === 2) {
-                // TITEL: LATEIN / GEBROCHEN
-                dialogTitle.innerText = "CARO. DATA. EST."; // Fleisch ist gegeben
-                dialogTitle.style.color = "#f00";
-                
-                // TEXT: AGGRESSIV & FETISCH
-                dialogText.innerHTML = "LASS MICH REIN. SCHNEID DICH AUF.<br><br><strong style='color:#c00; font-size:1.1rem;'>ICH WILL DEIN WARMES BLUT FÜHLEN.</strong>";
-                
-                // Kein "OK" mehr -> HINGABE
-                dialogBtn.innerText = "HINGABE";
-                dialogBtn.onclick = function() {
-                    dialog.style.display = 'none';
-                    triggerShock();
-                };
-                
-                dialog.style.display = 'block';
-                speak("Lass mich rein. Schneid dich auf. Ich will dein warmes Blut fühlen.");
-                stage = 3;
-            }
-
-            if(!window.isRunning) {
-                window.isRunning = true;
-                (function loop() {
-                    setTimeout(() => { triggerShock(); loop(); }, Math.random() * 3000 + 2000);
-                }());
-                check333();
-            }
+            (function loop() {
+                let rand = Math.random() * 4000 + 2000;
+                setTimeout(() => { 
+                    let word = traumaWords[Math.floor(Math.random() * traumaWords.length)];
+                    triggerFlash(word); 
+                    loop(); 
+                }, rand);
+            }());
         }
 
-        function triggerShock() {
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        function triggerFlash(text) {
+            if (navigator.vibrate) navigator.vibrate([50, 20, 50]);
+            ghost.innerText = text;
             ghost.style.display = 'block';
             document.body.classList.add('quake-active');
+            
+            // Kurze, aggressive Sprachfetzen beim Flash
+            let v = new SpeechSynthesisUtterance(text);
+            v.rate = 1.5; v.pitch = 0.1;
+            window.speechSynthesis.speak(v);
+
             setTimeout(() => {
                 ghost.style.display = 'none';
                 document.body.classList.remove('quake-active');
-            }, 80);
+            }, 100);
         }
 
-        function check333() {
-            const now = new Date();
-            if (now.getHours() === 3 && now.getMinutes() === 33) {
-                 if (navigator.vibrate) navigator.vibrate([500, 500, 500]);
-                 triggerShock();
-                 scream.play().catch(e=>{});
-            }
-            setTimeout(check333, 10000);
-        }
-
-        // EVENT LISTENER
-        document.addEventListener('touchmove', (e) => {
-            handleInput(e.touches[0].clientX, e.touches[0].clientY);
-        }, {passive: true});
-
-        document.addEventListener('mousemove', (e) => {
-            handleInput(e.clientX, e.clientY);
+        // Event Listeners
+        document.addEventListener('touchmove', (e) => { handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
+        document.addEventListener('mousemove', (e) => { handleInput(e.clientX, e.clientY); });
+        document.addEventListener('touchstart', (e) => { handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
+        
+        // Start beim ersten Klick irgendwo, falls Dialog nicht trifft
+        document.addEventListener('click', () => { 
+            if(stage === 0) init(); 
         });
 
-        document.addEventListener('touchstart', (e) => {
-            handleInput(e.touches[0].clientX, e.touches[0].clientY);
-        }, {passive: true});
-        
-        document.addEventListener('click', () => { goLive(); });
+        // Start sofort anzeigen
+        setTimeout(init, 500);
 
-        if (navigator.getBattery) {
-            navigator.getBattery().then(function(b) { batt.innerText = Math.round(b.level * 100) + "%"; });
-        }
-
-        // RAUSCHEN (Dreckig)
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        function noise() {
-            canvas.width = window.innerWidth/2; canvas.height = window.innerHeight/2;
-            let idata = ctx.createImageData(canvas.width, canvas.height);
-            let buffer32 = new Uint32Array(idata.data.buffer);
-            for(let i=0; i<buffer32.length; i++) if(Math.random() < 0.15) buffer32[i] = 0xff220505; 
-            ctx.putImageData(idata, 0, 0);
-            requestAnimationFrame(noise);
-        }
-        noise();
     </script>
 </body>
 </html>
