@@ -1,162 +1,69 @@
-<!DOCTYPE html>
-<html lang="la">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>‎</title>
-    <style>
-        body {
-            margin: 0; background: #020000; color: #d00;
-            font-family: 'Times New Roman', serif;
-            height: 100vh; overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
-            cursor: none; -webkit-tap-highlight-color: transparent;
-            transition: filter 0.1s ease-out;
-        }
+const body = document.body;
+const ghost = document.getElementById('ghost-flash');
 
-        /* Wenn diese Klasse aktiv ist, invertieren die Farben (Schockeffekt) */
-        body.inverted {
-            filter: invert(1) contrast(1.5);
-            background: #ffffff;
-        }
+// Die Liste der "Implanted Commands"
+const traumaTexts = [
+    "ICH HABE ANGST",
+    "ER SIEHT MICH",
+    "HILF MIR",
+    "VIKTOR",
+    "ES IST IM RAUM",
+    "ICH KANN NICHT ATMEN",
+    "DREH DICH NICHT UM",
+    "TE HABEO" // Ein kleiner Rest Latein für das "Ritual"
+];
 
-        #canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.2; z-index: 1; pointer-events: none;
-            mix-blend-mode: overlay;
-        }
-
-        .container {
-            position: relative; z-index: 2; text-align: center; width: 90%;
-        }
-
-        /* DER "NÄHERKOMMEN" EFFEKT */
-        h1#main-title {
-            font-size: 3rem; letter-spacing: 0.15em; margin: 0;
-            text-transform: uppercase; color: #f00;
-            text-shadow: 0 0 20px rgba(255,0,0,0.8);
-            /* Zoomt über 60 Sekunden ganz langsam auf ihn zu */
-            animation: approach 60s linear infinite forwards, flicker 0.2s infinite;
-        }
-
-        .latin {
-            font-style: italic; font-size: 1.3rem; margin-top: 30px;
-            color: #900; opacity: 0.8;
-            animation: breathe 4s infinite ease-in-out;
-        }
-
-        .status {
-            font-family: 'Courier New', monospace; font-size: 0.8rem;
-            margin-top: 50px; color: #500; letter-spacing: 2px;
-        }
-
-        /* DER SUBLIMINALE GEIST (Versteckt) */
-        #ghost-flash {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(2);
-            font-size: 4rem; color: #000; background: #f00;
-            padding: 20px; z-index: 100;
-            display: none; /* Standardmäßig unsichtbar */
-            pointer-events: none; font-weight: bold;
-            text-transform: uppercase; white-space: nowrap;
-        }
-
-        @keyframes approach {
-            0% { transform: scale(0.9); filter: blur(3px); opacity: 0.7; }
-            100% { transform: scale(1.4); filter: blur(0px); opacity: 1; }
-        }
-        @keyframes flicker {
-            0% { opacity: 1; } 98% { opacity: 0.8; } 100% { opacity: 1; }
-        }
-        @keyframes breathe {
-            0%, 100% { opacity: 0.5; } 50% { opacity: 1; }
-        }
-
-        .vignette {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 30%, #000 140%);
-            z-index: 3; pointer-events: none;
-        }
-    </style>
-</head>
-<body>
-    <canvas id="canvas"></canvas>
-    <div class="vignette"></div>
+function triggerTrauma() {
+    // Inversionseffekt für den visuellen Schock
+    body.classList.add('inverted');
+    setTimeout(() => {
+        body.classList.remove('inverted');
+    }, 100); 
     
-    <div id="ghost-flash">ES IST HINTER DIR</div>
+    // Bei jedem Klick/Touch blitzt fast garantiert ein Kommando auf
+    if(Math.random() > 0.4) {
+        flashGhost();
+    }
+}
 
-    <div class="container">
-        <h1 id="main-title">PROXIMITAS</h1>
-        
-        <div class="latin">
-            "Nonne vides? Iam prope est."
-        </div>
-        
-        <div class="status">
-            [ALERT_LEVEL: CRITICAL]<br>
-            DISTANCE_TO_TARGET: <span style="color: #f00; font-weight: bold; animation: blink 0.5s infinite;">CLOSING...</span><br>
-            SECTOR_VII_BREACH_CONFIRMED
-        </div>
-    </div>
+function randomGhost() {
+    // Zufälliges Aufblitzen auch ohne Interaktion (alle 2-5 Sekunden)
+    if(Math.random() > 0.8) {
+        flashGhost();
+    }
+    setTimeout(randomGhost, Math.random() * 3000 + 2000);
+}
 
-    <script>
-        const body = document.body;
-        const ghost = document.getElementById('ghost-flash');
+function flashGhost() {
+    const randomText = traumaTexts[Math.floor(Math.random() * traumaTexts.length)];
+    ghost.innerText = randomText;
+    
+    ghost.style.display = 'block';
+    // 25 Millisekunden: Das Unterbewusstsein frisst es, das Auge kann es nicht fixieren
+    setTimeout(() => {
+        ghost.style.display = 'none';
+    }, 25); 
+}
 
-        // Aggressive Reaktion auf Berührung (Inversion)
-        function triggerTrauma() {
-            // Kurzes Invertieren der Farben
-            body.classList.add('inverted');
-            setTimeout(() => {
-                body.classList.remove('inverted');
-            }, 150); // Nur für 150ms
-            
-            // Manchmal (20% Chance) blitzt der Geist bei Berührung auf
-            if(Math.random() > 0.8) {
-                flashGhost();
-            }
-        }
-        
-        // Subliminaler Flash (zufällig ohne Berührung)
-        function randomGhost() {
-            // Versucht es alle paar Sekunden, aber nur mit 10% Wahrscheinlichkeit
-            if(Math.random() > 0.9) {
-                flashGhost();
-            }
-            // Nächster Versuch in 3-8 Sekunden
-            setTimeout(randomGhost, Math.random() * 5000 + 3000);
-        }
+// Event-Listener für Interaktion
+document.addEventListener('touchstart', triggerTrauma, {passive: true});
+document.addEventListener('click', triggerTrauma);
 
-        // Funktion um den Geist für 50ms zu zeigen
-        function flashGhost() {
-            ghost.style.display = 'block';
-            setTimeout(() => {
-                ghost.style.display = 'none';
-            }, 50); // 50ms ist gerade an der Wahrnehmungsgrenze
-        }
+// Starte den Zyklus
+setTimeout(randomGhost, 3000);
 
-        // Event Listener für Touch und Klick
-        document.addEventListener('touchstart', triggerTrauma, {passive: true});
-        document.addEventListener('click', triggerTrauma);
-        
-        // Starte den Zufalls-Geist
-        setTimeout(randomGhost, 5000);
-
-        // Rauschen-Generator
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        function noise() {
-            canvas.width = window.innerWidth / 2; // Performance optimiert
-            canvas.height = window.innerHeight / 2;
-            let idata = ctx.createImageData(canvas.width, canvas.height);
-            let buffer32 = new Uint32Array(idata.data.buffer);
-            for(let i=0; i<buffer32.length; i++) {
-                if(Math.random() < 0.2) buffer32[i] = 0xff330000; // Rötliches Rauschen
-            }
-            ctx.putImageData(idata, 0, 0);
-            requestAnimationFrame(noise);
-        }
-        noise();
-    </script>
-</body>
-</html>
+// Rauschen-Generator (leicht rötlich, wirkt wie Blutadern auf dem Screen)
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+function noise() {
+    canvas.width = window.innerWidth / 2;
+    canvas.height = window.innerHeight / 2;
+    let idata = ctx.createImageData(canvas.width, canvas.height);
+    let buffer32 = new Uint32Array(idata.data.buffer);
+    for(let i=0; i<buffer32.length; i++) {
+        if(Math.random() < 0.15) buffer32[i] = 0xff220000; 
+    }
+    ctx.putImageData(idata, 0, 0);
+    requestAnimationFrame(noise);
+}
+noise();
